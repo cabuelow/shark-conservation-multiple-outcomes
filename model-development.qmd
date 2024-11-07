@@ -94,24 +94,28 @@ for(i in 1:3){
     Y.pa <- 1*(Y>0)
     models[[i]] <- Hmsc(Y = Y.pa, 
                         XData = XData, 
-                        #XFormula = ~HDI_2015+gov_effect_2016,
-                        XFormula = paste0('~', paste(colnames(XData), collapse = '+')),
+                        XFormula = ~ shark_protection_status+mpa_present+HDI_2015+gov_effect_2016+voice_2016+shark_sanctuary,
+                        #TODO: get paste worknig below so can automate
+                        #XFormula = paste('~', paste(colnames(XData), collapse = '+')),
                         studyDesign = studyDesign, 
                         ranLevels = list('reef' = rL.reef, 
                                          'nation' = rL.nation,
                                          'region' = rL.region),
-                        distr = switch(i,"probit", "poisson", 'lognormal poisson'))
+                        distr = switch(i, "probit", "poisson", 'lognormal poisson'))
   }else {
     Y.maxn <- Y
-    Y.maxn <- Y.maxn[Y.maxn==0] = NA
+    Y.maxn[Y.maxn==0] = NA
     models[[i]] <- Hmsc(Y = Y.maxn, 
-                        XData = XData, 
-                        XFormula = XFormula,
+                       XData = XData, 
+                        XFormula = ~ shark_protection_status+mpa_present+HDI_2015+gov_effect_2016+voice_2016+shark_sanctuary,
+                        #TODO: get paste worknig below so can automate
+                        #XFormula = paste('~', paste(colnames(XData), collapse = '+')),
                         studyDesign = studyDesign, 
-                        ranLevels = list(sample = rL),
-                        distr = switch(i,"probit", "poisson", 'lognormal poisson'))
+                        ranLevels = list('reef' = rL.reef, 
+                                         'nation' = rL.nation,
+                                         'region' = rL.region),
+                        distr = switch(i, "probit", "poisson", 'lognormal poisson'))
   }
 } 
-
 ```
 
