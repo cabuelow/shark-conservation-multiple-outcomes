@@ -42,8 +42,7 @@ summary(dat)
 ggpairs(select(dat, shark_maxn:shark_sanctuary))
 ```
 
-Note the strong +ve correlation between HDI and GOV. 
-**TODO**: need to figure out what to do given using SCM to inform covariate selection.
+Note the strong +ve correlation between HDI and GOV. **TODO**: need to figure out what to do given using SCM to inform covariate selection.
 
 ##### Map the data
 
@@ -57,28 +56,32 @@ dat.sf <- dat |>
   st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
 qtm(dat.sf, dots.col = 'shark_protection_status')
 ```
-   
-##### Set up the model
+
+##### Set up and fit the model
+
+Our shark maxn response data is zero-inflated, so we will hurdle (model presence-absence of sharks, and then model maxN conditional on shark presence). We will try modelling maxN conditional on presence with a poisson distribution and a lognormal poisson in case maxN is overdispersed.
+
+We will not fit a spatial random effect yet (it will make the models take much longer to fit), but can add later.
 
 ```{r}
 #| evaluate: false
+#| output: false
 library(Hmsc)
-dat.sub <- dat[1:5000,] # try on subset of data first
 
 # model structure ------------------------------
 # we will hurdle to deal with zero inflation
 
 # set up response, fixed and random effects
-Y <- as.matrix(dat.sub$shark_maxn)
-XData <- dat.sub |> 
+Y <- as.matrix(dat$shark_maxn)
+XData <- dat |> 
   select(shark_protection_status:shark_sanctuary)
-studyDesign <- data.frame(set = droplevels(dat.sub$set_id), 
-                          reef = droplevels(dat.sub$reef_id),
-                          nation = droplevels(dat.sub$location_id),
-                          region = droplevels(dat.sub$region_id))
-rL.reef <- HmscRandomLevel(units = levels(droplevels(dat.sub$reef_id))) # note here we are creating unstructured random effects, can do a spatial one or covariate dependent ones later
-rL.nation <- HmscRandomLevel(units = levels(droplevels(dat.sub$location_id)))
-rL.region <- HmscRandomLevel(units = levels(droplevels(dat.sub$region_id)))
+studyDesign <- data.frame(set = droplevels(dat$set_id), 
+                          reef = droplevels(dat$reef_id),
+                          nation = droplevels(dat$location_id),
+                          region = droplevels(dat$region_id))
+rL.reef <- HmscRandomLevel(units = levels(droplevels(dat$reef_id))) # note here we are creating unstructured random effects, can do a spatial one or covariate dependent ones later
+rL.nation <- HmscRandomLevel(units = levels(droplevels(dat$location_id)))
+rL.region <- HmscRandomLevel(units = levels(droplevels(dat$region_id)))
 
 # set up mcmc sampling parameters
 nchains <- 4
@@ -90,6 +93,7 @@ verbose <- 500*thin
 # loop through to set up p-a and count models and run ------------------------------
 
 models <- list() # list for storing models
+system.time(
 for(i in 1:3){
   if(i == 1){
     Y.pa <- 1*(Y>0)
@@ -104,7 +108,7 @@ for(i in 1:3){
                                          'region' = rL.region),
                         distr = switch(i, "probit", "poisson", 'lognormal poisson'))
     
-    models[[i]] <- sampleMcmc(m, thin = thin, samples = samples, transient = transient, nChains = nchains)
+    models[[i]] <- sampleMcmc(m, thin = thin, samples = samples, transient = transient, nChains = nchains, nParallel = nchains)
   }else {
     Y.maxn <- Y
     Y.maxn[Y.maxn==0] = NA
@@ -121,13 +125,73 @@ for(i in 1:3){
     
       models[[i]] = sampleMcmc(m, thin = thin, samples = samples, transient = transient, nChains = nchains, nParallel = nchains)
   }
-} 
+})
+
+# save the models
+saveRDS(models, 'outputs/models/fisheries-restrictions_full_non-spatial.rds')
 ```
+
+##### Check MCMC convergence
+
+Let's check that MCMC sampling has converged so that we can trust posterior distributions of model parameters.
+
+###### Visualise the mcmc trace plots and posterior distributions for each beta coefficient
+
+First we will check the presence-absence model.
+
+```{r}
+library(Hmsc)
+models <- readRDS('outputs/models/models-5000rows.rds')
+mpost.pa <- convertToCodaObject(models[[1]]) # extract posterior distributions for beta coefficients
+plot(mpost.pa$Beta)
+```
+###### Check effective sample size (ideally close to 4000)
+
+```{r}
+effectiveSize(mpost.pa$Beta)
+```
+**TODO** - effective sample sizes are a bit low, will want to up the thinning rate for final model run
+
+###### Gelman diagnostics - potential scale reduction factors (should be close to 1)
+
+```{r}
+gelman.diag(mpost.pa$Beta)$psrf
+```
+Now the poisson count model (conditional on presence)
+
+```{r}
+mpost.poiss <- convertToCodaObject(models[[2]]) # extract posterior distributions for beta coefficients
+plot(mpost.poiss$Beta)
+```
+```{r}
+effectiveSize(mpost.poiss$Beta)
+```
+```{r}
+gelman.diag(mpost.poiss$Beta)$psrf
+```
+
+Now the lognormal poisson count model (conditional on presence)
+
+```{r}
+mpost.logpoiss <- convertToCodaObject(models[[3]]) # extract posterior distributions for beta coefficients
+plot(mpost.logpoiss$Beta)
+```
+
+```{r}
+effectiveSize(mpost.poiss$Beta)
+```
+
+```{r}
+gelman.diag(mpost.poiss$Beta)$psrf
+```
+So having most trouble fitting lognormal poisson. Let's check the structural model assumptions, maybe poisson is ok.
+
 
 **TODO**
 
-- Set up code for: 
-1. checking mcmc convergence, 
-2. checking structural model assumptions, 
-3. evaluate model fit and predictive capacity with x-validation
-4. plot up and summarise the results
+-   Set up code for:
+
+1.  checking mcmc convergence,
+2.  checking structural model assumptions,
+3.  evaluate model fit and predictive capacity with x-validation
+4.  plot up and summarise the results
