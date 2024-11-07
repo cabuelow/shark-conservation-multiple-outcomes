@@ -57,42 +57,43 @@ dat.sf <- dat |>
   st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
 qtm(dat.sf, dots.col = 'shark_protection_status')
 ```
-```{r}
-qtm(dat.sf, dots.col = 'mpa_present', dot.size = 3)
-```
-
-```{r}
-qtm(dat.sf, dots.col = 'shark_sanctuary', dot.size = 1)
-```
    
 ##### Set up the model
 
 ```{r}
+#| evaluate: false
 library(Hmsc)
 dat.sub <- dat[1:5000,] # try on subset of data first
 
 # model structure ------------------------------
 # we will hurdle to deal with zero inflation
 
+# set up response, fixed and random effects
 Y <- as.matrix(dat.sub$shark_maxn)
 XData <- dat.sub |> 
   select(shark_protection_status:shark_sanctuary)
-XFormula <- paste(colnames(XData), collapse = '+')
-studyDesign <- data.frame(set = dat.sub$set_id, 
-                          reef = dat.sub$reef_id,
-                          nation = dat.sub$location_id,
-                          region = dat.sub$region_id)
-rL.reef <- HmscRandomLevel(units = levels(dat.sub$reef_id)) # note here we are creating unstructured random effects, can do a spatial one or covariate dependent ones later
-rL.nation <- HmscRandomLevel(units = levels(dat.sub$location_id))
-rL.region <- HmscRandomLevel(units = levels(dat.sub$region_id))
+studyDesign <- data.frame(set = droplevels(dat.sub$set_id), 
+                          reef = droplevels(dat.sub$reef_id),
+                          nation = droplevels(dat.sub$location_id),
+                          region = droplevels(dat.sub$region_id))
+rL.reef <- HmscRandomLevel(units = levels(droplevels(dat.sub$reef_id))) # note here we are creating unstructured random effects, can do a spatial one or covariate dependent ones later
+rL.nation <- HmscRandomLevel(units = levels(droplevels(dat.sub$location_id)))
+rL.region <- HmscRandomLevel(units = levels(droplevels(dat.sub$region_id)))
 
-# loop through to set up p-a and count models ------------------------------
+# set up mcmc sampling parameters
+nchains <- 4
+thin <- 2
+samples <- 1000
+transient <- 500*thin
+verbose <- 500*thin
+
+# loop through to set up p-a and count models and run ------------------------------
 
 models <- list() # list for storing models
 for(i in 1:3){
   if(i == 1){
     Y.pa <- 1*(Y>0)
-    models[[i]] <- Hmsc(Y = Y.pa, 
+    m <- Hmsc(Y = Y.pa, 
                         XData = XData, 
                         XFormula = ~ shark_protection_status+mpa_present+HDI_2015+gov_effect_2016+voice_2016+shark_sanctuary,
                         #TODO: get paste worknig below so can automate
@@ -102,10 +103,12 @@ for(i in 1:3){
                                          'nation' = rL.nation,
                                          'region' = rL.region),
                         distr = switch(i, "probit", "poisson", 'lognormal poisson'))
+    
+    models[[i]] <- sampleMcmc(m, thin = thin, samples = samples, transient = transient, nChains = nchains)
   }else {
     Y.maxn <- Y
     Y.maxn[Y.maxn==0] = NA
-    models[[i]] <- Hmsc(Y = Y.maxn, 
+    m <- Hmsc(Y = Y.maxn, 
                        XData = XData, 
                         XFormula = ~ shark_protection_status+mpa_present+HDI_2015+gov_effect_2016+voice_2016+shark_sanctuary,
                         #TODO: get paste worknig below so can automate
@@ -115,7 +118,16 @@ for(i in 1:3){
                                          'nation' = rL.nation,
                                          'region' = rL.region),
                         distr = switch(i, "probit", "poisson", 'lognormal poisson'))
+    
+      models[[i]] = sampleMcmc(m, thin = thin, samples = samples, transient = transient, nChains = nchains, nParallel = nchains)
   }
 } 
 ```
 
+**TODO**
+
+- Set up code for: 
+1. checking mcmc convergence, 
+2. checking structural model assumptions, 
+3. evaluate model fit and predictive capacity with x-validation
+4. plot up and summarise the results
