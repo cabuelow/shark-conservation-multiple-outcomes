@@ -1,0 +1,52 @@
+---
+title: "Visualise finprint data and develop a Bayesian hierarchical modelling framework"
+format: html
+editor: visual
+date: 2024-11-07
+date-format: short
+author: E. Lester and C. Buelow
+theme: minty
+---
+
+### Modelling socio-ecological outcomes for reef sharks with conservation
+
+First we will visualise the finprint data and then start developing a Bayesian hierarchical model to estimate causal effects of conservation.
+
+#### Fishing restrictions model
+We will focus on building the Fishing restrictions model first.
+To estimate the causal effect of fishing restrictions on reef shark abundance we need to include the following reef level covariates: RES, MPA; and the following national level covariates: HDI, GOV, VOICE, SSA.
+
+##### Wrangle and visualise the data
+```{r}
+# read in, wrangle and visualise the data
+library(tidyverse) 
+library(GGally) 
+library(sf) 
+library(Hmsc)
+
+dat <- read.csv('data/fpdat_final.csv') |> 
+  select(set_lat, set_long, set_id, reef_id, location_id, region_id, shark_maxn, shark_protection_status, mpa_present, HDI_2015, gov_effect_2016, voice_2016, shark_sanctuary) |> 
+  mutate(mpa_present = ifelse(is.na(mpa_present), 0, 1), across(c(set_id:region_id, shark_protection_status, shark_sanctuary, mpa_present), factor)) 
+```
+
+```{r}
+head(dat) 
+```
+
+```{r}
+summary(dat) 
+```
+
+```{r}
+ggpairs(select(dat, shark_maxn:shark_sanctuary))
+```
+
+Note the strong +ve correlation between HDI and GOV. 
+**TODO**: need to figure out what to do given using SCM to inform covariate selection.
+
+##### Map the data
+
+```{r}
+dat.sf \<- dat \|\> st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
+```
+
