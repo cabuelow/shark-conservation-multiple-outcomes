@@ -50,13 +50,13 @@ Note the strong +ve correlation between HDI and GOV. **TODO**: need to figure ou
 
 ```{r}
 #| warning: false
-#library(sf)
-#library(tmap)
-#tmap_mode('view')
+library(sf)
+library(tmap)
+tmap_mode('view')
 
-#dat.sf <- dat |> 
- # st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
-#qtm(dat.sf, dots.col = 'shark_protection_status')
+dat.sf <- dat |> 
+  st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
+qtm(dat.sf, dots.col = 'shark_protection_status')
 ```
 
 ##### Set up and fit the model
