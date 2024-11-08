@@ -4,8 +4,11 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- Make counterfactual predictions of shark MaxN if we restrict fishing everywhere, will need to combine predictions of pa and conditional model
-
-1. Consider options for other packages - make pro-con list to make final decision for way forward 
-2. include spatial random effect - but check for spatial autocorrelation in residuals first 
-3. evaluate model fit and predictive capacity with x-validation
+1. Consider options for other modelling packages - make pro-con list to make final decision for way forward
+    - {Hmsc} - con, can't do ZINB
+    - R INLA - pro, can do ZINB
+    - {brms} - to investigate...
+    - python
+2. Consider how to deal with spatial autocorrelation (will depend on which modelling framework we choose in 1.)
+3. Fit all models and evaluate predictive capacity with x-validation
+4. Make counterfactual predictions of shark MaxN if we conserve and manage everywhere
