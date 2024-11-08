@@ -6,6 +6,7 @@ date: 2024-11-08
 date-format: short
 author: E. Lester and C. Buelow
 theme: minty
+embed-resources: true
 ---
 
 Here we visualise the finprint data and then start developing a Bayesian hierarchical model to estimate causal effects of conservation.
@@ -253,7 +254,7 @@ ggplot(beta) +
 
 Compare to effects estimated in Klinard et al. *in prep*
 
-![Klinard et al. *in prep*: Standardized effect size of management strategies on the relative abundance of reef sharks.](images/effect-size.png){width=80%}
+![Klinard et al. *in prep*: Standardized effect size of management strategies on the relative abundance of reef sharks.](images/effect-size.png){width="80%"}
 
 ###### Variance explained by fixed vs. random effects
 
@@ -286,4 +287,3 @@ ggplot(vardf) +
         plot.title = element_text(size = 10),
         legend.key.size = unit(0.4, 'cm'))
 ```
-
