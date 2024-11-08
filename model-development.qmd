@@ -2,7 +2,7 @@
 title: "Modelling socio-ecological outcomes for reef sharks with conservation"
 format: html
 editor: visual
-date: 2024-11-07
+date: 2024-11-08
 date-format: short
 author: E. Lester and C. Buelow
 theme: minty
@@ -12,7 +12,9 @@ Here we visualise the finprint data and then start developing a Bayesian hierarc
 
 #### Fishing restrictions model
 
-We focus on building the Fishing restrictions model first. To estimate the causal effect of fishing restrictions on reef shark abundance we need to include the following reef level covariates: RES, MPA; and the following national level covariates: HDI, GOV, VOICE, SSA.
+We focus on building the **Fishing restrictions model** first. To estimate the causal effect of fishing restrictions on reef shark abundance we need to include the following reef level covariates: shark fishing restrictions, MPA presence; and the following national level covariates: Human development index (HDI), Governance effectiveness (GOV), Voice and accountability (VOICE), and shark sanctuary presence (SSA); as informed by the following structural causal model directed acyclic graph (DAG; Klinard et al. *in prep*):
+
+![Causal factors influencing reef shark abundance globally](images/dag.png)
 
 ##### Wrangle and visualise the data
 
@@ -36,7 +38,7 @@ head(dat)
 summary(dat) 
 ```
 
-```{r}
+```{r,fig.width=9,fig.height=8, fig.align='center'}
 #| error: false
 #| warning: false
 ggpairs(select(dat, shark_maxn:shark_sanctuary))
@@ -48,20 +50,20 @@ Note the strong +ve correlation between HDI and GOV. **TODO**: need to figure ou
 
 ```{r}
 #| warning: false
-library(sf)
-library(tmap)
-tmap_mode('view')
+#library(sf)
+#library(tmap)
+#tmap_mode('view')
 
-dat.sf <- dat |> 
-  st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
-qtm(dat.sf, dots.col = 'shark_protection_status')
+#dat.sf <- dat |> 
+ # st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
+#qtm(dat.sf, dots.col = 'shark_protection_status')
 ```
 
 ##### Set up and fit the model
 
-Our shark maxn response data is zero-inflated, so we will hurdle (model presence-absence of sharks, and then model maxN conditional on shark presence). We will try modelling maxN conditional on presence with a poisson distribution and a lognormal poisson in case maxN is overdispersed.
+The shark maxn response data is zero-inflated, so we will hurdle (model presence-absence of sharks, and then model maxN conditional on shark presence). We will try modelling maxN conditional on presence with a poisson distribution and a lognormal poisson (the latter given it is likely maxN is overdispersed).
 
-We will not fit a spatial random effect yet (it will make the models take much longer to fit), but can add later.
+We will not yet fit with a spatially-structured random effect to account for spatial autocorrelation (the models take much longer to fit), but can add later.
 
 ```{r}
 #| eval: false
@@ -135,23 +137,25 @@ for(i in 1:3){
 
 ##### Check MCMC convergence
 
-Let's check that MCMC sampling has converged so that we can trust posterior distributions of model parameters.
+Check that MCMC sampling has converged so that we can trust posterior distributions of model parameters.
 
 ###### Visualise the mcmc trace plots and posterior distributions for each beta coefficient
 
-First we will check the presence-absence model.
+First check the presence-absence model.
 
-```{r}
+```{r,fig.width=8,fig.height=8,fig.align='center'}
 library(Hmsc)
 models <- readRDS('outputs/models/fisheries-restrictions_full_non-spatial.rds')
-mpost.pa <- convertToCodaObject(models[[1]]) # extract posterior distributions for beta coefficients
+mpost.pa <- convertToCodaObject(models[[1]])
 plot(mpost.pa$Beta)
 ```
+
 ###### Check effective sample size (ideally close to 4000)
 
 ```{r}
 effectiveSize(mpost.pa$Beta)
 ```
+
 **TODO** - effective sample sizes are a bit low, will want to up the thinning rate for final model run
 
 ###### Gelman diagnostics - potential scale reduction factors (should be close to 1)
@@ -159,23 +163,26 @@ effectiveSize(mpost.pa$Beta)
 ```{r}
 gelman.diag(mpost.pa$Beta)$psrf
 ```
+
 Now the poisson count model (conditional on presence)
 
-```{r}
-mpost.poiss <- convertToCodaObject(models[[2]]) # extract posterior distributions for beta coefficients
+```{r,fig.width=8,fig.height=8,fig.align='center'}
+mpost.poiss <- convertToCodaObject(models[[2]])
 plot(mpost.poiss$Beta)
 ```
+
 ```{r}
 effectiveSize(mpost.poiss$Beta)
 ```
+
 ```{r}
 gelman.diag(mpost.poiss$Beta)$psrf
 ```
 
 Now the lognormal poisson count model (conditional on presence)
 
-```{r}
-mpost.logpoiss <- convertToCodaObject(models[[3]]) # extract posterior distributions for beta coefficients
+```{r,fig.width=8,fig.height=8,fig.align='center'}
+mpost.logpoiss <- convertToCodaObject(models[[3]])
 plot(mpost.logpoiss$Beta)
 ```
 
@@ -186,64 +193,67 @@ effectiveSize(mpost.poiss$Beta)
 ```{r}
 gelman.diag(mpost.poiss$Beta)$psrf
 ```
-So having most trouble fitting lognormal poisson. Let's check the structural model assumptions, maybe poisson is ok.
+
+Having trouble with convergence on lognormal poisson. Let's check the structural model assumptions, maybe poisson is ok.
 
 ##### Check structural model assumptions
 
 ###### Presence-absence model
 
-```{r}
+```{r,fig.width=8,fig.height=3, fig.align='center'}
 source('scripts/helper-functions.R')
 preds.pa <- computePredictedValues(models[[1]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
-par(mfrow = c(2,2)) # set graphical parameters
+par(mfrow = c(1,2)) # set graphical parameters
 rq_resid_mult(preds.pa, models[[1]], type = 'binomial')
 ```
 
 ###### MaxN conditional on presence (poisson)
 
-```{r}
+```{r,fig.width=8,fig.height=3, fig.align='center'}
+#| warning: false
+#| error: false
 preds.poiss <- computePredictedValues(models[[2]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
-par(mfrow = c(2,2)) # set graphical parameters
+par(mfrow = c(1,2)) # set graphical parameters
 rq_resid_mult(preds.poiss, models[[2]], type = 'poisson')
 ```
 
-**TODO** note fan-shape in residuals vs. fitted plot - overdispersed counts
+**TODO** note fan-shape in residuals vs. fitted plot - overdispersed counts as expected.
 
-###### MaxN conditional on presence (lognormal poisson)
-
-```{r}
-#preds.logpoiss <- computePredictedValues(models[[3]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
-#par(mfrow = c(2,2)) # set graphical parameters
-#rq_resid_mult(preds.logpoiss, models[[3]], type = 'poisson')
-```
-
-**TODO** lognormal not working
-
-For now will proceed with presence-absence and poisson count model even though there are issues with overdispersion of maxN. Lognormal poisson could be a solution, but need to work on MCMC convergence issues. Alternative is to try ZINB model in INLA, or see what the {brms} options are.
+For now will proceed with presence-absence and poisson count model even though there are issues with overdispersion of maxN. Lognormal poisson could be a solution, but need to work on MCMC convergence issues. Alternative is to try ZINB model in INLA, or see what the {brms} options are, or learn python 😊.
 
 ##### Plot preliminary results
 
 ###### Effect sizes
 
-```{r}
+```{r,fig.width=8,fig.height=3, fig.align='center'}
+#| warning: false
+#| error: false
 beta.pa <- data.frame(extract_beta(mpost.pa$Beta, models[[1]]), model = 'Presence-absence')
 beta.poiss <- data.frame(extract_beta(mpost.poiss$Beta, models[[2]]), model = 'MaxN conditional on presence')
 beta <- bind_rows(beta.pa, beta.poiss) |> 
   mutate(direction = ifelse(Mean < 0, 'Negative effect', 'Positive effect'),
-         model = factor(model, levels = c('Presence-absence', 'MaxN conditional on presence')))
+         direction2 = ifelse(direction == 'Positive effect' & CI.2.5 <= 0, 'No evidence for effect', direction),
+         direction2 = ifelse(direction == 'Negative effect' & CI.97.5 >= 0, 'No evidence for effect', direction2),
+         direction2 = factor(direction2, levels = c('Positive effect', 'No evidence for effect', 'Negative effect')),
+         model = factor(model, levels = c('Presence-absence', 'MaxN conditional on presence')),
+         predictor = factor(predictor, levels = c('shark_sanctuary1', 'shark_protection_statusopen', 'shark_protection_statusrestricted', 'mpa_present1', 'HDI_2015', 'gov_effect_2016', 'voice_2016')))
 
 # plot effect sizes
 ggplot(beta) +
   geom_vline(xintercept = 0, linetype = 'dashed', alpha = 0.5) +
-  geom_linerange(aes(xmin = CI.25, xmax = CI.75, y = predictor, col = direction), linewidth = 2, alpha = 0.5) +
-  geom_linerange(aes(xmin = CI.2.5, xmax = CI.97.5, y = predictor, col = direction), linewidth = 0.5, alpha = 0.5) +
-  geom_point(aes(x = Mean, y = predictor, col = direction), size = 0.5) +
+  geom_linerange(aes(xmin = CI.25, xmax = CI.75, y = fct_rev(predictor), col = direction2), linewidth = 2, alpha = 0.5) +
+  geom_linerange(aes(xmin = CI.2.5, xmax = CI.97.5, y = fct_rev(predictor), col = direction2), linewidth = 0.5, alpha = 0.5) +
+  geom_point(aes(x = Mean, y = fct_rev(predictor), col = direction2), size = 0.5) +
   facet_wrap(~model) +
   ylab('') +
-  xlab('Effect size estimate') +
+  xlab('Standardized effect size') +
   theme_classic() +
   theme(legend.title = element_blank())
 ```
+
+Compare to effects estimated in Klinard et al. *in prep*
+
+![Klinard et al. *in prep*: Standardized effect size of management strategies on the relative abundance of reef sharks.](images/effect-size.png){width=80%}
 
 ###### Variance explained by fixed vs. random effects
 
@@ -257,7 +267,7 @@ VP.pa <- computeVariancePartitioning(models[[1]])
 VP.poiss <- computeVariancePartitioning(models[[2]])
 ```
 
-```{r}
+```{r,fig.width=7,fig.height=2}
 vardf <- bind_rows(data.frame(VP.pa$vals, model = 'Presence-absence'), 
                    data.frame(VP.poiss$vals, model = 'MaxN conditional on presence'))
 vardf$predictor <- rep(c('shark_protection_status', 'mpa_present', 'HDI_2015', 'gov_effect_2016', 'voice_2016', 'shark_sanctuary', 'reef', 'nation', 'region'), 2)
@@ -276,13 +286,4 @@ ggplot(vardf) +
         plot.title = element_text(size = 10),
         legend.key.size = unit(0.4, 'cm'))
 ```
-
-
-**TODO**
-Make counterfactual predictions of shark MaxN if we restrict fishing everywhere, will need to combine predictions of pa and conditional model
-
-**OTHER TODO**
-1. Consider options for other packages - make pro-con list to make final decision for way forward
-2. include spatial random effect - but check for spatial autocorrelation in residuals first
-3. evaluate model fit and predictive capacity with x-validation,
 
