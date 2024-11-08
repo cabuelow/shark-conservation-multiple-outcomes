@@ -23,20 +23,34 @@ beta <- do.call(rbind, beta.coefs) %>%
 return(beta)
 }
 
-rq_resid_mult <- function(predvals, mfit, save.df = F){ # predicted values, and fitted model
-  Fitted.mean <- apply(predvals, FUN = mean, MARGIN = c(1,2)) # get the mean predicted value species abundance (n = 4000)
+rq_resid_mult <- function(predvals, m_fit, type, save.df = F){ # predicted values, and fitted model, and type (binomial or poisson)
+  Fitted.mean <- apply(predvals, FUN = mean, MARGIN = c(1,2)) # get the mean predicted values from posterior distribution
   qresids.df <- data.frame(Fitted.mean)  # dataframe for storing quantile residuals for each species
-  for(i in 1:ncol(Fitted.mean)){
-    Fitted.mean.spp <- Fitted.mean[,i]
-    y_spp <- m_fit$Y[,i]
-    a <- ppois(y_spp-1, Fitted.mean.spp)
-    b <- ppois(y_spp, Fitted.mean.spp)
-    qresids.df[,i] <- qnorm(runif(n = length(y_spp), min = a, max = b))
-    if(save.df == F){
-    plot(Fitted.mean.spp,  qresids.df[,i], main = colnames(Fitted.mean)[i]); abline(a = 0, b = 0) # plot the fitted vs. residuals
-    qqnorm( qresids.df[,i], main = colnames(Fitted.mean)[i]); qqline(qresids.df[,i]) # qq plot
-    }
-  }
+  if(type == 'poisson'){
+    for(i in 1:ncol(Fitted.mean)){
+      Fitted.mean.spp <- Fitted.mean[,i]
+      y_spp <- m_fit$Y[,i]
+      a <- ppois(y_spp-1, Fitted.mean.spp)
+      b <- ppois(y_spp, Fitted.mean.spp)
+      qresids.df[,i] <- qnorm(runif(n = length(y_spp), min = a, max = b))
+      if(save.df == F){
+        plot(Fitted.mean.spp,  qresids.df[,i], ylab = 'Quantile residuals', xlab =  'Fitted value (mean)', main = colnames(Fitted.mean)[i]); abline(a = 0, b = 0) # plot the fitted vs. residuals
+        qqnorm( qresids.df[,i], main = colnames(Fitted.mean)[i]); qqline(qresids.df[,i]) # qq plot
+      }
+    }}else if (type == 'binomial'){
+      for(i in 1:ncol(Fitted.mean)){
+      Fitted.mean.spp <- Fitted.mean[,i]
+      y_spp <- m_fit$Y[,i]
+      n <- rep(1, length(y_spp))
+      y <- n*y_spp
+      a <- pbinom(y - 1, n, Fitted.mean.spp)
+      b <- pbinom(y, n, Fitted.mean.spp)
+      qresids.df[,i] <- qnorm(runif(n = length(y), min = a, max = b))
+      if(save.df == F){
+        plot(Fitted.mean.spp,  qresids.df[,i], ylab = 'Quantile residuals', xlab =  'Fitted value (mean)', main = colnames(Fitted.mean)[i]); abline(a = 0, b = 0) # plot the fitted vs. residuals
+        qqnorm( qresids.df[,i], main = colnames(Fitted.mean)[i]); qqline(qresids.df[,i]) # qq plot
+      }
+    }}
   if(save.df == T){return(qresids.df)}
 }
 
