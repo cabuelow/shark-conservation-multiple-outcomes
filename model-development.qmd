@@ -141,7 +141,7 @@ First we will check the presence-absence model.
 
 ```{r}
 library(Hmsc)
-models <- readRDS('outputs/models/models-5000rows.rds')
+models <- readRDS('outputs/models/fisheries-restrictions_full_non-spatial.rds')
 mpost.pa <- convertToCodaObject(models[[1]]) # extract posterior distributions for beta coefficients
 plot(mpost.pa$Beta)
 ```
@@ -186,12 +186,45 @@ gelman.diag(mpost.poiss$Beta)$psrf
 ```
 So having most trouble fitting lognormal poisson. Let's check the structural model assumptions, maybe poisson is ok.
 
+##### Check structural model assumptions
+
+###### Presence-absence model
+
+```{r}
+source('scripts/helper-functions.R')
+preds.pa <- computePredictedValues(models[[1]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
+par(mfrow = c(2,2)) # set graphical parameters
+rq_resid_mult(preds.pa, models[[1]], type = 'binomial')
+```
+
+###### MaxN conditional on presence (poisson)
+
+```{r}
+preds.poiss <- computePredictedValues(models[[2]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
+par(mfrow = c(2,2)) # set graphical parameters
+rq_resid_mult(preds.poiss, models[[2]], type = 'poisson')
+```
+
+**TODO** note fan-shape in residuals vs. fitted plot - overdispersed counts
+
+###### MaxN conditional on presence (lognormal poisson)
+
+```{r}
+preds.logpoiss <- computePredictedValues(models[[3]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
+par(mfrow = c(2,2)) # set graphical parameters
+rq_resid_mult(preds.logpoiss, models[[3]], type = 'poisson')
+```
+
+**TODO** lognormal not working
+
+For now will proceed with presence-absence and poisson count model even though there are issues with overdispersion of maxN. Lognormal poisson could be a solution, but need to work on MCMC convergence issues. Alternative is to try ZINB model in INLA, or see what the {brms} options are.
+
+##### Plot preliminary results
+
+
 
 **TODO**
+1. Consider options for other packages
+2. include spatial random effect
+3. evaluate model fit and predictive capacity with x-validation,
 
--   Set up code for:
-
-1.  checking mcmc convergence,
-2.  checking structural model assumptions,
-3.  evaluate model fit and predictive capacity with x-validation
-4.  plot up and summarise the results
