@@ -64,8 +64,10 @@ Our shark maxn response data is zero-inflated, so we will hurdle (model presence
 We will not fit a spatial random effect yet (it will make the models take much longer to fit), but can add later.
 
 ```{r}
-#| evaluate: false
+#| eval: false
 #| output: false
+#| warning: false
+#| error: false
 library(Hmsc)
 
 # model structure ------------------------------
@@ -128,7 +130,7 @@ for(i in 1:3){
 })
 
 # save the models
-saveRDS(models, 'outputs/models/fisheries-restrictions_full_non-spatial.rds')
+# saveRDS(models, 'outputs/models/fisheries-restrictions_full_non-spatial.rds')
 ```
 
 ##### Check MCMC convergence
@@ -210,9 +212,9 @@ rq_resid_mult(preds.poiss, models[[2]], type = 'poisson')
 ###### MaxN conditional on presence (lognormal poisson)
 
 ```{r}
-preds.logpoiss <- computePredictedValues(models[[3]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
-par(mfrow = c(2,2)) # set graphical parameters
-rq_resid_mult(preds.logpoiss, models[[3]], type = 'poisson')
+#preds.logpoiss <- computePredictedValues(models[[3]]) # array of fitted (predicted) values for each of the 4000 MCMC samples
+#par(mfrow = c(2,2)) # set graphical parameters
+#rq_resid_mult(preds.logpoiss, models[[3]], type = 'poisson')
 ```
 
 **TODO** lognormal not working
@@ -221,10 +223,66 @@ For now will proceed with presence-absence and poisson count model even though t
 
 ##### Plot preliminary results
 
+###### Effect sizes
+
+```{r}
+beta.pa <- data.frame(extract_beta(mpost.pa$Beta, models[[1]]), model = 'Presence-absence')
+beta.poiss <- data.frame(extract_beta(mpost.poiss$Beta, models[[2]]), model = 'MaxN conditional on presence')
+beta <- bind_rows(beta.pa, beta.poiss) |> 
+  mutate(direction = ifelse(Mean < 0, 'Negative effect', 'Positive effect'),
+         model = factor(model, levels = c('Presence-absence', 'MaxN conditional on presence')))
+
+# plot effect sizes
+ggplot(beta) +
+  geom_vline(xintercept = 0, linetype = 'dashed', alpha = 0.5) +
+  geom_linerange(aes(xmin = CI.25, xmax = CI.75, y = predictor, col = direction), linewidth = 2, alpha = 0.5) +
+  geom_linerange(aes(xmin = CI.2.5, xmax = CI.97.5, y = predictor, col = direction), linewidth = 0.5, alpha = 0.5) +
+  geom_point(aes(x = Mean, y = predictor, col = direction), size = 0.5) +
+  facet_wrap(~model) +
+  ylab('') +
+  xlab('Effect size estimate') +
+  theme_classic() +
+  theme(legend.title = element_blank())
+```
+
+###### Variance explained by fixed vs. random effects
+
+```{r}
+#| output: false
+#| warning: false
+#| error: false
+
+# partition variance explained
+VP.pa <- computeVariancePartitioning(models[[1]])
+VP.poiss <- computeVariancePartitioning(models[[2]])
+```
+
+```{r}
+vardf <- bind_rows(data.frame(VP.pa$vals, model = 'Presence-absence'), 
+                   data.frame(VP.poiss$vals, model = 'MaxN conditional on presence'))
+vardf$predictor <- rep(c('shark_protection_status', 'mpa_present', 'HDI_2015', 'gov_effect_2016', 'voice_2016', 'shark_sanctuary', 'reef', 'nation', 'region'), 2)
+
+# plot
+ggplot(vardf) +
+  aes(y = model, x = sp1, fill = predictor) +
+  geom_bar(stat = 'identity') +
+  theme_classic() +
+  ylab('') +
+  xlab('Proportion variance explained') +
+  theme_classic() +
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_blank(),
+        plot.margin = margin(0, 0, 0, 0, "cm"),
+        plot.title = element_text(size = 10),
+        legend.key.size = unit(0.4, 'cm'))
+```
 
 
 **TODO**
-1. Consider options for other packages
-2. include spatial random effect
+Make counterfactual predictions of shark MaxN if we restrict fishing everywhere, will need to combine predictions of pa and conditional model
+
+**OTHER TODO**
+1. Consider options for other packages - make pro-con list to make final decision for way forward
+2. include spatial random effect - but check for spatial autocorrelation in residuals first
 3. evaluate model fit and predictive capacity with x-validation,
 
