@@ -5,9 +5,9 @@ This repository contains code for developing a Bayesian hierarchical model to de
 **TODO**
 
 1. Consider options for other modelling packages - make pro-con list to make final decision for way forward
-    - {Hmsc} - con, can't do ZINB
-    - R INLA - pro, can do ZINB
-    - {brms} - to investigate...
+    - {Hmsc} - con, can't do ZINB, can do spatial autocorrelation
+    - R INLA - pro, can do ZINB, amd
+    - {brms} - to investigate...can it do spatial autocorrelation
     - python
 2. Consider how to deal with spatial autocorrelation (will depend on which modelling framework we choose in 1.)
 3. Fit all models and evaluate predictive capacity with x-validation
