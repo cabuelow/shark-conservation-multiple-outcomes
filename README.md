@@ -4,7 +4,9 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- Consider group mean covariate design?
 1. Get a good model fit
 2. Consider interactions with human gravity
 3. Check for spatial autocorrelation in residuals
 4. Make counterfactual predictions
+
