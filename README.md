@@ -16,3 +16,8 @@ Gelman advice regarding standardising predictors:
 
 From Klinard methods:
 All data was standardized by subtracting the mean of each variable and dividing by the standard deviation. Standardizing data allowed for direct comparison of the standardized effect size of predictor variables of interest that were extracted from each causal model. We chose priors that were weakly informative and allowed for a wide range of parameter values within realistic ranges. Model convergence and fit were assessed using the Gelman-Rubin convergence statistic (R-hat) and effective sample size and by examining posterior traces. Model fit was also assessed using posterior predictive distributions, where the posterior distribution is compared to the observed data values for all observations in the data. All models were implemented using the PyMC package (Abril-Pla et al. 2023) for the Python programming language.
+
+After meeting with Josh and Em:
+1. Do probability of encounter model
+2. Do interaction (different intercept and slope) for clossed, open and restricted fishing with human gravity
+3. Look at Josh's paper(s) for figure ideas 
