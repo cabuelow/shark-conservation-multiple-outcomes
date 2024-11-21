@@ -4,7 +4,21 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+Need to speed up model fitting 
+Options:
+- GPUs ?
+- Prior predictive checks? (including informative or regularizing priors can be one way to speed things up)
 - ahhh, mean center and scale the predictors first
+- Maybe just do presence-absence model, get some prelim results?
+- go back to HMSC? (but then can't do ZINB, but)
+- Maybe theres a problem with the data?
+
+Reading:
+https://www.m-flynn.com/posts/remote-computing/remote-computing
+https://paulbuerkner.com/brms/reference/opencl.html
+
+OpenCL doesn't do zinb unfortunately: https://mc-stan.org/docs/2_26/stan-users-guide/opencl.html
+
 1. Get a good model fit
 2. Consider interactions with human gravity
 3. Check for spatial autocorrelation in residuals
