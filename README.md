@@ -4,6 +4,13 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+What about a multinomial model? Or ordinal? - 0, 1, or more than 1 sharks
+-  Consider splitting HDI into high vs. low
+- Think through cumulative frequency - can we do that with multinomial?
+- Maybe just do an ordinal response - look at MT's paper?
+
+Unstandardised predictors - 34 hours to run!!
+
 Need to speed up model fitting 
 Options:
 - GPUs ?
@@ -23,6 +30,19 @@ OpenCL doesn't do zinb unfortunately: https://mc-stan.org/docs/2_26/stan-users-g
 2. Consider interactions with human gravity
 3. Check for spatial autocorrelation in residuals
 4. Make counterfactual predictions
+
+
+From Em on multiple outcomes paper
+o	I've been thinking about the egestion rate/nutrient transfer potential of sharks. This paper might be useful: https://royalsocietypublishing.org/doi/full/10.1098/rspb.2017.2456#RSPB20172456C35
+
+o	Also, I think we need to think about this spatially too, so perhaps we can also incorporate some known home ranges of shark species to our estimates (e.g. https://www.cell.com/current-biology/fulltext/S0960-9822(19)31600-8)
+
+o	We could see if the values that we come up with are similar to the ones in Jessica William's paper. 
+
+-	How do you do multiple outcomes simultaneously?
+o	Efficiency/pareto frontier?
+o	First see if it is co-benefit or trade-off? If co-benefit might simply be additive…
+o	Josh’s 2020 science paper might provide some inspo.- quartiles
 
 
 Gelman advice regarding standardising predictors:
