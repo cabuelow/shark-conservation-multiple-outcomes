@@ -26,9 +26,28 @@ We focus on building the **Fishing restrictions model** first. To estimate the c
 library(tidyverse) 
 library(GGally)
 
+#dat <- read.csv('data/fpdat_final.csv') |> 
+ # select(set_lat, set_long, set_id, reef_id, location_id, region_id, shark_maxn, shark_protection_status, mpa_present, HDI_2015, gov_effect_2016, voice_2016, shark_sanctuary) |> 
+  #mutate(mpa_present = ifelse(is.na(mpa_present), 0, 1), across(c(set_id:region_id, shark_protection_status, shark_sanctuary, mpa_present), factor)) 
+
+
 dat <- read.csv('data/fpdat_final.csv') |> 
-  select(set_lat, set_long, set_id, reef_id, location_id, region_id, shark_maxn, shark_protection_status, mpa_present, HDI_2015, gov_effect_2016, voice_2016, shark_sanctuary) |> 
-  mutate(mpa_present = ifelse(is.na(mpa_present), 0, 1), across(c(set_id:region_id, shark_protection_status, shark_sanctuary, mpa_present), factor)) 
+  separate(col = 'fishing_restrictions', 
+           into = c('limits1', 'limits2', 'limits3', 'limits4', 'limits5', 'limits6', 'limits7', 'limits8')) |> 
+  mutate(gear_limits = ifelse(limits1 == 'gear' | limits2 == 'gear' | limits3 == 'gear' | limits4 == 'gear' | limits5 == 'gear' | limits8 == 'gear', 1, 0),
+         species_limits = ifelse(limits1 == 'species' | limits2 == 'species' | limits3 == 'species' | limits4 == 'species' | limits5 == 'species' | limits8 == 'species', 1, 0),
+         catch_limits = ifelse(limits1 == 'bag' | limits2 == 'bag' | limits3 == 'bag' | limits4 == 'bag' | limits5 == 'bag' | limits8 == 'bag', 1, 0),
+         effort_limits = ifelse(limits1 == 'effort' | limits2 == 'effort' | limits3 == 'effort' | limits4 == 'effort' | limits5 == 'effort' | limits8 == 'effort', 1, 0),
+         size_limits = ifelse(limits1 == 'size' | limits2 == 'size' | limits3 == 'size' | limits4 == 'size' | limits5 == 'size' | limits8 == 'size', 1, 0),
+         temporal_limits = ifelse(limits1 == 'temporal' | limits2 == 'temporal' | limits3 == 'temporal' | limits4 == 'temporal' | limits5 == 'temporal' | limits8 == 'temporal', 1, 0)) |> 
+  select(set_lat, set_long, set_id, reef_id, location_id, region_id, shark_maxn,
+         mpa_present, mpa_age, mpa_area, mpa_compliance,
+         gear_limits, species_limits, catch_limits, effort_limits, size_limits, temporal_limits,
+         shark_protection_status, shark_sanctuary, HDI_2015, gov_effect_2016, population_2016, Grav_Total) |>  
+  mutate(mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0),
+         mpa_present = ifelse(mpa_present == 'yes', 1, 0),
+         across(c(mpa_present:temporal_limits), ~ifelse(is.na(.), 0, .)),
+         across(c(set_id:region_id, mpa_present, mpa_compliance:shark_sanctuary), factor)) 
 ```
 
 ```{r}
@@ -42,7 +61,8 @@ summary(dat)
 ```{r,fig.width=9,fig.height=8, fig.align='center'}
 #| error: false
 #| warning: false
-ggpairs(select(dat, shark_maxn:shark_sanctuary))
+#ggpairs(select(dat, shark_maxn:shark_sanctuary))
+ggpairs(select(dat, shark_maxn:Grav_Total))
 ```
 
 Note the strong +ve correlation between HDI and GOV. **TODO**: need to figure out what to do given using SCM to inform covariate selection.
@@ -79,7 +99,7 @@ library(Hmsc)
 # set up response, fixed and random effects
 Y <- as.matrix(dat$shark_maxn)
 XData <- dat |> 
-  select(shark_protection_status:shark_sanctuary)
+  select(mpa_present:Grav_Total)
 studyDesign <- data.frame(set = droplevels(dat$set_id), 
                           reef = droplevels(dat$reef_id),
                           nation = droplevels(dat$location_id),
@@ -104,7 +124,9 @@ for(i in 1:3){
     Y.pa <- 1*(Y>0)
     m <- Hmsc(Y = Y.pa, 
                         XData = XData, 
-                        XFormula = ~ shark_protection_status+mpa_present+HDI_2015+gov_effect_2016+voice_2016+shark_sanctuary,
+                        XFormula = ~ mpa_present + mpa_age + mpa_area + mpa_compliance +
+             gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + 
+             HDI_2015 + gov_effect_2016 + population_2016 + shark_sanctuary + shark_protection_status + Grav_Total,
                         #TODO: get paste worknig below so can automate
                         #XFormula = paste('~', paste(colnames(XData), collapse = '+')),
                         studyDesign = studyDesign, 
@@ -119,7 +141,9 @@ for(i in 1:3){
     Y.maxn[Y.maxn==0] = NA
     m <- Hmsc(Y = Y.maxn, 
                        XData = XData, 
-                        XFormula = ~ shark_protection_status+mpa_present+HDI_2015+gov_effect_2016+voice_2016+shark_sanctuary,
+                        XFormula = ~ mpa_present + mpa_age + mpa_area + mpa_compliance +
+             gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + 
+             HDI_2015 + gov_effect_2016 + population_2016 + shark_sanctuary + shark_protection_status + Grav_Total,
                         #TODO: get paste worknig below so can automate
                         #XFormula = paste('~', paste(colnames(XData), collapse = '+')),
                         studyDesign = studyDesign, 
@@ -133,7 +157,7 @@ for(i in 1:3){
 })
 
 # save the models
-# saveRDS(models, 'outputs/models/fisheries-restrictions_full_non-spatial.rds')
+#saveRDS(models, 'outputs/models/full_non-spatial.rds')
 ```
 
 ##### Check MCMC convergence
@@ -146,7 +170,7 @@ First check the presence-absence model.
 
 ```{r,fig.width=8,fig.height=8,fig.align='center'}
 library(Hmsc)
-models <- readRDS('outputs/models/fisheries-restrictions_full_non-spatial.rds')
+models <- readRDS('outputs/models/full_non-spatial.rds')
 mpost.pa <- convertToCodaObject(models[[1]])
 plot(mpost.pa$Beta)
 ```
@@ -236,8 +260,8 @@ beta <- bind_rows(beta.pa, beta.poiss) |>
          direction2 = ifelse(direction == 'Positive effect' & CI.2.5 <= 0, 'No evidence for effect', direction),
          direction2 = ifelse(direction == 'Negative effect' & CI.97.5 >= 0, 'No evidence for effect', direction2),
          direction2 = factor(direction2, levels = c('Positive effect', 'No evidence for effect', 'Negative effect')),
-         model = factor(model, levels = c('Presence-absence', 'MaxN conditional on presence')),
-         predictor = factor(predictor, levels = c('shark_sanctuary1', 'shark_protection_statusopen', 'shark_protection_statusrestricted', 'mpa_present1', 'HDI_2015', 'gov_effect_2016', 'voice_2016')))
+         model = factor(model, levels = c('Presence-absence', 'MaxN conditional on presence')))
+        # predictor = factor(predictor, levels = c('shark_sanctuary1', 'shark_protection_statusopen', 'shark_protection_statusrestricted', 'mpa_present1', 'HDI_2015', 'gov_effect_2016', 'voice_2016')))
 
 # plot effect sizes
 ggplot(beta) +
@@ -271,7 +295,7 @@ VP.poiss <- computeVariancePartitioning(models[[2]])
 ```{r,fig.width=7,fig.height=2}
 vardf <- bind_rows(data.frame(VP.pa$vals, model = 'Presence-absence'), 
                    data.frame(VP.poiss$vals, model = 'MaxN conditional on presence'))
-vardf$predictor <- rep(c('shark_protection_status', 'mpa_present', 'HDI_2015', 'gov_effect_2016', 'voice_2016', 'shark_sanctuary', 'reef', 'nation', 'region'), 2)
+vardf$predictor <- rep(c('mpa_present', 'mpa_age', 'mpa_area', 'mpa_compliance', 'gear_limits', 'species_limits', 'catch_limits', 'effort_limits', 'size_limits', 'temporal_limits', 'HDI_2015', 'gov_effect_2016', 'population_2016', 'shark_sanctuary', 'shark_protection_status', 'Grav_Total', 'reef', 'nation', 'region'), 2)
 
 # plot
 ggplot(vardf) +

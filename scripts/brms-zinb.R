@@ -57,8 +57,12 @@ mod <- brm(shark_maxn ~ mpa_present + mpa_age + mpa_area + mpa_compliance +
                      max_treedepth = 15),
       save_pars = save_pars(all = TRUE)))
 
-saveRDS(mod, 'outputs/models/brms_zinb.rds')
+#saveRDS(mod, 'outputs/models/brms_zinb.rds')
+mod <- readRDS('outputs/models/BRMS_test.rds')
+mod <- readRDS('outputs/models/brms_zinb.rds')
 
+# check 
+summary(mod)
 plot(mod)
 
 pred <- 
