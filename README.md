@@ -4,6 +4,12 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- Read Science 2020 and Current Biol 2023 papers - Jess did a Joint model for MPA area and size conditional on presence... see how she dealt with the predictors that are dependent on one another
+- MPA scenarios to 30%, Low to high Compliance, No Management, Status quo
+- Check Iain's paper for how they did the correction factor - oversampling in marine reserves
+- Plots that Josh seggusted for cumulative probability, and petal plots of frequencies of the probabilties under different management scenarios
+- Check fishing restrictions, is that just gear limits?
+
 1. Get full model running, see how long its going to take, check residuals for spatial autocorrelation
 2. In meantime, write up model, interpretation of ordinal response, example figure of cumulative probability of encounter under different management actions
 3. Perhaps get category specific effects
@@ -11,6 +17,8 @@ This repository contains code for developing a Bayesian hierarchical model to de
 5. Also include example with egestion/ingestion rates
 3. Send to Josh and Em for feedback
 
+
+https://stats.stackexchange.com/questions/307249/guidance-on-when-to-use-cumulative-vs-stopping-ratio-vs-continuation-ratio-vs
 
 https://mjskay.github.io/tidybayes/articles/tidybayes-residuals.html
 
