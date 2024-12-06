@@ -65,6 +65,7 @@ dat <- read.csv('data/fpdat_final.csv') |>
 load("outputs/models/test_coral-triangle.rda")
 load("outputs/models/test_coral-triangle_priorfits.rda")
 pred_zinb <- read.csv('outputs/models/scenario-predictions_zinb.csv')
+load('outputs/models/scenario-predictions_ord.rda')
 #pred_ord <- read.csv('outputs/models/scenario-predictions_ord.csv')
 ```
 
@@ -154,47 +155,59 @@ base_preds_zinb <- dat |>
   add_predicted_draws(fit_zinb) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Relative_abundance = median(.prediction),
-            Variance = var(.prediction)) |> 
+            Variance = var(.prediction)) |>
+  group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
+  summarise(Relative_abundance = mean(Relative_abundance),
+            Variance = mean(Variance)) |>
   arrange(desc(Relative_abundance)) |> 
   ungroup() |> 
   mutate(Scenario = 'Status quo',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
+         Site = 1:length(unique(dat$reef_id)),
+         `% Sites` = ((1:n())/length(unique(dat$reef_id)))*100,
          `Cumulative relative abundance` = cumsum(Relative_abundance),
          Cumulative_variance = cumsum(Variance),
          y_upp = `Cumulative relative abundance` + sqrt(Cumulative_variance),
          y_low = `Cumulative relative abundance` - sqrt(Cumulative_variance),
          y_low = ifelse(y_low < 0, 0, y_low))
+
 no_management_zinb <- no_management |> 
   add_predicted_draws(fit_zinb) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Relative_abundance = median(.prediction),
             Variance = var(.prediction)) |> 
+  group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
+  summarise(Relative_abundance = mean(Relative_abundance),
+            Variance = mean(Variance)) |>
   arrange(desc(Relative_abundance)) |>
   ungroup() |> 
   mutate(Scenario = 'No management',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
+         Site = 1:length(unique(dat$reef_id)),
+         `% Sites` = ((1:n())/length(unique(dat$reef_id)))*100,
          `Cumulative relative abundance` = cumsum(Relative_abundance),
          Cumulative_variance = cumsum(Variance),
          y_upp = `Cumulative relative abundance` + sqrt(Cumulative_variance),
          y_low = `Cumulative relative abundance` - sqrt(Cumulative_variance),
          y_low = ifelse(y_low < 0, 0, y_low))
+
 compliance_zinb <- compliance |> 
   add_predicted_draws(fit_zinb) |> 
-   group_by(set_id, reef_id, location_id, region_id) |> 
+  group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Relative_abundance = median(.prediction),
             Variance = var(.prediction)) |> 
+  group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
+  summarise(Relative_abundance = mean(Relative_abundance),
+            Variance = mean(Variance)) |>
   arrange(desc(Relative_abundance)) |>
   ungroup() |> 
   mutate(Scenario = 'MPA compliance',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
+         Site = 1:length(unique(dat$reef_id)),
+         `% Sites` = ((1:n())/length(unique(dat$reef_id)))*100,
          `Cumulative relative abundance` = cumsum(Relative_abundance),
          Cumulative_variance = cumsum(Variance),
          y_upp = `Cumulative relative abundance` + sqrt(Cumulative_variance),
          y_low = `Cumulative relative abundance` - sqrt(Cumulative_variance),
          y_low = ifelse(y_low < 0, 0, y_low))
+
 write.csv(bind_rows(base_preds_zinb, no_management_zinb, compliance_zinb), 
           'outputs/models/scenario-predictions_zinb.csv', row.names = F)
 
@@ -238,18 +251,20 @@ a <- ggplot(pred_zinb) +
   geom_ribbon(aes(x = X..Sites, ymin = y_low, ymax = y_upp, fill = Scenario), alpha = 0.2) +
   geom_line(aes(x = X..Sites, y = Cumulative.relative.abundance, col = Scenario)) +
   ggtitle('Relative abundance') +
-  xlab('% Sites') +
+  xlab('% of Reefs') +
   ylab('Cumulative relative abundance') +
   theme_classic()
 
-b <- no_management_ord |>        
+b <- no_management_ord |>      
+  group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
+  summarise(across(c(No_encounter:Two_encounter), mean)) |> 
   arrange(desc(No_encounter)) |> 
   ungroup() |> 
-  mutate(Scenario = 'Status quo',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
+  mutate(Scenario = 'No management',
+         Site = 1:length(unique(dat$reef_id)),
+         `% Sites` = ((1:n())/length(unique(dat$reef_id)))*100,
          across(c(No_encounter:Two_encounter),
-                ~cumsum(.)/nrow(dat))) |> 
+                ~cumsum(.)/length(unique(dat$reef_id)))) |> 
   pivot_longer(c(No_encounter:Two_encounter), names_to = 'Encounter category', values_to = 'Probability') |> 
   mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
                                `Encounter category` == 'One_encounter' ~ '1 shark', 
@@ -258,18 +273,21 @@ b <- no_management_ord |>
   ggplot() +
   geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
   ylab('Cumulative probability of encounter \n (as a proportion of total number of sites)') +
+  xlab('% of Reefs') +
   ggtitle('Probability of encounter: \n No management') +
   theme_classic() +
   theme(legend.position = 'none')
 
 c <- base_preds_ord |>        
+    group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
+  summarise(across(c(No_encounter:Two_encounter), mean)) |> 
   arrange(desc(No_encounter)) |> 
   ungroup() |> 
   mutate(Scenario = 'Status quo',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
+         Site = 1:length(unique(dat$reef_id)),
+         `% Sites` = ((1:n())/length(unique(dat$reef_id)))*100,
          across(c(No_encounter:Two_encounter),
-                ~cumsum(.)/nrow(dat))) |> 
+                ~cumsum(.)/length(unique(dat$reef_id)))) |> 
   pivot_longer(c(No_encounter:Two_encounter), names_to = 'Encounter category', values_to = 'Probability') |> 
   mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
                                `Encounter category` == 'One_encounter' ~ '1 shark', 
@@ -278,18 +296,21 @@ c <- base_preds_ord |>
   ggplot() +
   geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
   ylab('') +
+  xlab('% of Reefs') +
   ggtitle('Probability of encounter: \n Status quo') +
   theme_classic() +
   theme(legend.position = 'none')
 
 d <- compliance_ord |>        
+    group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
+  summarise(across(c(No_encounter:Two_encounter), mean)) |> 
   arrange(desc(No_encounter)) |> 
   ungroup() |> 
-  mutate(Scenario = 'Status quo',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
+  mutate(Scenario = 'MPA compliance',
+         Site = 1:length(unique(dat$reef_id)),
+         `% Sites` = ((1:n())/length(unique(dat$reef_id)))*100,
          across(c(No_encounter:Two_encounter),
-                ~cumsum(.)/nrow(dat))) |> 
+                 ~cumsum(.)/length(unique(dat$reef_id)))) |> 
   pivot_longer(c(No_encounter:Two_encounter), names_to = 'Encounter category', values_to = 'Probability') |> 
   mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
                                `Encounter category` == 'One_encounter' ~ '1 shark', 
@@ -298,6 +319,7 @@ d <- compliance_ord |>
   ggplot() +
   geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
   ylab('') +
+  xlab('% of Reefs') +
   ggtitle('Probability of encounter: \n MPA compliance') +
   theme_classic()
 
@@ -307,6 +329,7 @@ d <- compliance_ord |>
 (plot_spacer()+a+plot_spacer())/(b+c+d)
 ```
 
+Note that results are plotted as 
 #### Methods
 
 ##### Covariate selection for estimating effects of conservation and management on probability of shark encounter
