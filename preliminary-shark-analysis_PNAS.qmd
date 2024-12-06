@@ -225,41 +225,6 @@ compliance_ord <- compliance |>
 
 save(base_preds_ord, no_management_ord, compliance_ord, 
           file = 'outputs/models/scenario-predictions_ord.rda')
-            
-  arrange(desc(Shark_encounter)) |> 
-  ungroup() |> 
-  mutate(Scenario = 'Status quo',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
-         `Cumulative relative abundance` = cumsum(Relative_abundance),
-         Cumulative_variance = cumsum(Variance),
-         y_upp = `Cumulative relative abundance` + sqrt(Cumulative_variance),
-         y_low = `Cumulative relative abundance` - sqrt(Cumulative_variance),
-         y_low = ifelse(y_low < 0, 0, y_low))
-
-  arrange(desc(Relative_abundance)) |>
-  ungroup() |> 
-  mutate(Scenario = 'No management',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
-         `Cumulative relative abundance` = cumsum(Relative_abundance),
-         Cumulative_variance = cumsum(Variance),
-         y_upp = `Cumulative relative abundance` + sqrt(Cumulative_variance),
-         y_low = `Cumulative relative abundance` - sqrt(Cumulative_variance),
-         y_low = ifelse(y_low < 0, 0, y_low))
-
-  arrange(desc(Relative_abundance)) |>
-  ungroup() |> 
-  mutate(Scenario = 'MPA compliance',
-         Site = 1:nrow(dat),
-         `% Sites` = ((1:n())/nrow(dat))*100,
-         `Cumulative relative abundance` = cumsum(Relative_abundance),
-         Cumulative_variance = cumsum(Variance),
-         y_upp = `Cumulative relative abundance` + sqrt(Cumulative_variance),
-         y_low = `Cumulative relative abundance` - sqrt(Cumulative_variance),
-         y_low = ifelse(y_low < 0, 0, y_low))
-write.csv(bind_rows(base_preds_ord, no_management_ord, compliance_ord), 
-          'outputs/models/scenario-predictions_ord.csv', row.names = F)
 ```
 
 
@@ -277,14 +242,69 @@ a <- ggplot(pred_zinb) +
   ylab('Cumulative relative abundance') +
   theme_classic()
 
-#b <- ggplot(preds_ord) +
- # geom_ribbon(aes(x = `% Sites`, ymin = y_low, ymax = y_upp, fill = Scenario), alpha = 0.2) +
-  #geom_line(aes(x = `% Sites`, y = Cumulative.relative.abundance, col = Scenario)) +
-  #ggtitle('Cumulative ') +
-  #xlab('% Sites') +
-  #ylab('Cumulative relative abundance') +
-  #theme_classic()
-a
+b <- no_management_ord |>        
+  arrange(desc(No_encounter)) |> 
+  ungroup() |> 
+  mutate(Scenario = 'Status quo',
+         Site = 1:nrow(dat),
+         `% Sites` = ((1:n())/nrow(dat))*100,
+         across(c(No_encounter:Two_encounter),
+                ~cumsum(.)/nrow(dat))) |> 
+  pivot_longer(c(No_encounter:Two_encounter), names_to = 'Encounter category', values_to = 'Probability') |> 
+  mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
+                               `Encounter category` == 'One_encounter' ~ '1 shark', 
+                               `Encounter category` == 'No_encounter' ~ '0 sharks'),
+         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |> 
+  ggplot() +
+  geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
+  ylab('Cumulative probability of encounter \n (as a proportion of total number of sites)') +
+  ggtitle('Probability of encounter: \n No management') +
+  theme_classic() +
+  theme(legend.position = 'none')
+
+c <- base_preds_ord |>        
+  arrange(desc(No_encounter)) |> 
+  ungroup() |> 
+  mutate(Scenario = 'Status quo',
+         Site = 1:nrow(dat),
+         `% Sites` = ((1:n())/nrow(dat))*100,
+         across(c(No_encounter:Two_encounter),
+                ~cumsum(.)/nrow(dat))) |> 
+  pivot_longer(c(No_encounter:Two_encounter), names_to = 'Encounter category', values_to = 'Probability') |> 
+  mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
+                               `Encounter category` == 'One_encounter' ~ '1 shark', 
+                               `Encounter category` == 'No_encounter' ~ '0 sharks'),
+         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |> 
+  ggplot() +
+  geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
+  ylab('') +
+  ggtitle('Probability of encounter: \n Status quo') +
+  theme_classic() +
+  theme(legend.position = 'none')
+
+d <- compliance_ord |>        
+  arrange(desc(No_encounter)) |> 
+  ungroup() |> 
+  mutate(Scenario = 'Status quo',
+         Site = 1:nrow(dat),
+         `% Sites` = ((1:n())/nrow(dat))*100,
+         across(c(No_encounter:Two_encounter),
+                ~cumsum(.)/nrow(dat))) |> 
+  pivot_longer(c(No_encounter:Two_encounter), names_to = 'Encounter category', values_to = 'Probability') |> 
+  mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
+                               `Encounter category` == 'One_encounter' ~ '1 shark', 
+                               `Encounter category` == 'No_encounter' ~ '0 sharks'),
+         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |> 
+  ggplot() +
+  geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
+  ylab('') +
+  ggtitle('Probability of encounter: \n MPA compliance') +
+  theme_classic()
+
+#b+c+d
+#ggsave('prob-encounter_scenarios.png', width = 12, height = 3)
+
+(plot_spacer()+a+plot_spacer())/(b+c+d)
 ```
 
 #### Methods
