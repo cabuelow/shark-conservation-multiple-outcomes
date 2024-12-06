@@ -4,11 +4,24 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- Read Science 2020 and Current Biol 2023 papers - Jess did a Joint model for MPA area and size conditional on presence... see how she dealt with the predictors that are dependent on one another
+- work on the priors, try 1 sd on the intercept and slope? Follow Soloman example but don't assume equal probability of each category
+- do model comparison to choose distribution and link function?
+- MPA predictor variabels
+  - see discussion of when multicollinearity is an issue in causal inference
+    - should be ok if we have a lot of data
+    - Also Schisterman et al. 2018 use simulation to show that if SCM is used effects are unbiased in presence of multicollinearity, but just more uncertain
+
+**TODO** map out the residuals to get an indication of spatial autocorrelation, 
+and use {DHARMa} to more formally test for spatial autocorrelation 
+(function is testSpatialAutocorrelation)
+
+For Scenarios:
+ - in no management, does it make sense to model as minimum standardised value for mpa age and area? yes i think so, this is the value for age
+ - for mpa targets - are we targetting MPAs present in 30% of sites, increasing area?
+
 - MPA scenarios to 30%, Low to high Compliance, No Management, Status quo
 - Check Iain's paper for how they did the correction factor - oversampling in marine reserves
 - Plots that Josh seggusted for cumulative probability, and petal plots of frequencies of the probabilties under different management scenarios
-- Check fishing restrictions, is that just gear limits?
 
 1. Get full model running, see how long its going to take, check residuals for spatial autocorrelation
 2. In meantime, write up model, interpretation of ordinal response, example figure of cumulative probability of encounter under different management actions
@@ -17,6 +30,7 @@ This repository contains code for developing a Bayesian hierarchical model to de
 5. Also include example with egestion/ingestion rates
 3. Send to Josh and Em for feedback
 
+cloglog: https://towardsdatascience.com/a-gentle-introduction-to-complementary-log-log-regression-8ac3c5c1cd83
 
 https://stats.stackexchange.com/questions/307249/guidance-on-when-to-use-cumulative-vs-stopping-ratio-vs-continuation-ratio-vs
 
