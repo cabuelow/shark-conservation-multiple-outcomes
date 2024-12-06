@@ -4,6 +4,7 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- double check the number of zeros - does it match what Natalie and Aaron report?
 - Get rid of mpa compliance variable on its own and just separate closed to fishing into two categories, closed low compliance and closed high compliance
 - Run global models
 
