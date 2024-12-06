@@ -2,7 +2,7 @@
 title: "Counterfactual modelling of multiple outcomes from reef shark managmenent - Preliminary analysis and results"
 format: html
 editor: visual
-date: 2024-12-04
+date: 2024-12-09
 date-format: short
 author: CBuelow and ELester
 theme: sandstone
@@ -69,15 +69,39 @@ load('outputs/models/scenario-predictions_ord.rda')
 #pred_ord <- read.csv('outputs/models/scenario-predictions_ord.csv')
 ```
 
-#### Background and aims
+#### Background
 
-Here we model both the relative abundance of reef sharks (MaxN) and the probability of encountering 0, 1, or more than 1 reef shark, given management approaches (e.g., MPAs and shark fishing restrictions). We are seeking feedback on which response type (relative abundance or probability of encounter) is most useful for this paper's narrative (we originally investigated an ordinal response to deal with over-dispersion in shark abundance observations, but we have been able to obtain adequate models for both response types).
+##### Problem Statement
+
+Decades of overexploitation have caused widespread declines in shark abundance, to the extent that they are functionally extinct on 20% of the world’s coral reefs (Macneil et al. 2020). The loss of these predators has significant impacts on coral reef functioning as well as the tropical fisheries and tourism industries that they support.
+
+##### Knowledge gap
+
+A suite of management initiatives have been successfully implemented to mitigate the impacts of shark overexploitation, including protection efforts that either restrict fishing (e.g., effort limits) or prohibit fishing altogether in No Take Marine Reserves. However, removing sharks from coral reefs also removes their capacity to fulfil important ecological roles, such as predation (ingestion) and nutrient transfer (egestion), but has yet to be qualified over global scales.
+
+##### Novel Contributions
+
+Typically, shark ingestion and egestion is difficult to observe and quantify, but advances in bioenergetics and ecological stoichiometry provide a tractable avenue to overcome this limitation. In coral reefs, fishes are key vectors in the storage and flux of carbon, nitrogen and phosphorous. Disentangling how fishes allocate ingested resources into biomass and waste products can link individual physiology to ecosystem processes. Here, we use the R package "Fishflux" (Schiettekatte et al. 2020) to predict fluxes in carbon, nitrogen and phosphorous in reef shark species.
+
+##### Research Questions
+
+1.) What difference have existing management strategies made to shark abundance, ingestion rate, and egestion rate across the worlds coral reefs?
+
+2.) What are the potential conservation gains of direct management on shark abundance, ingestion rate, and egestion rate?
+
+#### Overview of models and data
+
+##### Models
+
+Here we model both the relative abundance of reef sharks (MaxN) and the probability of encountering 0, 1, or more than 1 reef shark, given management approaches (e.g., MPAs and shark fishing restrictions). We are seeking feedback on which response type (relative abundance or probability of encounter) is most useful for this paper's narrative.
 
 We aim to estimate the causal effects of management approaches on both the relative abundance and probability of encountering reef sharks to enable robust counter-factual predictions under 'No management' and 'Management' scenarios. To estimate the causal effects conservation and management with regression we, 1) selected covariates to adjust for via a Structural Causal Model (Directed Acyclic Graph (DAG)) (DAG developed by Klinard et al. *in prep*) and 2) fit Bayesian multilevel regression models to estimate either the relative abundance or the probability of encountering 0, 1 or more than 1 reef shark at coral reefs globally (*note here we present preliminary results from the Coral Triangle, but we will scale to global later*).
 
 To estimate the expected change in relative abundance and probability of shark encounters globally under 'No management' and 'Management' scenarios, we manipulated management variables to either turn them off ('No management' scenario) or on ('Management') and made posterior predictions from our fitted models with the manipulated exposure data (all other covariates remained as original values).
 
-Relative reef shark abundance and encounter categories (0, 1, or more than 1 shark) were obtained from observations of shark abundance (MaxN) at replicate sites in coral reefs globally ([Global FinPrint](https://globalfinprint.org)). We subset the observations for the following reef shark species: Grey reef shark, Whitetip reef shark", "Blacktip reef shark", "Nurse shark", "Caribbean reef shark". We choose these reef-associated shark species as they make up the majority of our data (~86% of total abundance) and there are large amounts of empirical data on their diet and movement metrics (especially activity space see [Dwyer et al. 2020](https://www.cell.com/current-biology/fulltext/S0960-9822(19)31600-8)). This information will be very useful when we investigate ingestion/egestion rates if these species. 
+##### Data
+
+Relative reef shark abundance and encounter categories (0, 1, or more than 1 shark) were obtained from observations of shark abundance (MaxN) at replicate sites in coral reefs globally ([Global FinPrint](https://globalfinprint.org)). We subset the observations for the following reef shark species: Grey reef shark, Whitetip reef shark", "Blacktip reef shark", "Nurse shark", "Caribbean reef shark". We choose these reef-associated shark species as they make up the majority of our data (\~86% of total abundance) and there are large amounts of empirical data on their diet and movement metrics (especially activity space see [Dwyer et al. 2020](https://www.cell.com/current-biology/fulltext/S0960-9822(19)31600-8)). This information will be very useful when we investigate ingestion/egestion rates if these species.
 
 #### Figures and results (preliminary)
 
@@ -105,7 +129,7 @@ dat.sf <- dat |>
 qtm(dat.sf, dots.col = 'shark_cat')
 ```
 
-##### Effect of conservation and management on reef shark relative abundance and probability of encounter
+##### Key Result 1: Effect of conservation and management on reef shark relative abundance and probability of encounter
 
 Effects of conservation and management were similar for the relative abundance and probability of encountering one or more sharks. MPA compliance and effort limits had positive effects on reef shark relative abundance and probability of encounter. MPA's closed to shark fishing also positively influenced abundance and encounter probability, in reference to those open to fishing, while human gravity had a negative effect.
 
@@ -132,7 +156,7 @@ dd <- plot(conditional_effects(fit, effects = 'shark_protection_status', categor
 (a+aa)/(c+cc)/(d+dd)
 ```
 
-##### Increased relative abundance or probability of encounter with more conservation and management
+##### Key Result 2: Increased relative abundance or probability of encounter with more conservation and management
 
 ```{r}
 #| eval: false
@@ -241,7 +265,7 @@ save(base_preds_ord, no_management_ord, compliance_ord,
 ```
 
 
-```{r}
+```{r,fig.width=12, fig.height=7, fig.align='center'}
 #| error: false
 #| warning: false
 
@@ -255,10 +279,10 @@ a <- ggplot(pred_zinb) +
   ylab('Cumulative relative abundance') +
   theme_classic()
 
-b <- no_management_ord |>      
+b <- no_management_ord |>    
   group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
   summarise(across(c(No_encounter:Two_encounter), mean)) |> 
-  arrange(desc(No_encounter)) |> 
+  arrange(desc(One_encounter)) |> 
   ungroup() |> 
   mutate(Scenario = 'No management',
          Site = 1:length(unique(dat$reef_id)),
@@ -270,10 +294,12 @@ b <- no_management_ord |>
                                `Encounter category` == 'One_encounter' ~ '1 shark', 
                                `Encounter category` == 'No_encounter' ~ '0 sharks'),
          `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |> 
+  filter(`Encounter category` != '0 sharks') |> 
   ggplot() +
   geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
   ylab('Cumulative probability of encounter \n (as a proportion of total number of sites)') +
   xlab('% of Reefs') +
+   ylim(c(0,0.2)) +
   ggtitle('Probability of encounter: \n No management') +
   theme_classic() +
   theme(legend.position = 'none')
@@ -281,7 +307,7 @@ b <- no_management_ord |>
 c <- base_preds_ord |>        
     group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
   summarise(across(c(No_encounter:Two_encounter), mean)) |> 
-  arrange(desc(No_encounter)) |> 
+   arrange(desc(One_encounter)) |> 
   ungroup() |> 
   mutate(Scenario = 'Status quo',
          Site = 1:length(unique(dat$reef_id)),
@@ -292,11 +318,13 @@ c <- base_preds_ord |>
   mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
                                `Encounter category` == 'One_encounter' ~ '1 shark', 
                                `Encounter category` == 'No_encounter' ~ '0 sharks'),
-         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |> 
+         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |>
+    filter(`Encounter category` != '0 sharks') |> 
   ggplot() +
   geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
   ylab('') +
   xlab('% of Reefs') +
+   ylim(c(0,0.2)) +
   ggtitle('Probability of encounter: \n Status quo') +
   theme_classic() +
   theme(legend.position = 'none')
@@ -304,7 +332,7 @@ c <- base_preds_ord |>
 d <- compliance_ord |>        
     group_by(reef_id, location_id, region_id) |> # here averaging across sets to aggregate to reef level 
   summarise(across(c(No_encounter:Two_encounter), mean)) |> 
-  arrange(desc(No_encounter)) |> 
+    arrange(desc(One_encounter)) |> 
   ungroup() |> 
   mutate(Scenario = 'MPA compliance',
          Site = 1:length(unique(dat$reef_id)),
@@ -315,11 +343,13 @@ d <- compliance_ord |>
   mutate(`Encounter category` = case_when(`Encounter category` == 'Two_encounter' ~ '> 1 shark', 
                                `Encounter category` == 'One_encounter' ~ '1 shark', 
                                `Encounter category` == 'No_encounter' ~ '0 sharks'),
-         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |> 
+         `Encounter category` = factor(`Encounter category`, levels = c('> 1 shark', '1 shark', '0 sharks'))) |>
+    filter(`Encounter category` != '0 sharks') |> 
   ggplot() +
   geom_area(aes(x = `% Sites`, y = Probability, fill = `Encounter category`)) +
   ylab('') +
   xlab('% of Reefs') +
+  ylim(c(0,0.2)) +
   ggtitle('Probability of encounter: \n MPA compliance') +
   theme_classic()
 
@@ -329,7 +359,6 @@ d <- compliance_ord |>
 (plot_spacer()+a+plot_spacer())/(b+c+d)
 ```
 
-Note that results are plotted as 
 #### Methods
 
 ##### Covariate selection for estimating effects of conservation and management on probability of shark encounter
