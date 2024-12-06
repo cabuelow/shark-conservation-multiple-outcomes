@@ -4,6 +4,9 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- Get rid of mpa compliance variable on its own and just separate closed to fishing into two categories, closed low compliance and closed high compliance
+- Run global models
+
 - work on the priors, try 1 sd on the intercept and slope? Follow Soloman example but don't assume equal probability of each category
 - do model comparison to choose distribution and link function?
 - MPA predictor variabels
