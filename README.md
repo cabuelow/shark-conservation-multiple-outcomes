@@ -5,6 +5,7 @@ This repository contains code for developing a Bayesian hierarchical model to de
 **TODO**
 
 - double check the number of zeros - does it match what Natalie and Aaron report?
+  - From Klinard et al (in prep) : The majority of BRUVS sets (64%) did not observe a single shark, producing excess counts of zero that can arise from a mixture of two processes: the true absence of sharks on the reef or failure to observe potential sharks during sampling. 
 - Get rid of mpa compliance variable on its own and just separate closed to fishing into two categories, closed low compliance and closed high compliance
 - Run global models
 
