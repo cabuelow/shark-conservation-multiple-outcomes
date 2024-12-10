@@ -37,7 +37,7 @@ scale_2SD <- function(x) (x-mean(x, na.rm = T))/(2*sd(x, na.rm = T)) # function 
 logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) # log transform for skewed covariates
   
 dat <- read.csv('data/fpdat_final.csv') |> 
-  filter(region_name == "Coral Triangle",
+  filter(#region_name == "Coral Triangle",
          common_name %in% c("", "Grey reef shark", "Whitetip reef shark", "Blacktip reef shark", "Nurse shark", "Caribbean reef shark")) |> 
   # separate fishing restrictions into categorical variables for each limit type
   separate(col = 'fishing_restrictions', 
@@ -55,18 +55,20 @@ dat <- read.csv('data/fpdat_final.csv') |>
          shark_protection_status, shark_sanctuary, HDI_2015, gov_effect_2016, population_2016, Grav_Total) |>   # make maxn an ordinal response, and the other categorical variables factors
   # put continuous covariates on same scale as binary by dividing by 2 standard deviations (as recommended by Gelman), also mean center to improve interpretation of coeffs in presence of interactions
   mutate(shark_cat = factor(ifelse(shark_maxn > 1, '> 1', shark_maxn), order = T, levels = c('0','1','> 1')),
-         mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0),
+         #mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0),
          mpa_present = ifelse(mpa_present == 'yes', 1, 0),
          across(c(mpa_present:temporal_limits), ~ifelse(is.na(.), 0, .)),
          across(c(set_id:region_id, mpa_present, mpa_compliance:shark_sanctuary), factor),
+         shark_protection_status = case_when(mpa_compliance == 'high' & shark_protection_status == 'closed' ~ 'closed_highCompliance',
+                                             mpa_compliance != 'high' & shark_protection_status == 'closed' ~ 'closed_lowMedUnknownCompliance', 
+                                             .default = shark_protection_status),
          across(c(mpa_age, mpa_area, population_2016, Grav_Total), logtrans),
          across(c(mpa_age, mpa_area, HDI_2015, gov_effect_2016, population_2016, Grav_Total), scale_2SD),
-         shark_protection_status = relevel(shark_protection_status, ref = "open"))
+         shark_protection_status = relevel(factor(shark_protection_status), ref = "open"))
 load("outputs/models/test_coral-triangle.rda")
 load("outputs/models/test_coral-triangle_priorfits.rda")
 pred_zinb <- read.csv('outputs/models/scenario-predictions_zinb.csv')
 load('outputs/models/scenario-predictions_ord.rda')
-#pred_ord <- read.csv('outputs/models/scenario-predictions_ord.csv')
 ```
 
 #### Background
@@ -77,7 +79,7 @@ Decades of overexploitation have caused widespread declines in shark abundance, 
 
 ##### Knowledge gap
 
-A suite of management initiatives have been successfully implemented to mitigate the impacts of shark overexploitation, including protection efforts that either restrict fishing (e.g., effort limits) or prohibit fishing altogether in No Take Marine Reserves. However, removing sharks from coral reefs also removes their capacity to fulfil important ecological roles, such as predation (ingestion) and nutrient transfer (egestion), but has yet to be qualified over global scales.
+A suite of management initiatives have been successfully implemented to mitigate the impacts of shark overexploitation, including protection efforts that either restrict fishing (e.g., effort limits) or prohibit fishing altogether in No Take Marine Reserves. However, removing sharks from coral reefs also precludes their capacity to fulfill important ecological roles, such as predation (ingestion) and nutrient transfer (egestion), but has yet to be qualified over global scales.
 
 ##### Novel Contributions
 
@@ -95,13 +97,13 @@ Typically, shark ingestion and egestion is difficult to observe and quantify, bu
 
 Here we model both the relative abundance of reef sharks (MaxN) and the probability of encountering 0, 1, or more than 1 reef shark, given management approaches (e.g., MPAs and shark fishing restrictions). We are seeking feedback on which response type (relative abundance or probability of encounter) is most useful for this paper's narrative.
 
-We aim to estimate the causal effects of management approaches on both the relative abundance and probability of encountering reef sharks to enable robust counter-factual predictions under 'No management' and 'Management' scenarios. To estimate the causal effects conservation and management with regression we, 1) selected covariates to adjust for via a Structural Causal Model (Directed Acyclic Graph (DAG)) (DAG developed by Klinard et al. *in prep*) and 2) fit Bayesian multilevel regression models to estimate either the relative abundance or the probability of encountering 0, 1 or more than 1 reef shark at coral reefs globally (*note here we present preliminary results from the Coral Triangle, but we will scale to global later*).
+We aim to estimate the causal effects of management approaches on both the relative abundance and probability of encountering reef sharks to enable robust counter-factual predictions under 'No management' and 'Management' scenarios. To estimate the causal effects conservation and management with regression we, 1) selected covariates to adjust for via a Structural Causal Model (Directed Acyclic Graph (DAG)) (DAG developed by Klinard et al. *in prep*) and 2) fit Bayesian multilevel regression models to estimate either the relative abundance or the probability of encountering 0, 1 or more than 1 reef shark at coral reefs globally.
 
-To estimate the expected change in relative abundance and probability of shark encounters globally under 'No management' and 'Management' scenarios, we manipulated management variables to either turn them off ('No management' scenario) or on ('Management') and made posterior predictions from our fitted models with the manipulated exposure data (all other covariates remained as original values).
+To estimate the expected change in relative abundance and probability of shark encounters globally under 'No management' and 'Management' scenarios, we manipulated management variables to either turn them off ('No management' scenario) or on ('Management') and made predictions from the posterior distributions of parameters of our fitted models with the manipulated exposure data (all other covariates set at their original values).
 
 ##### Data
 
-Relative reef shark abundance and encounter categories (0, 1, or more than 1 shark) were obtained from observations of shark abundance (MaxN) at replicate sites in coral reefs globally ([Global FinPrint](https://globalfinprint.org)). We subset the observations for the following reef shark species: Grey reef shark, Whitetip reef shark", "Blacktip reef shark", "Nurse shark", "Caribbean reef shark". We choose these reef-associated shark species as they make up the majority of our data (\~86% of total abundance) and there are large amounts of empirical data on their diet and movement metrics (especially activity space see [Dwyer et al. 2020](https://www.cell.com/current-biology/fulltext/S0960-9822(19)31600-8)). This information will be very useful when we investigate ingestion/egestion rates if these species.
+Relative reef shark abundance and encounter categories (0, 1, or more than 1 shark) were obtained from observations of shark abundance (MaxN) at replicate sites in coral reefs globally ([Global FinPrint](https://globalfinprint.org)). We subset the observations for the following reef shark species: Grey reef shark, Whitetip reef shark", "Blacktip reef shark", "Nurse shark", "Caribbean reef shark". We choose these reef-associated shark species as they make up the majority of our data (\~86% of total abundance) and there are large amounts of empirical data on their diet and movement metrics (especially activity space see [Dwyer et al. 2020](https://www.cell.com/current-biology/fulltext/S0960-9822(19)31600-8)). This information will be very useful when we investigate ingestion/egestion rates of these species.
 
 #### Figures and results (preliminary)
 
@@ -136,8 +138,8 @@ Effects of conservation and management were similar for the relative abundance a
 ```{r,fig.width=12, fig.height=9, fig.align='center'}
 #| error: false
 #| warning: false
-a <- mcmc_plot(fit_zinb, variable = c("b_mpa_present1", 'b_mpa_age', 'b_mpa_area', 'b_mpa_compliance1', 'b_gear_limits1', 'b_species_limits1', 'b_catch_limits1', 'b_effort_limits1', 'b_size_limits1', 'b_temporal_limits1', 'b_shark_protection_statusclosed', 'b_shark_protection_statusrestricted', 'b_Grav_Total'), regex = TRUE) +labs(x='Standardised effect size (50 and 95% CIs)',y='Beta coefficients', title='Relative abundance')
-b <- mcmc_plot(fit, variable = c("b_mpa_present1", 'b_mpa_age', 'b_mpa_area', 'b_mpa_compliance1', 'b_gear_limits1', 'b_species_limits1', 'b_catch_limits1', 'b_effort_limits1', 'b_size_limits1', 'b_temporal_limits1', 'b_shark_protection_statusclosed', 'b_shark_protection_statusrestricted', 'b_Grav_Total'), regex = TRUE)  +labs(x='Standardised effect size (50 and 95% CIs)',y='', title='Probability of encounter')
+a <- mcmc_plot(fit_zinb, variable = c("b_mpa_present1", 'b_mpa_age', 'b_mpa_area', 'b_gear_limits1', 'b_species_limits1', 'b_catch_limits1', 'b_effort_limits1', 'b_size_limits1', 'b_temporal_limits1', 'b_shark_protection_statusclosed', 'b_shark_protection_statusrestricted', 'b_Grav_Total'), regex = TRUE) +labs(x='Standardised effect size (50 and 95% CIs)',y='Beta coefficients', title='Relative abundance')
+b <- mcmc_plot(fit, variable = c("b_mpa_present1", 'b_mpa_age', 'b_mpa_area', 'b_gear_limits1', 'b_species_limits1', 'b_catch_limits1', 'b_effort_limits1', 'b_size_limits1', 'b_temporal_limits1', 'b_shark_protection_statusclosed_highCompliance', 'b_shark_protection_statusclosed_lowMedUnknownCompliance', 'b_shark_protection_statusrestricted', 'b_Grav_Total'), regex = TRUE)  +labs(x='Standardised effect size (50 and 95% CIs)',y='', title='Probability of encounter')
 a+b
 ```
 
@@ -156,7 +158,7 @@ dd <- plot(conditional_effects(fit, effects = 'shark_protection_status', categor
 (a+aa)/(c+cc)/(d+dd)
 ```
 
-##### Key Result 2: Increased relative abundance or probability of encounter with more conservation and management
+##### Key Result 2: Change in relative abundance or probability of encounter with more or less conservation and management
 
 ```{r}
 #| eval: false
@@ -263,7 +265,6 @@ compliance_ord <- compliance |>
 save(base_preds_ord, no_management_ord, compliance_ord, 
           file = 'outputs/models/scenario-predictions_ord.rda')
 ```
-
 
 ```{r,fig.width=12, fig.height=7, fig.align='center'}
 #| error: false
@@ -379,7 +380,7 @@ ggpairs(select(dat, shark_maxn:shark_cat))
 
 ##### Model structure
 
-We used Bayesian multilevel regression models to estimate the causal effects of management and conservation on the relative abundance and probability of encountering 0, 1, or more than one reef shark. We employed a multilevel model structure with nested random intercepts for set, reef, nation and marine ecoregion to account for spatial heirarchies in the observed data.
+We used Bayesian multilevel regression models to estimate the causal effects of management and conservation on the relative abundance and probability of encountering 0, 1, or more than one reef shark. We employed a multilevel model structure with nested random intercepts for set, reef, nation, and marine ecoregion to account for spatial hierarchies in the observed data.
 
 Relative abundance (MaxN) was zero-inflated and over-dispersed and so we fitted the relative abundance model with a zero-inflated negative binomial distribution (log link). The probability of encountering 0, 1, or more than one reef shark was modelled using sequential ordinal regression assuming a binomial distribution with a complementary log-log link ('cloglog'; an extreme value function) to accommodate imbalance in the ordinal response (categories of 1 and more than 1 shark occurred with relatively low frequency).
 
@@ -389,40 +390,40 @@ We set weakly informative priors for all parameters in both models and use prior
 #| eval: false
 # ZINB ###################
 # set weakly informative priors and do a prior predictive check
-fit_prior_zinb <- brm(shark_maxn ~  mpa_present + mpa_age + mpa_area + mpa_compliance +
-                        gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + (1|location_id/reef_id/set_id), #+ shark_sanctuary + 
+fit_prior_zinb <- brm(shark_maxn ~  mpa_present + mpa_age + mpa_area +
+                        gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + shark_sanctuary + (1|location_id/reef_id/set_id),
                       prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default
-                      iter = 4000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                      iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                       data = dat, family = zero_inflated_negbinomial(), 
                       control = list(max_treedepth = 15, adapt_delta = 0.99),
                       sample_prior = "only")
 
-fit_zinb <- brm(shark_maxn ~  mpa_present + mpa_age + mpa_area + mpa_compliance +
-                  gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + (1|location_id/reef_id/set_id), #+ shark_sanctuary + 
+fit_zinb <- brm(shark_maxn ~  mpa_present + mpa_age + mpa_area + 
+                  gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + shark_sanctuary + (1|location_id/reef_id/set_id),
                        prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default
-                iter = 4000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                 data = dat, family = zero_inflated_negbinomial(), 
                 control = list(max_treedepth = 15, adapt_delta = 0.99))
 
 # ORDINAL ###################
 # set weakly informative priors and do a prior predictive check
 fit_prior <- brm(shark_cat ~  mpa_present + mpa_age + mpa_area + mpa_compliance +
-                   gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + (1|location_id/reef_id/set_id), #+ shark_sanctuary + 
+                   gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + shark_sanctuary + (1|location_id/reef_id/set_id), #+ shark_sanctuary + 
                  prior = c(prior(normal(0, 4), class = Intercept),
                            prior(normal(0, 2), class = b),
                            prior(exponential(1), class = sd)),
                  data = dat, family = sratio('cloglog'),
-                 iter = 4000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                 iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                  control = list(max_treedepth = 15, adapt_delta = 0.99),
                  sample_prior = "only")
 
 # fit models with data
-fit <- brm(shark_cat ~  mpa_present + mpa_age + mpa_area + mpa_compliance +
-             gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + (1|location_id/reef_id/set_id), #+ shark_sanctuary + 
+fit <- brm(shark_cat ~  mpa_present + mpa_age + mpa_area + #mpa_compliance +
+             gear_limits + species_limits + catch_limits + effort_limits + size_limits + temporal_limits + HDI_2015 + gov_effect_2016 + population_2016 + shark_protection_status + Grav_Total + shark_sanctuary + (1|location_id/reef_id/set_id), #+ shark_sanctuary + 
            prior = c(prior(normal(0, 4), class = Intercept),
                      prior(normal(0, 2), class = b),
                      prior(exponential(1), class = sd)),
-           iter = 4000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+           iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
            data = dat, family = sratio('cloglog'), 
            control = list(max_treedepth = 15, adapt_delta = 0.99))
 # save models 
@@ -533,13 +534,13 @@ a+b
 #### Additional notes for co-authors
 
 1.  In the ordinal response model of probability of encounter, we can fit category-specific effects for covariates where we expect there would be different effects on the probability of encountering 0, 1, or more sharks. It just means more parameters to estimate, so more complexity.
-2.  We have not taken steps to evaluate covariates for multi-collinearity and drop them from the model. Becuase we have used structural causal modelling to select covariates, our coefficient estimates should be unbiased regardless of multicollinearity (although may be more uncertain). See this [relevant simulation study for more info](https://pmc.ncbi.nlm.nih.gov/articles/PMC5131787/).
+2.  We have not taken steps to evaluate covariates for multi-collinearity and drop them from the model. Because we have used structural causal modelling to select covariates, our coefficient estimates should be unbiased regardless of multicollinearity (although may be more uncertain). See this [relevant simulation study for more info](https://pmc.ncbi.nlm.nih.gov/articles/PMC5131787/).
 
 #### Next steps
 
 Following choice of modelled response (relative abundance vs. probability of encounter) we will run the model on the full global dataset, compare models with and without an interaction between shark fishing restrictions and human gravity (and any other potential interactions if co-authors have additional suggestions?), and formally test for spatial autocorrelation in the residuals.
 
-We will then model the ingestion rates/egestion rates under these management scenarios using our model framework. Both ingestion and egestion rates have been calculated by Sophie Tattrie.  Briefly, the package “fishflux” was used to model fluxes in Carbon, Nitrogen, Phosphorus (CNP) in sharks (Schiettekatte et al. 2020). This package allows us to to predict ingestion, egestion and excretion to study fluxes of nutrients and energy.  Input parameters include those for metabolism, growth, diet and body composition. Output parameters include ingestion and egestion of CNP as well growth attributed to and total inorganic flux of each element (g/day). Input parameters were sourced from the literature where available and are otherwise in the process of being modelled/imputed. Species within the FinPrint dataset are being incorporated, though currently only sharks whose growth parameters were available on either fishbase or sharkipedia are included in the initial model. 
+We will then model the ingestion rates/egestion rates under these management scenarios using our model framework. Both ingestion and egestion rates have been calculated by Sophie Tattrie. Briefly, the package “fishflux” was used to model fluxes in Carbon, Nitrogen, Phosphorus (CNP) in sharks (Schiettekatte et al. 2020). This package allows us to to predict ingestion, egestion and excretion to study fluxes of nutrients and energy. Input parameters include those for metabolism, growth, diet and body composition. Output parameters include ingestion and egestion of CNP as well growth attributed to and total inorganic flux of each element (g/day). Input parameters were sourced from the literature where available and are otherwise in the process of being modelled/imputed. Species within the FinPrint dataset are being incorporated, though currently only sharks whose growth parameters were available on either fishbase or sharkipedia are included in the initial model.
 
 #### R session Info
 
