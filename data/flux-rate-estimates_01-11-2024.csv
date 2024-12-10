@@ -1,0 +1,23 @@
+Species,common_name,length_range_cm,ingestion_C_g_day,egestion_C_g_day,avg_growth_C_g_day,total_flux_C_g_day,ingestion_N_g_day,egestion_N_g_day,avg_growth_N_g_day,total_flux_N_g_day,ingestion_P_g_day,egestion_P_g_day,avg_growth_P_g_day,total_flux_P_g_day
+Carcharhinus amblyrhynchos,Grey reef shark,75-255,253,50,1.5,202,42,12,0.4,34,30,12.5,0.075,30
+Carcharhinus dussumieri,,50-121,16,3.8,0.4,15.2,2.5,0.6,0.11,1.9,0.75,0.25,0.021,0.55
+Carcharhinus falciformis,,100-350,440,92,4.4,355,78,22,1.1,80,80,25,0.21,55
+Carcharhinus galapagensis,,100-370,460,102,9.2,375,96,72,2.4,24,78,23,0.049,52
+Carcharhinus leucas,,100-360,450,97,2.5,360,79,23,0.62,70,75,24,0.015,52
+Carcharhinus limbatus,,75-286,275,55,1.8,220,53,12,0.45,42,40,13,0.1,30
+Carcharhinus longimanus,,100-400,998,202,6.1,790,245,180,1.5,55,33,10,0.28,23
+Carcharhinus melanopterus,Blacktip reef shark,50-200,72,12,1.1,55,12.5,2.5,0.25,10,1.8,0.5,0.048,1.5
+Carcharhinus plumbeus,,50-300,301,55,0.8,235,60,13,0.2,40,53,14,0.039,32
+Carcharhinus sorrah,,25-160,36,7.4,1.25,28,8,2.5,0.32,7.3,1.2,0.4,0.06,1.8
+Furgaleus macki,,25-160,32,6.5,0.52,26,6,1.5,0.12,4.8,0.32,0.13,0.022,0.27
+Galeocerdo cuvier,,150-500,1640,360,19.5,1270,275,80,4.5,230,260,130,0.9,170
+Ginglymostoma cirratum,Nurse shark,150-430,510,76,12,335,130,25,3,99,17,5,0.6,12
+Heterodontus portusjacksoni,,25-165,80,15,0.27,70,9.9,2.5,0.06,7.5,7,2,0.013,4.8
+Loxodon macrorhinus,,Oct-98,12,2.5,0.28,9.5,2,0.5,0.07,1.5,0.28,0.8,0.013,0.2
+Mustelus canis,,25-150,25,5,0.75,20,3.9,0.9,0.16,3,1.1,0.3,0.035,0.73
+Orectolobus hutchinsi,,20-111,17,2.5,0.4,12,2.6,0.5,0.11,1.8,1.6,0.5,0.021,1.2
+Orectolobus ornatus,,50-290,290,52,0.2,230,46,12,0.05,35,30,9,0.09,29
+Rhizoprionodon acutus,,50-175,65,13,0.16,51,8.5,2.3,0.041,6,2.7,0.8,0.0085,1.9
+Sphyrna lewini,,100-430,705,230,4.1,590,132,30,1.1,105,125,32,0.2,80
+Sphyrna tiburo,,25-150,22.5,5,0.18,18,3.1,1.6,0.048,2.3,3.6,1.1,0.09,2.5
+Sphyrna zygaena,,100-500,1150,240,3.7,910,225,50,0.8,165,202,60,0.175,145
