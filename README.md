@@ -4,10 +4,26 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- Should I be summing shark maxn across species at a set? Yes, set should be the observation
+- Gravity:shark protection status interaction - random intercepts and slopes
+- brms uses non-centered parameterisation by default: https://discourse.mc-stan.org/t/brms-priors-for-random-effect-sds-and-non-centered-parameterizations/32415/3
+- Dig into effects that we didn't expect, e.g., species and gear limits, low vs. high compliance effects - might just be that these are places with low numbers of sharks (sampling/site selection bias), 
+    - Do a contingency table , shark abundnace by category
+    - Aaron's paper reports: only 20% of reefs did not have a shark - check if our results match at the reef scale
+- Follow-up on the Caribbean - do we have the right data?
+- use {DHARMa} to more formally test for spatial autocorrelation 
+(function is testSpatialAutocorrelation)
+- Scenario modelling - where are the places we can get the most bang for our buck, what are there characteristics? Use covariates in database
+
+
+- double check DAG if getting rid of MPA compliance and just have Fishing restrictions + compliance
 - double check the number of zeros - does it match what Natalie and Aaron report?
   - From Klinard et al (in prep) : The majority of BRUVS sets (64%) did not observe a single shark, producing excess counts of zero that can arise from a mixture of two processes: the true absence of sharks on the reef or failure to observe potential sharks during sampling. 
-- Get rid of mpa compliance variable on its own and just separate closed to fishing into two categories, closed low compliance and closed high compliance
+  - we have same in global dataset (82% are 0s in coral triangle example)
 - Run global models
+- To try flower/petal plots for plotting frequency of sites in each shark encounter category: 
+  - https://github.com/NCEAS/flowers
+  - http://ohi-science.org/ohicore/reference/PlotFlower.html
 
 - work on the priors, try 1 sd on the intercept and slope? Follow Soloman example but don't assume equal probability of each category
 - do model comparison to choose distribution and link function?
@@ -15,10 +31,10 @@ This repository contains code for developing a Bayesian hierarchical model to de
   - see discussion of when multicollinearity is an issue in causal inference
     - should be ok if we have a lot of data
     - Also Schisterman et al. 2018 use simulation to show that if SCM is used effects are unbiased in presence of multicollinearity, but just more uncertain
+- Justification for lognormal GLM: https://stats.stackexchange.com/questions/47840/linear-model-with-log-transformed-response-vs-generalized-linear-model-with-log
 
 **TODO** map out the residuals to get an indication of spatial autocorrelation, 
-and use {DHARMa} to more formally test for spatial autocorrelation 
-(function is testSpatialAutocorrelation)
+and 
 
 For Scenarios:
  - in no management, does it make sense to model as minimum standardised value for mpa age and area? yes i think so, this is the value for age
