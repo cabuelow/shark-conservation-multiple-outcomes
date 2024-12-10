@@ -4,15 +4,16 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- Should I be summing shark maxn across species at a set? Yes, set should be the observation
 - Gravity:shark protection status interaction - random intercepts and slopes
+- use {DHARMa} to more formally test for spatial autocorrelation 
+(function is testSpatialAutocorrelation)
 - brms uses non-centered parameterisation by default: https://discourse.mc-stan.org/t/brms-priors-for-random-effect-sds-and-non-centered-parameterizations/32415/3
 - Dig into effects that we didn't expect, e.g., species and gear limits, low vs. high compliance effects - might just be that these are places with low numbers of sharks (sampling/site selection bias), 
     - Do a contingency table , shark abundnace by category
     - Aaron's paper reports: only 20% of reefs did not have a shark - check if our results match at the reef scale
+          - Yes that's what we have too (22% of reefs do not observe a shark)
+          - So why we see a flat line in our scenario modelling for more than 22%? Think its likely how we're manipulating the covariates...look into
 - Follow-up on the Caribbean - do we have the right data?
-- use {DHARMa} to more formally test for spatial autocorrelation 
-(function is testSpatialAutocorrelation)
 - Scenario modelling - where are the places we can get the most bang for our buck, what are there characteristics? Use covariates in database
 
 
