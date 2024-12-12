@@ -4,9 +4,8 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- Gravity:shark protection status interaction - random intercepts and slopes
-- use {DHARMa} to more formally test for spatial autocorrelation 
-(function is testSpatialAutocorrelation)
+- fix priors
+- fit with spatially structured random effect
 - brms uses non-centered parameterisation by default: https://discourse.mc-stan.org/t/brms-priors-for-random-effect-sds-and-non-centered-parameterizations/32415/3
 - Dig into effects that we didn't expect, e.g., species and gear limits, low vs. high compliance effects - might just be that these are places with low numbers of sharks (sampling/site selection bias), 
     - Do a contingency table , shark abundnace by category
