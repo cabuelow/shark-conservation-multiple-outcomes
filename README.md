@@ -15,6 +15,13 @@ This repository contains code for developing a Bayesian hierarchical model to de
 - brms uses non-centered parameterisation by default: https://discourse.mc-stan.org/t/brms-priors-for-random-effect-sds-and-non-centered-parameterizations/32415/3
 - once have models for carbon ingestion and abundance - map out synergies and tradeoffs in a biplot when trying to maximise outcomes
 
+- for Carbon ingestion model
+  - consider measurement error models in brms, can propagate uncertainty in the estimates ingestion rates (getting sd from Sophies fishflux point estimates)
+  - https://paulbuerkner.com/brms/reference/mi.html
+  - https://discourse.mc-stan.org/t/difference-between-mi-and-se-for-response-measurement-error/30861
+  - https://bookdown.org/content/4857/missing-data-and-other-opportunities.html#measurement-error
+  - https://github.com/paul-buerkner/brms/issues/698
+  
 - MPA predictor variabels
   - see discussion of when multicollinearity is an issue in causal inference
     - should be ok if we have a lot of data
