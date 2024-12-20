@@ -4,13 +4,13 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- Evaluate new models with correct adjustment sets
+- Get carbon ingestoin models running
 - Sophie is getting us SD for fish fluxes, she also says: Dk (Diet stoichiometry) parameter is by far what the model is most sensitive to. 
 - Fit models without MPA variables
 - do HDI^2
 - Run model on carbon ingestion rates
-- Figure out what is going on with 'closed plus' and negative effect of MPA presence
-    - either remove MPAs from model, or run individual models (rather than full one)
-    - From Matt C: My hunch is that likely there's a collider that is an outcome of both the MPA presence and reef shark abundance, that is biasing the estimate of MPAs in the global model. There are lots of things that could reasonably be downstream outcomes of both MPAs and reef shark abundance, so it's not really a surprise. Depending on how long the model takes to run, you might systematically remove exposure variables from the full model to identify which is causing the problem. We might fully remove that variable from the full model or just use a different model for MPAs. Overall, I think it's fine to use the MPA specific DAG to look at the effect of MPAs. There's a ton of room for error in such a complicated dag like we have for the full system and if it's giving us an obviously (I think?) wrong result (MPAs are bad for sharks), it's fine to trim down the set of controls that we better understand. 
+ - From Matt C: My hunch is that likely there's a collider that is an outcome of both the MPA presence and reef shark abundance, that is biasing the estimate of MPAs in the global model. There are lots of things that could reasonably be downstream outcomes of both MPAs and reef shark abundance, so it's not really a surprise. Depending on how long the model takes to run, you might systematically remove exposure variables from the full model to identify which is causing the problem. We might fully remove that variable from the full model or just use a different model for MPAs. Overall, I think it's fine to use the MPA specific DAG to look at the effect of MPAs. There's a ton of room for error in such a complicated dag like we have for the full system and if it's giving us an obviously (I think?) wrong result (MPAs are bad for sharks), it's fine to trim down the set of controls that we better understand. 
 - fit simulatneous autoregressive (SAR) lag models to address spatial autocorrelation.
   - SAR lag models incorporate a spatial weights matrix to account for autocorrelation in the responsevariable by estimating the strength of the spatial dependencies among sites as an additional parameter
   - https://onlinelibrary.wiley.com/doi/full/10.1111/ele.14058
