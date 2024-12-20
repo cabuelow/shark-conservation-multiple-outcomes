@@ -1,11 +1,11 @@
 library(dagitty)
-
+library(ggdag)
 # import dag
 myDAG <- dagitty('dag {
 bb="0,0,1,1"
-"MPA age" [exposure,pos="0.951,0.574"]
-"MPA compliance" [exposure,pos="0.945,0.420"]
-"MPA size" [exposure,pos="0.965,0.299"]
+"MPA age" [pos="0.951,0.574"]
+"MPA compliance" [pos="0.945,0.420"]
+"MPA size" [pos="0.965,0.299"]
 "catch limits" [exposure,pos="0.406,0.122"]
 "coast length" [pos="0.135,0.568"]
 "effort limits" [exposure,pos="0.402,0.193"]
@@ -14,7 +14,7 @@ bb="0,0,1,1"
 "geomorphic type" [pos="0.229,0.376"]
 "government effectiveness" [pos="0.870,0.028"]
 "hard coral" [pos="0.442,0.955"]
-"human gravity" [exposure,pos="0.874,0.633"]
+"human gravity" [pos="0.874,0.633"]
 "macroalgae cover" [pos="0.064,0.700"]
 "population size" [pos="0.907,0.787"]
 "primary productivity" [pos="0.132,0.250"]
@@ -32,14 +32,13 @@ bb="0,0,1,1"
 "temporal limits" [exposure,pos="0.636,0.052"]
 "wave exposure" [latent,pos="0.161,0.836"]
 HDI [pos="0.956,0.126"]
-MPA [exposure,pos="0.791,0.290"]
+MPA [pos="0.791,0.290"]
 SST [pos="0.036,0.349"]
 depth [pos="0.029,0.856"]
 pollution [latent,pos="0.678,0.918"]
 rugosity [pos="0.278,0.910"]
 season [pos="0.327,0.326"]
 voice [pos="0.735,0.039"]
-"MPA age" -> "MPA compliance"
 "MPA age" -> "reef fish biomass"
 "MPA compliance" -> "reef fish fishing pressure"
 "MPA compliance" -> "shark fishing pressure"
@@ -139,14 +138,15 @@ season -> "reef shark abundance"
 voice -> "MPA compliance"
 voice -> "fishing restrictions"
 voice -> MPA
-}')
+}
+')
 
 # what are the implied conditional independencies?
 impliedConditionalIndependencies(myDAG)
 
 # adjustment sets?
 adjustmentSets(myDAG)
-
+ggdag_adjustment_set(myDAG)
 # evaluate the d-separation implications of our DAG with our simulated dataset 
 # will need to turn categorical variables with more than two levels into binary
 

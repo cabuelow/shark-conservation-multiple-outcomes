@@ -4,6 +4,9 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- Sophie is getting us SD for fish fluxes, she also says: Dk (Diet stoichiometry) parameter is by far what the model is most sensitive to. 
+- Fit models without MPA variables
+- do HDI^2
 - Run model on carbon ingestion rates
 - Figure out what is going on with 'closed plus' and negative effect of MPA presence
     - either remove MPAs from model, or run individual models (rather than full one)
