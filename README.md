@@ -7,6 +7,7 @@ This repository contains code for developing a Bayesian hierarchical model to de
 - Evaluate new models with correct adjustment sets
 - Get carbon ingestoin models running
 - Map the sweet spots with gravity for the 2 different outcomes
+- map out spatial distribution of the gains
 
 - Sophie is getting us SD for fish fluxes, she also says: Dk (Diet stoichiometry) parameter is by far what the model is most sensitive to. 
 - Fit models without MPA variables
