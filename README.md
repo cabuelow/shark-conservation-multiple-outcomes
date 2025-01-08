@@ -4,6 +4,10 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
+- work on stronger priors for both models - maxn and ingestion
+- run for more iterations see if improves more iterations
+- try SAR lag models to address spatial autocorrelation - especially ingestion model
+
 - Evaluate new models with correct adjustment sets
 - Get carbon ingestoin models running
 - Map the sweet spots with gravity for the 2 different outcomes
