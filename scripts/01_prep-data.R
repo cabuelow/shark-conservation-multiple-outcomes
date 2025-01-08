@@ -10,7 +10,7 @@ library(tmap)
 scale_2SD <- function(x) (x-mean(x, na.rm = T))/(2*sd(x, na.rm = T)) # function to mean center and scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
 logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) # log+min transform for skewed covariates
 
-# flux estimates (g/day) for reef shark species
+# flux estimates (g/day) for sharks
 flux <- read.csv('data/flux-rate-estimates_01-11-2024.csv') |> 
   select(Species, common_name, ingestion_C_g_day)
 
@@ -20,12 +20,23 @@ dat <- read.csv('data/fp_data_foremily.csv') |>
   # filter for species we have flux data for plus Caribbean and whitetip
   filter(genus_species %in% c(" ", unique(flux$Species)) | common_name %in% c("Whitetip reef shark", "Caribbean reef shark")) |> 
   mutate(maxn = ifelse(is.na(maxn), 0, maxn)) |> 
-  # sum maxn across species at each set
+  # join flux data
+  left_join(flux, by = c('genus_species' = 'Species')) |>
+  # for caribbean and whitetips, substitute grey and blacktip rates, respectively
+  mutate(ingestion_C_g_day = ifelse(common_name.x == "Whitetip reef shark", filter(flux, common_name == 'Blacktip reef shark')$ingestion_C_g_day, ingestion_C_g_day),
+         ingestion_C_g_day = ifelse(common_name.x == "Caribbean reef shark", filter(flux, common_name == 'Grey reef shark')$ingestion_C_g_day, ingestion_C_g_day)) |> 
+  # estimate total ingestion rate given number of individuals of each species observed  
+  mutate(ingestion_C_g_day = ingestion_C_g_day * maxn,
+         ingestion_C_g_day = ifelse(is.na(ingestion_C_g_day), 0, ingestion_C_g_day)) |> 
+  # sum maxn and ingestion rates across species at each set
   group_by(set_id) |> 
-  summarise(maxn = sum(maxn)) |> 
-  # join covariates of intereset
+  summarise(maxn = sum(maxn),
+            ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
+  # join covariates of interest
   left_join(select(read.csv('data/fp_data_foremily.csv'), set_lat, set_long, reef_id, set_id, location_id, region_id,
-                   mpa_name, mpa_compliance, fishing_restrictions, shark_protection_status, shark_sanctuary, HDI_2015, gov_effect_2016, population_2016, Grav_Total)) |> 
+                   mpa_name, mpa_compliance, fishing_restrictions, shark_protection_status, shark_sanctuary, HDI_2015, gov_effect_2016, population_2016, Grav_Total), 
+             by = 'set_id') |> 
+  # drop duplicated rows
   distinct() |> 
   # separate fishing restrictions into categorical variables for each limit type
   separate(col = 'fishing_restrictions', 
@@ -43,26 +54,8 @@ dat <- read.csv('data/fp_data_foremily.csv') |>
          across(c(set_id, reef_id:region_id, mpa_compliance, shark_protection_status,shark_sanctuary, mpa_present:temporal_limits), factor),
          across(c(population_2016, Grav_Total), logtrans),
          across(c(HDI_2015, gov_effect_2016, population_2016, Grav_Total), scale_2SD),
-         shark_protection_status = relevel(factor(shark_protection_status), ref = "Open"))
-
-# estimate total flux at each set across all species
-dat_flux <- read.csv('data/fp_data_foremily.csv') |> 
-  mutate(genus_species = paste(genus, species)) |> 
-  # filter for species we have flux data for plus Caribbean and whitetip
-  filter(genus_species %in% c(unique(flux$Species)) | common_name %in% c("Whitetip reef shark", "Caribbean reef shark")) |> 
-  # join flux data
-  left_join(flux, by = c('genus_species' = 'Species')) |>
-  # for caribbean and whitetips, substitute grey and blacktip rates, respectively
-  mutate(ingestion_C_g_day = ifelse(common_name.x == "Whitetip reef shark", filter(flux, common_name == 'Blacktip reef shark')$ingestion_C_g_day, ingestion_C_g_day),
-         ingestion_C_g_day = ifelse(common_name.x == "Caribbean reef shark", filter(flux, common_name == 'Grey reef shark')$ingestion_C_g_day, ingestion_C_g_day)) |> 
-  # estimate total fluxes given number of individuals observed  
-  mutate(ingestion_C_g_day = ingestion_C_g_day * maxn) |> 
-  # total fluxes summed across species
-  group_by(set_lat, set_long, set_id, reef_id, location_id, region_id) |> 
-  summarise(ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
-  ungroup() |> 
-  mutate(across(c(set_id:region_id), factor)) |> 
-  left_join(dat)
+         shark_protection_status = relevel(factor(shark_protection_status), ref = "Open")) |> 
+  select(-c(mpa_name, limits1:limits8))
 
 # map the data
 dat.sf <- dat |> 
@@ -70,15 +63,25 @@ dat.sf <- dat |>
 tmap_mode('view')
 qtm(dat.sf, dots.col = 'shark_protection_status')
 qtm(dat.sf, dots.col = 'maxn')
+qtm(dat.sf, dots.col = 'ingestion_C_g_day')
 
 # visualise the data
-ggpairs(select(dat, maxn, mpa_compliance, shark_protection_status:temporal_limits))
-ggpairs(select(dat_flux, ingestion_C_g_day, maxn, mpa_compliance, shark_protection_status:temporal_limits))
+ggpairs(dat)
 
 # plot correlation between multiple outcomes (maxn and ingestion rates)
-dat_flux |> 
+dat |> 
   ggplot() +
   aes(x = maxn, y = ingestion_C_g_day) +
-  geom_jitter() +
+  geom_jitter(alpha = 0.1) +
   theme_classic()
+ggsave('outputs/figures/outcome-correlation.png', width = 5, height = 4)
 
+dat |> 
+  ggplot() +
+  aes(x = log(maxn+1), y = log(ingestion_C_g_day+1)) +
+  geom_jitter(alpha = 0.1) +
+  theme_classic()
+ggsave('outputs/figures/outcome-correlation_logged.png', width = 5, height = 4)
+
+# save wrangled data
+write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)
