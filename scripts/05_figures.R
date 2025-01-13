@@ -6,7 +6,7 @@ library(tidybayes)
 library(patchwork)
 
 load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-08.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-01-13.csv') |> 
   mutate(across(c(set_id, reef_id:region_id, mpa_compliance, shark_protection_status,shark_sanctuary, mpa_present:temporal_limits), factor),
          shark_protection_status = relevel(factor(shark_protection_status), ref = "Open"))
 var_zinb <- get_variables(fit_zinb_int) # get variable names for plotting
