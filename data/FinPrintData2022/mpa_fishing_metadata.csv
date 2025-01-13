@@ -1,0 +1,544 @@
+region_name,location_name,site_name,site_type,reef_name,protection_status,mpa_name,mpa_area,mpa_year_founded,mpa_isolation,mpa_compliance,fishing_restrictions,shark_fishing_gear,region_id,location_id,site_id,reef_id
+Coral Triangle,China,Hainan,C,x1,openly fished,,,,,,,,2,77,133,348
+Coral Triangle,China,Hainan,C,x2,openly fished,,,,,,,,2,77,133,408
+Coral Triangle,Hong Kong,x,C,x1,openly fished,,,,,,,,2,83,171,330
+Coral Triangle,Hong Kong,x,C,x2,openly fished,,,,,,,,2,83,171,383
+Coral Triangle,Indonesia,Bau Bau,I,Coast,openly fished,,,,,,,blast; seine; hook and line; gillnet; spear; longline,2,93,218,492
+Coral Triangle,Indonesia,Bau Bau,I,Coast3,openly fished,,,,,,,seine; hook and line; blast; longline; spear; fish trap; gillnet,2,93,218,772
+Coral Triangle,Indonesia,Bau Bau,I,Coast4,openly fished,,,,,,,seine; longline; fish trap; spear; gillnet; blast; hook and line,2,93,218,798
+Coral Triangle,Indonesia,Bau Bau,I,Islands,openly fished,,,,,,,spear; fish trap; seine; gillnet; hook and line; blast; longline,2,93,218,493
+Coral Triangle,Indonesia,Bau Bau,I,Islands3,openly fished,,,,,,,blast; gillnet; spear; fish trap; seine; hook and line,2,93,218,773
+Coral Triangle,Indonesia,Bau Bau,I,Islands4,openly fished,,,,,,,spear; fish trap; blast; hook and line; seine; longline; gillnet,2,93,218,799
+Coral Triangle,Indonesia,Gili Islands,C,Gili Air Open,restricted,,,,,,gear,gillnet; cyanide; drumline; spear; fish trap,2,93,131,684
+Coral Triangle,Indonesia,Gili Islands,C,Gili Meno Open,restricted,,,,,,"area, gear",fish trap; gillnet; hook and line,2,93,131,683
+Coral Triangle,Indonesia,Gili Islands,C,Gili Trawangan Closed,closed,Gili Matra Reserve,3.00,2007,<20km to next reef,low,"gear, area",hook and line; fish trap,2,93,131,168
+Coral Triangle,Indonesia,Gili Islands,C,Gili Trawangan Open,restricted,,,,,,"area, species",fish trap; hook and line; spear; longline,2,93,131,169
+Coral Triangle,Indonesia,Kopoposang,V,Open,restricted,Kopoposang Restricted,500.00,2009,<20km to next reef,low,area,longline; cyanide; gillnet; blast; spear; hook and line; seine,2,93,125,340
+Coral Triangle,Indonesia,Kopoposang,V,Protected,closed,Kopoposang Closed,100.00,2009,<20km to next reef,low,"entrants, area, effort",cyanide; seine; longline; spear; gillnet; blast; hook and line,2,93,125,403
+Coral Triangle,Indonesia,North Sulawesi,V,Bangka Island,openly fished,,,,,,,spear; longline; gillnet; cyanide; blast; hook and line; seine,2,93,129,353
+Coral Triangle,Indonesia,North Sulawesi,V,Lembeh Island,openly fished,,,,,,,longline; cyanide; blast; hook and line; seine; spear; gillnet,2,93,129,407
+Coral Triangle,Indonesia,North Sumatra,V,Aceh Island,restricted,Rupiah Island Marine Park,26.00,,<20km to next reef,low,area,blast; cyanide; spear; seine; hook and line; longline; gillnet,2,93,128,453
+Coral Triangle,Indonesia,North Sumatra,V,Weh Island Closed,restricted,Pulau Weh Marine Park,13.00,1982,continuous,low,area,longline; hook and line; cyanide; blast; spear; gillnet; seine,2,93,128,406
+Coral Triangle,Indonesia,North Sumatra,V,Weh Island Open,restricted,Weh Island Marine Nature Tourist Park,26.00,1982,continuous,low,area,seine; spear; hook and line; blast; cyanide; longline; gillnet,2,93,128,352
+Coral Triangle,Indonesia,Nusa Penida,V,East,openly fished,,,,,,,drumline; hook and line; blast; longline; spear; gillnet; cyanide; seine,2,93,123,343
+Coral Triangle,Indonesia,Nusa Penida,V,West,openly fished,,,,,,,spear; seine; hook and line; longline; blast; gillnet; cyanide; drumline,2,93,123,401
+Coral Triangle,Indonesia,Raja Ampat,C,x2,openly fished,,,,,,,,2,93,148,416
+Coral Triangle,Japan,Okinawa,I,Iriomote,openly fished,,,,,,,gillnet; spear; longline; seine; hook and line,2,63,144,415
+Coral Triangle,Japan,Okinawa,I,Kuroshima,openly fished,,,,,,,gillnet; hook and line; seine; longline; spear,2,63,144,376
+Coral Triangle,Malaysia,Kota Kinabalu,I,Tunku Abdul Rahman Park,closed,Tunku Abdul Rahman Park,49.00,1974,<20km to next reef,high,"area, effort",,2,100,120,327
+Coral Triangle,Malaysia,Kuala Terrenganu,C,Pulau Redang,closed,Pulau Redang Archipelago,510.00,1984,<20km to next reef,medium,"effort, area",spear; hook and line,2,100,221,497
+Coral Triangle,Malaysia,Perhentian,V,West,closed,Pulau Perhentian Archipelago,17.00,1984,<20km to next reef,low,,,2,100,220,496
+Coral Triangle,Malaysia,Semporna Islands Park,I,Tun Sakaran Marine Park,restricted,Tun Sakaran Marine Park,101.00,2004,<20km to next reef,medium,"area, species",gillnet; spear; seine; hook and line,2,100,126,402
+Coral Triangle,Malaysia,Semporna Islands Park,I,x1,openly fished,,,,,,,,2,100,126,362
+Coral Triangle,Malaysia,Semporna Islands Park,I,x2,openly fished,,,,,,,,2,100,126,404
+Coral Triangle,Malaysia,Semporna South,I,Mabul / Kapalai,openly fished,,,,,,,gillnet; longline; seine; hook and line,2,100,124,368
+Coral Triangle,Malaysia,Semporna South,I,Sipadan,closed,Sipadan,4.00,2004,>20km to next reef,high,"entrants, area, effort",,2,100,124,399
+Coral Triangle,Malaysia,Tioman,V,East,closed,Pulau Tioman Marine Park,140.00,1994,<20km to next reef,medium,"area, effort",hook and line,2,100,219,495
+Coral Triangle,Malaysia,Tioman,V,West,closed,Pulau Tioman Marine Park,140.00,1994,<20km to next reef,medium,"effort, area",hook and line,2,100,219,494
+Coral Triangle,Papua New Guinea,Conflict Islands,A,Milne Bay Lagoon,restricted,,,,,,effort,longline; hook and line,2,95,273,414
+Coral Triangle,Papua New Guinea,Conflict Islands,A,Outer Milne Bay,restricted,,,,,,effort,hook and line; longline,2,95,273,335
+Coral Triangle,Papua New Guinea,Kavieng,I,Kapalaman,openly fished,,,,,,,longline; hook and line; spear,2,95,136,545
+Coral Triangle,Papua New Guinea,Kavieng,I,Tsoi Islands,restricted,,,,,,gear,gillnet; longline; seine; spear; hook and line,2,95,136,546
+Coral Triangle,Papua New Guinea,Kimbe Bay,I,Hoskins Lagoon,restricted,,,,,,area,hook and line; longline,2,95,137,411
+Coral Triangle,Papua New Guinea,Kimbe Bay,I,Restoff Island,restricted,,,,,,area,hook and line; longline,2,95,137,329
+Coral Triangle,Philippines,Cagayan Island,V,Cagayancillo,restricted,,,,,,species,gillnet; fish trap; hook and line; drumline; longline; spear,2,74,245,203
+Coral Triangle,Philippines,Cagayan Island,V,Cawili,restricted,,,,,,species,longline; hook and line; fish trap; spear; gillnet; drumline,2,74,245,202
+Coral Triangle,Philippines,Luzon,V,Matnog,restricted,,,,,,species,longline; fish trap; hook and line; drumline; spear; gillnet,2,74,242,199
+Coral Triangle,Philippines,Luzon,V,Ticao,restricted,,,,,,species,spear; longline; fish trap; hook and line; drumline; gillnet,2,74,242,198
+Coral Triangle,Philippines,Mindoro,V,Apo Reef,closed,Apo Reef Natural Park,34.00,2007,<20km to next reef,high,"entrants, temporal, bag, area, size, effort, species, gear",,2,74,146,195
+Coral Triangle,Philippines,Mindoro,V,Sablayan Closed,restricted,,,,,,species,fish trap; hook and line; drumline; longline; spear; gillnet,2,74,146,196
+Coral Triangle,Philippines,Mindoro,V,Sablayan Open,restricted,,,,,,species,spear; drumline; hook and line; fish trap; gillnet; longline,2,74,146,197
+Coral Triangle,Philippines,Oslob,V,Cabilao,restricted,,,,,,species,hook and line; gillnet; fish trap; drumline; longline; spear,2,74,243,201
+Coral Triangle,Philippines,Sulu,V,Tubbataha,closed,Tubbataha Reefs Natural Park,970.30,1988,>20km to next reef,high,"entrants, gear, species, effort, size, temporal, area, bag",,2,74,244,200
+Coral Triangle,Solomon Islands,Gizo Area,V,Open,restricted,,,,,,gear,gillnet; drumline; hook and line; spear; longline,2,62,151,328
+Coral Triangle,Solomon Islands,Zaira Area,V,Open,restricted,,,,,,"gear, area, effort",spear; hook and line,2,62,152,418
+Coral Triangle,Solomon Islands,Zaira Area,V,Protected,restricted,Zaira Periodically Harvested Closure,3.32,2012,continuous,medium,"area, effort",hook and line; spear,2,62,152,345
+Coral Triangle,Solomon Islands,Zaira Area,V,x2,openly fished,,,,,,,,2,62,152,419
+Coral Triangle,Taiwan,Dongsha,A,Lagoon,closed,Dongsha Atoll National Park,3537.00,2007,>20km to next reef,low,area,hook and line; gillnet; spear; longline; seine,2,71,169,381
+Coral Triangle,Taiwan,Dongsha,A,Outer,closed,Dongsha Atoll National Park,3537.00,2007,>20km to next reef,low,area,seine; gillnet; longline; spear; hook and line,2,71,169,369
+Coral Triangle,Taiwan,Green Island,V,Green Island,restricted,,,,,,area,spear; longline; hook and line,2,71,226,505
+Coral Triangle,Taiwan,Orchid Island,V,Orchid Island,restricted,,,,,,temporal,longline; gillnet; seine; hook and line; spear,2,71,227,506
+Coral Triangle,Taiwan,Penghu,V,Cimei,restricted,,,,,,species,hook and line; spear; longline; seine; gillnet,2,71,228,507
+Coral Triangle,Taiwan,Penghu,V,North,restricted,,,,,,area,seine; hook and line; spear; longline; gillnet,2,71,228,508
+Coral Triangle,Test Training,Test,A,Training,openly fished,,,,,,,gillnet,2,121,308,710
+Coral Triangle,Timor-Leste,x,C,x1,openly fished,,,,,,,,2,76,178,367
+Coral Triangle,Timor-Leste,x,C,x2,openly fished,,,,,,,,2,76,178,389
+Coral Triangle,Vietnam,Con Dao Islands,I,Con Dao,openly fished,,,,,,,trawl; gillnet; fish trap; hook and line; drumline; seine; longline,2,117,330,753
+Coral Triangle,Vietnam,CoTo Island,I,Chien Thang,openly fished,,,,,,,,2,117,240,540
+Coral Triangle,Vietnam,CoTo Island,I,Dong Tien,openly fished,,,,,,,spear; cyanide; blast; hook and line; drumline; seine; longline; gillnet,2,117,240,539
+Coral Triangle,Vietnam,Ninh Thuan,C,North,openly fished,,,,,,,seine; spear; gillnet; drumline; hook and line; longline,2,117,241,538
+Coral Triangle,Vietnam,Ninh Thuan,C,South,openly fished,,,,,,,gillnet; seine; drumline; longline; hook and line; spear,2,117,241,537
+Coral Triangle,Vietnam,Phu Quoc,I,An Thoi,restricted,Phu Quoc Marine Park,98.42,2001,continuous,low,area,hook and line; drumline; seine; longline; spear; gillnet; trawl; fish trap,2,117,331,754
+Indian Ocean,Australia-Indian Ocean,Ashmore,A,Ashmore East,closed,Ashmore Reef Commonwealth Marine Reserve,583.00,1983,>20km to next reef,high,,,4,85,122,400
+Indian Ocean,Australia-Indian Ocean,Ashmore,A,Ashmore West,closed,Ashmore Reef Commonwealth Marine Reserve,583.00,1983,>20km to next reef,high,,,4,85,122,357
+Indian Ocean,Australia-Indian Ocean,Christmas Island,I,East,openly fished,,,,,,,spear; hook and line,4,85,298,691
+Indian Ocean,Australia-Indian Ocean,Christmas Island,I,North West,openly fished,,,,,,,spear; hook and line,4,85,298,692
+Indian Ocean,Australia-Indian Ocean,Cobourg Peninsula,C,Airport Beach,restricted,Cobourg Marine Park,229.00,1983,continuous,unknown,gear,hook and line,4,85,223,499
+Indian Ocean,Australia-Indian Ocean,Cobourg Peninsula,C,Offshore Reef,restricted,,,,,,gear,hook and line,4,85,223,500
+Indian Ocean,Australia-Indian Ocean,Cocos-Keeling,A,Home Island,openly fished,,,,,,,hook and line; spear,4,85,127,688
+Indian Ocean,Australia-Indian Ocean,Cocos-Keeling,A,Keeling,restricted,,,,,,,hook and line,4,85,127,732
+Indian Ocean,Australia-Indian Ocean,Cocos-Keeling,A,South Island,openly fished,,,,,,,spear; hook and line,4,85,127,690
+Indian Ocean,Australia-Indian Ocean,Cocos-Keeling,A,West Island,openly fished,,,,,,,hook and line; spear,4,85,127,689
+Indian Ocean,Australia-Indian Ocean,Cocos-Keeling,A,x1,openly fished,,,,,,,,4,85,127,359
+Indian Ocean,Australia-Indian Ocean,Cocos-Keeling,A,x2,openly fished,,,,,,,,4,85,127,405
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,Easter Open,restricted,Abrolhos Island Fish Habitat Protection Area,2531.00,1994,>20km to next reef,high,"species, gear, effort, size, area",longline; hook and line; spear,4,85,290,626
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,Easter Reserve,closed,Easter Reserve,22.29,1994,continuous,high,"effort, gear, area, size, species",longline; hook and line; spear,4,85,290,627
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,North Open,restricted,Abrolhos Island Fish Habitat Protection Area,2531.00,1994,>20km to next reef,high,"area, gear, species, effort, size",longline; hook and line; spear,4,85,290,628
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,North Reserve,closed,North Reserve,2.78,1994,continuous,high,"area, gear, species, effort, size",longline; hook and line; spear,4,85,290,629
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,Pelsaert Open,restricted,Abrolhos Island Fish Habitat Protection Area,2531.00,1994,>20km to next reef,high,"effort, area, gear, species, size",longline; spear; hook and line,4,85,290,632
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,Pelsaert Reserve,closed,Pelsaert Reserve,13.72,1994,continuous,high,"size, area, species, effort, gear",hook and line; spear; longline,4,85,290,633
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,Wallabi Open,restricted,Abrolhos Island Fish Habitat Protection Area,2531.00,1994,>20km to next reef,high,"effort, area, size, species, gear",hook and line; spear; longline,4,85,290,630
+Indian Ocean,Australia-Indian Ocean,Houtman Abrolhos,A,Wallabi Reserve,closed,Wallabi Reserve,27.44,1994,continuous,high,"gear, species, effort, area, size",longline; spear; hook and line,4,85,290,631
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Adele Island,restricted,,,,,,"effort, species, area, gear, size",hook and line; gillnet,4,85,294,652
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Blue Holes,restricted,,,,,,"area, size, effort, species, gear",hook and line; gillnet,4,85,294,663
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Cape Lagrange,restricted,,,,,,"gear, size, effort, species, area",hook and line; gillnet,4,85,294,685
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Dugong Bay,restricted,,,,,,"species, gear, effort, size",gillnet; hook and line,4,85,294,653
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Emeriau Point,restricted,,,,,,"effort, area, gear, size, species",gillnet; hook and line,4,85,294,686
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Entrance Island,restricted,,,,,,"area, gear, species, effort, size",gillnet; hook and line,4,85,294,661
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Hat Point,restricted,,,,,,"gear, species, effort, size, area",gillnet; hook and line,4,85,294,659
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Holothuria Reef,restricted,,,,,,"effort, gear, species, area, size",hook and line; gillnet,4,85,294,660
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Institut Islands,restricted,,,,,,"gear, effort, size, area, species",hook and line; gillnet,4,85,294,657
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Jackson Island,restricted,,,,,,"gear, effort, area, species, size",hook and line; gillnet,4,85,294,662
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Lacepede Islands,restricted,,,,,,"gear, species, area, size, effort",hook and line; gillnet,4,85,294,687
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Long Reef,restricted,,,,,,"gear, area, effort, species, size",hook and line; gillnet,4,85,294,658
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Montgomery Channel,restricted,,,,,,"gear, area, size, effort, species",gillnet; hook and line,4,85,294,664
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Montgomery Island,restricted,,,,,,"gear, area, size, effort, species",gillnet; hook and line,4,85,294,654
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Wildcat Reef,restricted,,,,,,"size, area, gear, species, effort",gillnet; hook and line,4,85,294,656
+Indian Ocean,Australia-Indian Ocean,Kimberley,C,Wilson Point,restricted,,,,,,"gear, area, size, effort, species",hook and line; gillnet,4,85,294,655
+Indian Ocean,Australia-Indian Ocean,Montebello Islands,A,Monte Fished,restricted,Montebello Marine Park,583.31,2007,>20km to next reef,high,"effort, size, species, area, gear",hook and line; spear,4,85,292,641
+Indian Ocean,Australia-Indian Ocean,Montebello Islands,A,Monte Reserve,closed,Montebello Sanctuaries,280.00,2007,continuous,high,"effort, area, size, gear, species",spear; hook and line,4,85,292,642
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Bateman Reserve,closed,Bateman Sanctuary,11.10,2005,continuous,high,"size, gear, species, effort, area",hook and line; spear,4,85,291,669
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Cloates Open,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"gear, species, area, size, effort",hook and line; spear,4,85,291,670
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Cloates Reserve,closed,Cloates Sanctuary Zone,447.52,2005,continuous,high,"effort, size, gear, area, species",spear; hook and line,4,85,291,671
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,East Exmouth Gulf,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"size, gear, species, effort, area",hook and line; spear,4,85,291,667
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Mandu Open,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"area, gear, species, effort, size",spear; hook and line,4,85,291,672
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Mandu Reserve,closed,Mandu Sanctuary,13.49,2005,continuous,high,"gear, area, size, effort, species",spear; hook and line,4,85,291,673
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Maud Reserve,closed,Maud Sanctuary,21.51,2005,continuous,high,"species, area, size, effort, gear",spear; hook and line,4,85,291,674
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Middle,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"gear, area, species, size, effort",hook and line; spear,4,85,291,634
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,North,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"species, area, size, effort, gear",spear; hook and line,4,85,291,635
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Osprey Reserve,closed,Osprey Sanctuary,95.13,2005,continuous,high,"species, gear, area, size, effort",spear; hook and line,4,85,291,675
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Pelican Open,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"size, area, species, effort, gear",hook and line; spear,4,85,291,676
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Pelican Reserve,closed,Pelican Sanctuary,108.64,2005,continuous,high,"area, size, gear, species, effort",spear; hook and line,4,85,291,677
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,South,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"species, area, size, effort, gear",hook and line; spear,4,85,291,636
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,South Exmouth Gulf,restricted,,,,,,"species, gear, size, effort",hook and line; spear; seine,4,85,291,665
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,West Exmouth Gulf,restricted,,,,,,"gear, effort, size, species",spear; seine; hook and line,4,85,291,666
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Winderabandi Open,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"size, effort, species, gear, area",spear; hook and line,4,85,291,678
+Indian Ocean,Australia-Indian Ocean,Ningaloo,C,Winderabandi Reserve,closed,Winderabandi Sanctuary,55.26,2005,continuous,high,"effort, gear, species, area, size",spear; hook and line,4,85,291,679
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Dampier,restricted,,,,,,"species, effort, size, gear",hook and line; spear,4,85,293,643
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Eaglehawk Island,restricted,,,,,,"species, effort, size, gear",spear; hook and line,4,85,293,680
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Enderby Island,restricted,,,,,,"size, gear, species, effort",spear; hook and line,4,85,293,681
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Mackeral Islands,restricted,,,,,,"gear, effort, size, species",gillnet; hook and line; spear,4,85,293,644
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Murion Open,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"size, area, gear, effort, species",spear; hook and line,4,85,293,646
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Murion Reserve,closed,Murion Conservation Areas,19.29,2005,>20km to next reef,high,"area, gear, species, effort, size",spear; hook and line,4,85,293,647
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,NW Cape Open,restricted,Ningaloo Marine Park,2633.43,2005,continuous,high,"gear, species, size, effort, area",hook and line; spear,4,85,293,648
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,NW Cape Reserve,closed,NW Cape Sanctuaries,11.86,2005,continuous,high,"gear, area, effort, size, species",spear; hook and line,4,85,293,649
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Rosemary Island,restricted,,,,,,"size, gear, species, effort",hook and line; spear,4,85,293,682
+Indian Ocean,Australia-Indian Ocean,Pilbara,C,Thevenard Island,restricted,,,,,,"gear, size, effort, species",spear; hook and line,4,85,293,645
+Indian Ocean,Australia-Indian Ocean,Rowley Shoals,A,Clerke Reef,restricted,Rowley Shoals Marine Park,876.00,1990,>20km to next reef,high,"entrants, bag, area, size, effort, gear, species",hook and line,4,85,149,417
+Indian Ocean,Australia-Indian Ocean,Rowley Shoals,A,Imperieuse Reef,restricted,Rowley Shoals Marine Park,876.00,1990,>20km to next reef,high,"species, gear, effort, size, area, bag, entrants",hook and line,4,85,149,332
+Indian Ocean,Australia-Indian Ocean,Scott Reef,I,North,openly fished,,,,,,,spear; hook and line,4,85,198,439
+Indian Ocean,Australia-Indian Ocean,Scott Reef,I,South,openly fished,,,,,,,hook and line; spear,4,85,198,467
+Indian Ocean,India,West Coast,C,Netrani,restricted,,,,,,"size, species, gear",gillnet; trawl; seine; hook and line,4,104,275,592
+Indian Ocean,India,West Coast,C,Takarli,restricted,,,,,,"size, gear, species",hook and line; seine; gillnet; trawl,4,104,275,593
+Indian Ocean,Kenya,Southern Kenya,C,Kisite Marine National Park,closed,Kisite Marine National Park,28.00,1973,<20km to next reef,high,,,4,107,281,606
+Indian Ocean,Kenya,Southern Kenya,C,Kisite West,restricted,,,,,,"effort, species, gear",longline; fish trap; hook and line; seine; gillnet; spear,4,107,281,731
+Indian Ocean,Kenya,Southern Kenya,C,Mpunguti Reserve,restricted,Mpunguti Reserve,11.00,1973,<20km to next reef,low,"gear, effort, species",fish trap; hook and line,4,107,281,730
+Indian Ocean,Kenya,Southern Kenya,C,Watamu,restricted,Watamu Marine Reserve,219.00,1968,<20km to next reef,medium,"gear, species, effort",hook and line; fish trap,4,107,281,607
+Indian Ocean,Madagascar,Antongil Bay,C,Antongil Bay 1,openly fished,,,,,,,,4,97,121,164
+Indian Ocean,Madagascar,Antongil Bay,C,Antongil Bay 2,openly fished,,,,,,,,4,97,121,165
+Indian Ocean,Madagascar,Barren Islands,I,Androta,openly fished,,,,,,,hook and line; gillnet,4,97,338,783
+Indian Ocean,Madagascar,Barren Islands,I,Moarantaly,openly fished,,,,,,,gillnet; hook and line,4,97,338,782
+Indian Ocean,Madagascar,Barren Islands,I,Nosy Iranja,openly fished,,,,,,,gillnet; hook and line,4,97,338,784
+Indian Ocean,Madagascar,Barren Islands,I,Nosy Lava,openly fished,,,,,,,gillnet; spear; fish trap; hook and line,4,97,338,781
+Indian Ocean,Madagascar,Barren Islands,I,Raddam,openly fished,,,,,,,gillnet; spear; hook and line,4,97,338,785
+Indian Ocean,Madagascar,Nosy Be,C,Entr_e canal sud,openly fished,,,,,,,hook and line; gillnet; fish trap,4,97,143,186
+Indian Ocean,Madagascar,Nosy Be,C,Grand banc exterieur,openly fished,,,,,,,spear; fish trap; gillnet; hook and line,4,97,143,187
+Indian Ocean,Madagascar,Nosy Be,C,Grand banc interieur,openly fished,,,,,,,hook and line; gillnet; fish trap,4,97,143,188
+Indian Ocean,Madagascar,Nosy Be,C,Les Pleiades,openly fished,,,,,,,hook and line; gillnet; fish trap,4,97,143,184
+Indian Ocean,Madagascar,Nosy Be,C,Nosy Sakatia,openly fished,,,,,,,hook and line; gillnet; fish trap,4,97,143,532
+Indian Ocean,Madagascar,Nosy Be,C,Nosy Tanikely,closed,Tanikely Marine Reserve,1.00,2010,<20km to next reef,high,gear,,4,97,143,189
+Indian Ocean,Madagascar,Nosy Be,C,Offshore,openly fished,,,,,,gear,gillnet; hook and line; fish trap; longline,4,97,143,531
+Indian Ocean,Madagascar,Nosy Be,C,Pente exterieur Iranja,openly fished,,,,,,gear,fish trap; longline; gillnet; hook and line,4,97,143,190
+Indian Ocean,Madagascar,Nosy Be,C,Pente interieur Iranja,openly fished,,,,,,gear,gillnet; hook and line; fish trap; spear,4,97,143,191
+Indian Ocean,Madagascar,Nosy Be,C,Shark Point,restricted,,,,,,gear,hook and line; gillnet; fish trap,4,97,143,185
+Indian Ocean,Madagascar,Nosy Be,C,Tombant ankaatsoberavina,openly fished,,,,,,gear,hook and line; gillnet,4,97,143,192
+Indian Ocean,Madagascar,Nosy Iranja,I,Banc Ankivonjy,restricted,,,,,,"gear, species",fish trap; spear; longline; gillnet; hook and line,4,97,237,637
+Indian Ocean,Madagascar,Nosy Iranja,I,North Reef,restricted,,,,,,gear,fish trap; hook and line,4,97,237,638
+Indian Ocean,Madagascar,Nosy Iranja,I,No-Take Island,closed,Nosy Iranja,3.00,2009,>20km to next reef,medium,,,4,97,237,528
+Indian Ocean,Madagascar,Nosy Iranja,I,No-Take North,closed,Nosy Iranja,3.00,2009,>20km to next reef,medium,,,4,97,237,527
+Indian Ocean,Madagascar,Nosy Iranja,I,No-Take South,closed,Nosy Iranja,3.00,2009,>20km to next reef,medium,,,4,97,237,524
+Indian Ocean,Madagascar,Nosy Iranja,I,Open Inshore,openly fished,,,,,,,fish trap; gillnet; hook and line; spear,4,97,237,526
+Indian Ocean,Madagascar,Nosy Iranja,I,Restricted,restricted,,,,,,gear,hook and line,4,97,237,525
+Indian Ocean,Madagascar,Nosy Iranja,I,Restricted North,restricted,,,,,,gear,hook and line; fish trap,4,97,237,529
+Indian Ocean,Madagascar,Nosy Iranja,I,South Reef,restricted,,,,,,gear,hook and line,4,97,237,639
+Indian Ocean,Madagascar,Nosy Komba,I,Nosy Komba,openly fished,,,,,,,hook and line; gillnet,4,97,238,530
+Indian Ocean,Madagascar,Nosy Mitsio,I,Mitsio No-Take,closed,Mitsio Reserve,3.00,2013,>20km to next reef,low,,,4,97,239,534
+Indian Ocean,Madagascar,Nosy Mitsio,I,Mitsio Restricted,restricted,,,,,,gear,hook and line,4,97,239,535
+Indian Ocean,Madagascar,Nosy Mitsio,I,North Island,closed,Mitsio Reserve,3.00,2013,>20km to next reef,low,,,4,97,239,533
+Indian Ocean,Madagascar,Nosy Mitsio,I,South Mitsio No-Take,closed,Mitsio Reserve,3.00,2013,>20km to next reef,low,,,4,97,239,536
+Indian Ocean,Maldives,Ari,A,North Ari Atoll,restricted,,,,,,"gear, species",fish trap; seine; spear; hook and line; gillnet; longline,4,91,196,432
+Indian Ocean,Maldives,Ari,A,South Ari Atoll,restricted,South Ari Marine Protected Area,42.00,2009,<20km to next reef,low,"gear, species, area",fish trap; seine; spear; hook and line; gillnet; longline,4,91,196,181
+Indian Ocean,Maldives,Baa Atoll,A,East,restricted,,,,,,"gear, species",fish trap; drumline; hook and line; gillnet; spear; longline; seine,4,91,349,808
+Indian Ocean,Maldives,Huvadhoo,A,Gaafu Alifu,closed,,,,,,,,4,91,350,811
+Indian Ocean,Maldives,Huvadhoo,A,Gaafu Dhaalu,closed,,,,,,,,4,91,350,812
+Indian Ocean,Maldives,Lhaviyani Atoll,A,North Lhaviyani,restricted,,,,,,"area, gear, species",gillnet; hook and line; fish trap; seine; spear; longline,4,91,195,433
+Indian Ocean,Maldives,Malé,A,North Malé Atoll,restricted,,,,,,"gear, area, species",fish trap; gillnet; longline; spear; seine; hook and line,4,91,140,434
+Indian Ocean,Maldives,Malé,A,South Malé Atoll,restricted,,,,,,"species, gear, area",hook and line; gillnet; longline; spear; seine; fish trap,4,91,140,180
+Indian Ocean,Maldives,Noonu Atoll,A,East,restricted,,,,,,"gear, species",spear; longline; hook and line; seine; fish trap; gillnet,4,91,348,807
+Indian Ocean,Mauritius,x,C,x1,openly fished,,,,,,,,4,67,177,374
+Indian Ocean,Mauritius,x,C,x2,openly fished,,,,,,,,4,67,177,388
+Indian Ocean,Mayotte,North,I,NorthEast,restricted,Mayotte Marine Nature Park,68381.00,2010,>20km to next reef,low,"area, effort",gillnet; longline; hook and line,4,90,181,585
+Indian Ocean,Mayotte,North,I,NorthWest,restricted,Mayotte Marine Nature Park,68381.00,2010,>20km to next reef,low,"effort, area",hook and line; gillnet; longline,4,90,181,586
+Indian Ocean,Mayotte,South,I,SouthEast,restricted,Mayotte Marine Nature Park,68381.00,2010,>20km to next reef,low,"effort, area",longline; hook and line; gillnet,4,90,270,587
+Indian Ocean,Mozambique,Central Mozambique,C,Lighthouse Reef,restricted,,,,,,"species, temporal, entrants, effort, gear",gillnet; longline; spear; fish trap; hook and line; seine,4,69,179,462
+Indian Ocean,Mozambique,Central Mozambique,C,North Bazaruto Reef,closed,Bazaruto Archipelago National Park,1430.00,2001,continuous,unknown,,,4,69,179,390
+Indian Ocean,Mozambique,Central Mozambique,C,Paradise Island,closed,Santa Carolina no-take zone within Bazaruto,4.50,2001,continuous,unknown,,,4,69,179,463
+Indian Ocean,Mozambique,Central Mozambique,C,Pinnacles,restricted,,,,,,"species, gear, temporal, bag, entrants, effort",spear; fish trap; longline; seine; gillnet; hook and line,4,69,179,464
+Indian Ocean,Mozambique,Central Mozambique,C,The Gap,restricted,Bazaruto Archipelago National Park,1430.00,2001,continuous,unknown,"effort, entrants, gear, species",fish trap; hook and line; spear,4,69,179,465
+Indian Ocean,Mozambique,Central Mozambique,C,Two Mile Reef,restricted,Bazaruto Archipelago National Park,1430.00,2001,continuous,unknown,"effort, species, entrants, gear, area",fish trap; hook and line; spear,4,69,179,466
+Indian Ocean,Mozambique,Southern Mozambique,C,Ponta do Ouro,restricted,Ponta do Ouro Partial Marine Reserve,10029.00,2000,continuous,unknown,"species, gear",spear; hook and line,4,69,295,651
+Indian Ocean,Myanmar,South Myanmar,C,x1,openly fished,,,,,,,,4,108,202,445
+Indian Ocean,Myanmar,South Myanmar,C,x2,openly fished,,,,,,,,4,108,202,446
+Indian Ocean,Oman,x,C,x1,openly fished,,,,,,,,4,98,167,347
+Indian Ocean,Oman,x,C,x2,openly fished,,,,,,,,4,98,167,379
+Indian Ocean,Qatar,Central Qatar,C,Al Aliya Island,restricted,,,,,,"effort, gear, species",spear; hook and line; fish trap; gillnet,4,103,222,498
+Indian Ocean,Qatar,Eastern Qatar,A,Maydan Mahzam_C,restricted,,,,,,"gear, species, effort",hook and line; fish trap; gillnet; spear,4,103,282,608
+Indian Ocean,Qatar,Northern Qatar,C,Al Ruwais,restricted,,,,,,"gear, species, effort",fish trap; gillnet; spear; hook and line,4,103,231,518
+Indian Ocean,Qatar,Northern Qatar,C,Um Al Ashan A,restricted,,,,,,"effort, species, gear",fish trap; gillnet; spear; hook and line,4,103,231,520
+Indian Ocean,Qatar,Northern Qatar,C,Um Al Ashan B,restricted,,,,,,"species, gear, effort",gillnet; hook and line; fish trap; spear,4,103,231,521
+Indian Ocean,Qatar,Southern Qatar,C,Al Ashat,restricted,,,,,,"species, gear, effort",gillnet; fish trap; hook and line; spear,4,103,232,519
+Indian Ocean,Saudi Arabia,North Saudi,C,Thuwal,restricted,,,,,,"species, temporal, gear",longline; fish trap; trawl; hook and line; spear; gillnet,4,64,309,380
+Indian Ocean,Saudi Arabia,South Saudi,C,Al Alith,restricted,,,,,,"species, temporal, gear",gillnet; longline; fish trap; spear; hook and line; trawl,4,64,168,344
+Indian Ocean,Seychelles,Alphonse,A,A,restricted,,,,,,"area, gear, entrants",fish trap; longline; hook and line; seine; spear,4,82,201,443
+Indian Ocean,Seychelles,Alphonse,A,St Francois,restricted,,,,,,"gear, area, entrants",seine; fish trap; hook and line; spear; longline,4,82,201,509
+Indian Ocean,South Africa,St Lucia,C,iSimangaliso Wetland Park Far North,closed,iSimangaliso Wetland Park - No Take North,50.00,1998,continuous,unknown,,,4,106,203,650
+Indian Ocean,South Africa,St Lucia,C,iSimangaliso Wetland Park North,restricted,iSimangaliso Wetland Park - Restricted,180.00,1998,continuous,unknown,"gear, species",spear; hook and line,4,106,203,447
+Indian Ocean,South Africa,St Lucia,C,iSimangaliso Wetland Park South,closed,iSimangaliso Wetland Park - No Take South,80.00,1998,continuous,unknown,,,4,106,203,448
+Indian Ocean,Sri Lanka,EastCoast,C,Nilaveli,openly fished,,,,,,,fish trap; spear; trawl; gillnet; longline; hook and line,4,81,283,640
+Indian Ocean,Sri Lanka,EastCoast,C,Pigeon Island National Park,closed,Pigeon Island National Park,4.71,2003,<20km to next reef,medium,,,4,81,283,609
+Indian Ocean,Sri Lanka,WestCoast,I,Colombo Reef,openly fished,,,,,,,longline; fish trap; hook and line; spear; trawl; gillnet,4,81,180,444
+Indian Ocean,Sudan,North Sudan,C,Dungonab Bay,openly fished,,,,,,,,4,105,204,451
+Indian Ocean,Sudan,North Sudan,C,Sanganeb atoll,openly fished,,,,,,,,4,105,204,452
+Indian Ocean,Tanzania,Northern Tanzania,C,Tanga North,restricted,,,,,,"gear, species",gillnet; spear; blast; longline; seine; hook and line; fish trap,4,80,175,364
+Indian Ocean,Tanzania,Northern Tanzania,C,Tanga South,restricted,Tanga Coelocanth Marine Park,467.00,2009,<20km to next reef,low,"area, gear, species",hook and line,4,80,175,591
+Indian Ocean,Thailand,x,C,x1,openly fished,,,,,,,,4,61,188,342
+Indian Ocean,Thailand,x,C,x2,openly fished,,,,,,,,4,61,188,397
+Indian Ocean,UAE,x,C,x1,openly fished,,,,,,,,4,65,172,371
+Indian Ocean,UAE,x,C,x2,openly fished,,,,,,,,4,65,172,384
+Pacific,American Samoa,Tutuila Island,V,Tutuila North,restricted,,,,,,"effort, species, gear, area",seine; fish trap; spear; gillnet; hook and line,3,72,163,234
+Pacific,American Samoa,Tutuila Island,V,Tutuila South,restricted,,,,,,"effort, area, gear, species",spear; hook and line; seine; gillnet; fish trap,3,72,163,235
+Pacific,Australia-Pacific,Central GBR,B,Chicken Reef,restricted,GBRMPA Chicken Reef Habitat Protection Zone,7067.00,2004,<20km to next reef,high,"temporal, species, gear, size, bag, entrants",hook and line; spear; gillnet; seine,3,73,154,233
+Pacific,Australia-Pacific,Central GBR,B,Helix Reef,closed,GBRMPA Helix Reef Marine Reserve,17.30,2004,<20km to next reef,high,,,3,73,154,231
+Pacific,Australia-Pacific,Central GBR,B,Knife Reef,closed,GBRMPA Knife Reef Marine Reserve,831.40,2004,<20km to next reef,high,,,3,73,154,232
+Pacific,Australia-Pacific,Central GBR,B,Rib Reef,restricted,GBRMPA Rib Reef Habitat Protection Zone,10.90,2004,<20km to next reef,high,"gear, species, size, bag, entrants, temporal",spear; hook and line; gillnet; seine,3,73,154,230
+Pacific,Australia-Pacific,Lord Howe Island,I,Balls Pyramid,restricted,Lord Howe Island Marine Park,2249.20,2004,<20km to next reef,high,"gear, species, bag, size",hook and line,3,73,277,597
+Pacific,Australia-Pacific,Lord Howe Island,I,Balls Pyramid South,closed,Balls Pyramid No-Take Zone,856.50,2004,<20km to next reef,high,area,,3,73,277,717
+Pacific,Australia-Pacific,Lord Howe Island,I,Lord Howe Island,restricted,Lord Howe Island Marine Park,2249.20,2004,<20km to next reef,high,"size, gear, species, bag",hook and line,3,73,277,596
+Pacific,Australia-Pacific,Lord Howe Island,I,Lord Howe Island South East,closed,Lord Howe No-Take Zone,226.70,2004,<20km to next reef,high,area,,3,73,277,718
+Pacific,Australia-Pacific,Northern GBR 1,B,13-124,restricted,GBRMPA 13-124 Habitat Protection Zone,69.30,2004,<20km to next reef,high,"bag, species, gear, entrants, size, temporal",seine; spear; hook and line; gillnet,3,73,153,227
+Pacific,Australia-Pacific,Northern GBR 1,B,Corbett Reef,closed,GBRMPA Corbett Reef Marine Reserve,555.70,2004,<20km to next reef,high,,,3,73,153,226
+Pacific,Australia-Pacific,Northern GBR 2,B,Lagoon Reef,restricted,GBRMPA Lagoon Reef Habitat Protection Zone,9868.20,2004,<20km to next reef,high,"temporal, entrants, bag, size, species, gear",gillnet; seine; hook and line; spear,3,73,162,228
+Pacific,Australia-Pacific,Northern GBR 2,B,Mantis Reef,closed,GBRMPA Mantis Reef Marine Reserve,31769.30,2004,<20km to next reef,high,,,3,73,162,229
+Pacific,Australia-Pacific,Orpheus Island,I,Orpheus Green Zone,closed,GBRMPA Orpheus Green Zone,17.00,2004,<20km to next reef,high,,,3,73,341,791
+Pacific,Australia-Pacific,Orpheus Island,I,Orpheus Yellow Zone,restricted,GBRMPA Orpheus Yellow Zone,10.20,2004,<20km to next reef,high,"temporal, species, size, gear, bag, entrants",spear; hook and line; gillnet; seine,3,73,341,792
+Pacific,Australia-Pacific,Southern GBR,I,Heron/Wistari Reef Green Zone,closed,Heron/Wistari Reef Green Zone,291.00,2004,<20km to next reef,high,,,3,73,191,423
+Pacific,Australia-Pacific,Southern GBR,I,Heron/Wistari Reef Yellow Zone,restricted,Heron/Wistari Reef Yellow Zone,805.70,2004,<20km to next reef,high,"gear, species, size, bag, entrants, temporal",hook and line; seine; spear,3,73,191,372
+Pacific,Australia-Pacific,Southern GBR,I,One Tree Island,closed,GBRMPA One Tree Island Marine Reserve,52.30,2004,<20km to next reef,high,,,3,73,191,788
+Pacific,Australia-Pacific,Torres Strait,I,Darnley (Erub) Island,openly fished,,,,,,,,3,73,193,424
+Pacific,Australia-Pacific,Torres Strait,I,Murray (Mer) Island,openly fished,,,,,,,,3,73,193,427
+Pacific,Cook Islands,Aitutaki,A,Aitutaki,restricted,Marae Moana (multi-use containing Raui),1976000.00,2017,>20km to next reef,unknown,"area, effort, species, gear",longline; hook and line; spear; fish trap; gillnet,3,112,285,625
+Pacific,Cook Islands,Penrhyn,A,North Lagoon,restricted,Marae Moana (multi-use containing Raui),1976000.00,2017,>20km to next reef,unknown,"effort, gear, area, species",spear; hook and line; gillnet; longline; fish trap,3,112,342,794
+Pacific,Cook Islands,Penrhyn,A,Omoka,restricted,Marae Moana (multi-use containing Raui),1976000.00,2017,>20km to next reef,unknown,"species, area, effort, gear",hook and line; longline; spear; fish trap; gillnet,3,112,342,793
+Pacific,Cook Islands,Rarotonga,V,Rarotonga,restricted,Marae Moana (multi-use containing Raui),1976000.00,2017,>20km to next reef,unknown,"area, effort, species, gear",fish trap; longline; gillnet; spear; hook and line,3,112,284,624
+Pacific,Ecuador,Isla de la Plata,I,Isla de la Plata,closed,,,,,,species,longline,3,118,247,544
+Pacific,Ecuador,Puerto Lopez,C,Los Ahorcados,closed,,,,,,species,longline,3,118,246,543
+Pacific,Ecuador,Puerto Lopez,C,Puerto Lopez,closed,,,,,,species,longline,3,118,246,541
+Pacific,Ecuador,Puerto Lopez,C,Salango Island,closed,,,,,,species,longline,3,118,246,542
+Pacific,Federated States of Micronesia,Chuuk,V,Chuuk Barrier Reef,openly fished,,,,,,,cyanide; blast; gillnet; spear; fish trap; hook and line; longline,3,89,165,487
+Pacific,Federated States of Micronesia,Chuuk,V,Chuuk Lagoon,openly fished,,,,,,,gillnet; spear; longline; hook and line; blast; cyanide; fish trap,3,89,165,338
+Pacific,Federated States of Micronesia,Pohnpei,V,Ant Atoll,restricted,And Atoll Biosphere Reserve (multi-use),74.00,2007,<20km to next reef,medium,"area, species, temporal, gear, size",spear; hook and line; gillnet,3,89,166,378
+Pacific,Federated States of Micronesia,Pohnpei,V,Pohnpei West,restricted,,,,,,"species, temporal, size",spear; longline; gillnet; hook and line; fish trap,3,89,166,488
+Pacific,Fiji,Far South Lau Islands,V,Ono-i-Lau,openly fished,,,,,,,,3,68,264,571
+Pacific,Fiji,Far South Lau Islands,V,Vuatoa Ono Reef,openly fished,,,,,,,,3,68,264,572
+Pacific,Fiji,Kubulau,I,Kiobo,restricted,,,,,,"area, gear",gillnet; hook and line; spear,3,68,213,602
+Pacific,Fiji,Kubulau,I,Kiobo Tabu,restricted,Kiobo Periodically Harvested Closure,2.07,2009,continuous,medium,"area, effort",gillnet; spear; hook and line,3,68,213,611
+Pacific,Fiji,Kubulau,I,Namena,closed,Namena Marine Reserve,60.60,1997,continuous,medium,area,hook and line; spear; gillnet,3,68,213,482
+Pacific,Fiji,Kubulau,I,Namena Open,restricted,Namena Marine Reserve,60.60,1997,continuous,medium,"gear, area",spear; hook and line; gillnet,3,68,213,604
+Pacific,Fiji,Kubulau,I,Namuri and Nasau,restricted,,,,,,"gear, area",gillnet; spear; hook and line,3,68,213,483
+Pacific,Fiji,Kubulau,I,Namuri Reserve,closed,Namuri Community Marine Reserve,4.25,2005,continuous,low,"gear, area",hook and line; spear; gillnet,3,68,213,601
+Pacific,Fiji,Kubulau,I,Nasue Reserve,closed,Nasue Community Reserve,8.14,2005,continuous,low,"gear, area",hook and line; gillnet; spear,3,68,213,605
+Pacific,Fiji,Kubulau,I,Navatu,restricted,,,,,,"gear, area",hook and line; gillnet; spear,3,68,213,603
+Pacific,Fiji,Mid Lau Islands,V,Cakau Levu Reef,openly fished,,,,,,,,3,68,261,577
+Pacific,Fiji,Mid Lau Islands,V,Namuka-i-Lau,openly fished,,,,,,,,3,68,261,570
+Pacific,Fiji,Mid Lau Islands,V,Ogea-i-Lau,openly fished,,,,,,,,3,68,261,575
+Pacific,Fiji,Mid Lau Islands,V,Yagasa Island,openly fished,,,,,,,,3,68,261,576
+Pacific,Fiji,North Lau Islands,V,Oneata Lagoon,openly fished,,,,,,,,3,68,262,578
+Pacific,Fiji,Ovalau,I,East,restricted,,,,,,area,longline; spear; gillnet; drumline; hook and line,3,68,214,484
+Pacific,Fiji,Savusavu,I,Sybil Rock and Lighthouse,restricted,,,,,,area,hook and line; longline; spear; drumline; gillnet,3,68,215,485
+Pacific,Fiji,South Lau Islands,V,Vatoa Lagoon,openly fished,,,,,,,,3,68,263,573
+Pacific,Fiji,South Lau Islands,V,Vuata Vatoa Atoll,openly fished,,,,,,,,3,68,263,574
+Pacific,Fiji,South-West Fiji,V,Ceva 'I 'Ra,openly fished,,,,,,,,3,68,260,569
+Pacific,Fiji,Viti Levu,V,Beqa Island,openly fished,,,,,,,,3,68,160,220
+Pacific,Fiji,Viti Levu,V,Beqa reef 2,openly fished,,,,,,,,3,68,160,221
+Pacific,Fiji,Viti Levu,V,Beqa reef 3,openly fished,,,,,,,,3,68,160,222
+Pacific,Fiji,Viti Levu,V,Yanuca Island,openly fished,,,,,,,,3,68,160,223
+Pacific,French Polynesia,Amanu,A,Amanu 1,openly fished,,,,,,,hook and line; fish trap; spear; longline; gillnet,3,92,303,705
+Pacific,French Polynesia,Amanu,A,Amanu 2,openly fished,,,,,,,fish trap; longline; hook and line; spear,3,92,303,706
+Pacific,French Polynesia,Apataki,A,Apataki1,openly fished,,,,,,,hook and line; fish trap; spear; longline; gillnet,3,92,249,550
+Pacific,French Polynesia,Apataki,A,Apataki2,openly fished,,,,,,,longline; spear; fish trap; gillnet; hook and line,3,92,249,548
+Pacific,French Polynesia,Mangareva,A,Mangareva 1,openly fished,,,,,,,fish trap; longline; gillnet; hook and line; spear,3,92,306,697
+Pacific,French Polynesia,Mangareva,A,Mangareva 2,openly fished,,,,,,,hook and line; gillnet; longline; spear; fish trap,3,92,306,698
+Pacific,French Polynesia,Marutea,A,Marutea 1,openly fished,,,,,,,spear; gillnet; hook and line; longline; fish trap,3,92,305,709
+Pacific,French Polynesia,Maupiti,I,Maupiti1,openly fished,,,,,,,hook and line; gillnet; fish trap; longline; spear,3,92,206,472
+Pacific,French Polynesia,Maupiti,I,Maupiti2,openly fished,,,,,,,spear; gillnet; longline; fish trap; hook and line,3,92,206,473
+Pacific,French Polynesia,Moorea,I,Moorea1,openly fished,,,,,,,hook and line; longline; fish trap; gillnet; spear,3,92,205,470
+Pacific,French Polynesia,Moorea,I,Moorea2,openly fished,,,,,,,fish trap; longline; gillnet; hook and line; spear,3,92,205,471
+Pacific,French Polynesia,Moorea,I,Moorea3,restricted,,,,,,"bag, area, size",spear; longline; gillnet; hook and line; fish trap,3,92,205,555
+Pacific,French Polynesia,Nuka Hiva,I,Nuka Hiva 1,openly fished,,,,,,,spear; hook and line; longline; gillnet; fish trap,3,92,299,695
+Pacific,French Polynesia,Nuka Hiva,I,Nuka Hiva 2,openly fished,,,,,,,fish trap; gillnet; spear; hook and line; longline,3,92,299,696
+Pacific,French Polynesia,Raiatea,I,Raiatea1,restricted,,,,,,"species, gear, size",hook and line; fish trap; spear; gillnet; longline,3,92,251,553
+Pacific,French Polynesia,Raiatea,I,Raiatea2,openly fished,,,,,,,longline; gillnet; fish trap; spear; hook and line,3,92,251,554
+Pacific,French Polynesia,Rangiroa,A,Rangiroa1,restricted,,,,,,"species, gear, size",longline; spear; fish trap; gillnet; hook and line,3,92,250,551
+Pacific,French Polynesia,Rangiroa,A,Rangiroa2,openly fished,,,,,,,spear; gillnet; longline; hook and line; fish trap,3,92,250,552
+Pacific,French Polynesia,Rurutu,I,Rurutu 1,openly fished,,,,,,,spear; gillnet; longline; fish trap; hook and line,3,92,300,699
+Pacific,French Polynesia,Rurutu,I,Rurutu 2,openly fished,,,,,,,fish trap; hook and line; longline; spear; gillnet,3,92,300,700
+Pacific,French Polynesia,Tahiti,I,Tahiti1,openly fished,,,,,,,longline; fish trap; spear; hook and line; gillnet,3,92,183,468
+Pacific,French Polynesia,Tahiti,I,Tahiti2,openly fished,,,,,,,longline; fish trap; spear; hook and line; gillnet,3,92,183,469
+Pacific,French Polynesia,Tahiti,I,Tahiti3,restricted,,,,,,"gear, area",spear; gillnet; hook and line,3,92,183,584
+Pacific,French Polynesia,Takapoto,A,Takapoto1,openly fished,,,,,,,spear; fish trap; longline; gillnet; hook and line,3,92,276,594
+Pacific,French Polynesia,Takapoto,A,Takapoto2,openly fished,,,,,,,longline; hook and line; spear; gillnet; fish trap,3,92,276,595
+Pacific,French Polynesia,Takaroa,A,Takaroa 1,openly fished,,,,,,,gillnet; longline; fish trap; spear; hook and line,3,92,302,703
+Pacific,French Polynesia,Takaroa,A,Takaroa 2,openly fished,,,,,,,fish trap; hook and line; longline; gillnet; spear,3,92,302,704
+Pacific,French Polynesia,Tetiaroa,A,Tetiaroa1,restricted,,,,,,area,spear; longline; gillnet; hook and line; fish trap,3,92,248,547
+Pacific,French Polynesia,Tetiaroa,A,Tetiaroa2,restricted,,,,,,area,longline; fish trap; spear; gillnet; hook and line,3,92,248,549
+Pacific,French Polynesia,Tikehau,A,Tikehau 1,openly fished,,,,,,,gillnet; fish trap; spear; hook and line; longline,3,92,301,701
+Pacific,French Polynesia,Tikehau,A,Tikehau 2,openly fished,,,,,,,gillnet; fish trap; spear; hook and line; longline,3,92,301,702
+Pacific,French Polynesia,Tubuai,I,Tubuai1,restricted,,,,,,"species, gear, size",longline; gillnet; hook and line; spear; fish trap,3,92,253,557
+Pacific,French Polynesia,Tubuai,I,Tubuai2,restricted,,,,,,"size, species, gear",gillnet; spear; longline; hook and line; fish trap,3,92,253,558
+Pacific,French Polynesia,Uapou,I,Uapou 1,openly fished,,,,,,,hook and line; spear; longline; gillnet; fish trap,3,92,304,707
+Pacific,French Polynesia,Uapou,I,Uapou 2,openly fished,,,,,,,gillnet; longline; hook and line; spear; fish trap,3,92,304,708
+Pacific,Guam,Guam,I,Agana,restricted,,,,,,gear,hook and line; gillnet; spear,3,78,173,714
+Pacific,Guam,Guam,I,Galvez Bank,restricted,,,,,,gear,spear; hook and line; gillnet,3,78,173,694
+Pacific,Guam,Guam,I,Guam South,restricted,,,,,,gear,hook and line; spear; gillnet,3,78,173,780
+Pacific,Guam,Guam,I,Haputo,restricted,,,,,,gear,gillnet; spear; hook and line,3,78,173,716
+Pacific,Guam,Guam,I,Pagat,restricted,,,,,,gear,hook and line; spear; gillnet,3,78,173,712
+Pacific,Guam,Guam,I,Pati,restricted,Pati Point Preserve,20.11,1999,<20km to next reef,medium,"gear, species",hook and line,3,78,173,711
+Pacific,Guam,Guam,I,Tarague,restricted,,,,,,gear,hook and line; gillnet; spear,3,78,173,713
+Pacific,Guam,Guam,I,Tumon,restricted,Tumon Bay Marine Preserve,4.50,1999,<20km to next reef,medium,"size, species, gear",gillnet; hook and line,3,78,173,715
+Pacific,Kiribati,Kiritimati,A,Reef 1,openly fished,,,,,,,hook and line; gillnet; seine; longline; spear; fish trap,3,84,138,365
+Pacific,Kiribati,Kiritimati,A,Reef 2,openly fished,,,,,,,seine; fish trap; hook and line; longline; spear; gillnet,3,84,138,412
+Pacific,Marianas,Saipan North,I,Saipan North,openly fished,,,,,,,,3,86,192,431
+Pacific,Marianas,Saipan South,I,Saipan South,openly fished,,,,,,,,3,86,185,358
+Pacific,Marianas,Tinian,I,Tinian,openly fished,,,,,,,,3,86,184,395
+Pacific,Marshall Islands,Marshall Islands 1,I,Marshall Islands 1,openly fished,,,,,,,,3,70,186,346
+Pacific,Marshall Islands,Marshall Islands 2,I,Marshall Islands 2,openly fished,,,,,,,,3,70,187,396
+Pacific,New Caledonia,Banc L'Orne,O,Banc L'Orne Reef,openly fished,,,,,,,,3,4,265,579
+Pacific,New Caledonia,Ellet Bank,O,Ellet Bank Reef,openly fished,,,,,,,,3,4,267,581
+Pacific,New Caledonia,Hunter Island,V,Hunter Island Reef,openly fished,,,,,,,,3,4,269,583
+Pacific,New Caledonia,Matthew Island,V,Matthew Island Reef,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"entrants, effort, species, gear",hook and line,3,4,268,582
+Pacific,New Caledonia,New Caledonia,C,Grand Astrolabe,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"entrants, effort, species, gear",hook and line; longline,3,4,182,334
+Pacific,New Caledonia,New Caledonia,C,Matthew Island,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"species, entrants, effort, gear",hook and line,3,4,182,458
+Pacific,New Caledonia,New Caledonia,C,Petit Astrolabe,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"gear, species, effort, entrants",longline; hook and line,3,4,182,393
+Pacific,New Caledonia,New Caledonia,C,Southern Horn East,restricted,,,,,,"species, gear",hook and line; gillnet; spear,3,4,182,460
+Pacific,New Caledonia,New Caledonia,C,Southern Horn North,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"gear, species",gillnet; spear; hook and line,3,4,182,461
+Pacific,New Caledonia,New Caledonia,C,Walpole Island,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"gear, entrants, effort, species",hook and line; longline,3,4,182,459
+Pacific,New Caledonia,Walpole Island,V,Walpole Island Reef,restricted,The Coral Sea Nature Park,1292962.00,2014,>20km to next reef,high,"entrants, species, effort, gear",longline; hook and line,3,4,266,580
+Pacific,New Zealand,Kermedec North,V,Raoul Island,closed,Kermadec Islands - Raoul Island Marine Reserve,2000.00,1990,>20km to next reef,high,,,3,119,254,559
+Pacific,New Zealand,Kermedec South,V,Macauley Island,closed,Kermadec Islands - Macauley Island Marine Reserve,3700.00,1990,>20km to next reef,high,,,3,119,255,560
+Pacific,Niue,Beveridge Reef,A,Beveridge Reef,restricted,,,,,,"effort, gear, species",hook and line; longline; spear,3,113,225,502
+Pacific,Niue,Niue,V,Niue,restricted,,,,,,"gear, effort, species",gillnet; hook and line; longline; fish trap; spear,3,113,224,501
+Pacific,Palau,Koror State,I,East,restricted,,,,,,"species, size, gear, temporal",hook and line; fish trap; spear; gillnet,3,88,194,429
+Pacific,Palau,Koror State,I,East Lagoon,restricted,,,,,,"species, size, temporal, gear",gillnet; hook and line; fish trap; spear,3,88,194,456
+Pacific,Palau,Koror State,I,West,restricted,,,,,,"size, temporal, gear, species",spear; fish trap; hook and line; gillnet,3,88,194,430
+Pacific,Palau,Koror State,I,West Lagoon,restricted,,,,,,"temporal, gear, species, size",gillnet; fish trap; spear; hook and line,3,88,194,455
+Pacific,Palau,Palau North,A,Kayangel,restricted,,,,,,"size, gear, species, temporal",fish trap; gillnet; hook and line; spear,3,88,189,375
+Pacific,Palau,Palau North,A,Ngaruangel,restricted,Ngeruangel Reserve,10.00,1996,<20km to next reef,high,"temporal, entrants, area, effort, species, gear",hook and line; gillnet; spear; fish trap,3,88,189,398
+Pacific,Panama,Tropic Star Lodge,C,Tropic Star Lodge MPA - Open,restricted,Tropic Star Exclusion Zone,3502.00,,continuous,medium,"gear, entrants, area, effort, species",,3,124,347,805
+Pacific,Panama,Tropic Star Lodge,C,Tropic Star Lodge - Open,openly fished,,,,,,,hook and line; longline; trawl,3,124,347,806
+Pacific,Samoa,Upolu,V,Aleipata,restricted,Aleipata Marine Protected Area,50.00,1999,<20km to next reef,medium,"size, temporal, gear",seine; hook and line,3,116,236,522
+Pacific,Samoa,Upolu,V,Falealili,restricted,,,,,,"size, temporal, gear",fish trap; spear; seine; hook and line,3,116,236,523
+Pacific,Tonga,Minerva Reef,A,North Minerva,restricted,,,,,,"species, gear, entrants",hook and line; spear; longline,3,94,256,561
+Pacific,Tonga,Minerva Reef,A,South Minerva,restricted,,,,,,"species, entrants, gear",spear; longline; hook and line,3,94,256,562
+Pacific,Tonga,Tonga,C,Tonga Reef 1,openly fished,,,,,,,,3,94,176,350
+Pacific,Tonga,Tonga,C,Tonga Reef 2,openly fished,,,,,,,,3,94,176,387
+Pacific,USA-Pacific,French Frigate Shoals,A,French Frigate Shoals,closed,Northwestern Hawaiian Islands Marine Refuge,360000.00,2006,>20km to next reef,high,"gear, species, effort, size, area",,3,66,271,588
+Pacific,USA-Pacific,Hawaii,V,Kealakekua Bay,restricted,,,,,,"area, gear, species, effort, size",spear; hook and line,3,66,229,511
+Pacific,USA-Pacific,Hawaii,V,Kona Airport,restricted,,,,,,"effort, gear, species, size",hook and line; spear,3,66,229,512
+Pacific,USA-Pacific,Jarvis Island,A,Jarvis Reef,closed,Jarvis Island - PRIA,1734.40,2009,>20km to next reef,unknown,,,3,66,317,733
+Pacific,USA-Pacific,Lanai,I,Lanai South,restricted,,,,,,"size, gear, species, effort, area",gillnet; hook and line; longline; spear,3,66,313,725
+Pacific,USA-Pacific,Litsianski Island,A,Litsianski Island,closed,Northwestern Hawaiian Islands Marine Refuge,360000.00,2006,>20km to next reef,high,"effort, size, gear, area, species",,3,66,311,723
+Pacific,USA-Pacific,Maui,I,Maui West,restricted,,,,,,"size, species, effort, area, gear",gillnet; longline; spear; hook and line,3,66,314,726
+Pacific,USA-Pacific,Midway Atoll,A,Midway Atoll,closed,Northwestern Hawaiian Islands Marine Refuge,360000.00,2006,>20km to next reef,high,"gear, species, area, size, effort",,3,66,272,589
+Pacific,USA-Pacific,Molokai,I,Molokai,restricted,,,,,,"area, gear, species, effort, size",spear; longline; hook and line; gillnet,3,66,315,727
+Pacific,USA-Pacific,Oahu,I,Oahu,restricted,,,,,,"species, gear, effort, size, area",gillnet; longline; hook and line; spear,3,66,316,728
+Pacific,USA-Pacific,Palmyra Atoll,C,Lagoon,openly fished,,,,,,,,3,66,145,193
+Pacific,USA-Pacific,Palmyra Atoll,C,Reef,openly fished,,,,,,,,3,66,145,194
+Pacific,USA-Pacific,Pearl and Hermes Atoll,A,Pearl and Hermes Atoll,closed,Northwestern Hawaiian Islands Marine Refuge,360000.00,2006,>20km to next reef,high,"gear, effort, size, area, species",,3,66,312,724
+Pacific,Vanuatu,Espíritu Santo,V,East Luganville,openly fished,,,,,,,hook and line; gillnet; spear; longline; seine; drumline,3,87,159,426
+Pacific,Vanuatu,Espíritu Santo,V,Vuti,openly fished,,,,,,,longline; hook and line; drumline; gillnet; seine; spear,3,87,159,363
+Pacific,Vanuatu,Nguna,V,Emao / Coast,restricted,Nguna-Pele Marine Protected Area Network,30.00,2009,<20km to next reef,medium,"area, effort",hook and line; seine; gillnet; spear,3,87,158,425
+Pacific,Vanuatu,Nguna,V,Nguna / Pele,restricted,Nguna-Pele Marine Protected Area Network,30.00,2009,<20km to next reef,medium,"effort, area",hook and line; seine; spear,3,87,158,349
+Western Atlantic,Antigua and Barbuda,Barbuda,I,Barbuda North,restricted,Coddrington MPA,18.00,2010,<20km to next reef,low,gear,hook and line; fish trap; drumline,1,115,230,514
+Western Atlantic,Antigua and Barbuda,Barbuda,I,Palasar,closed,Palasar Reserve,20.00,2008,<20km to next reef,medium,,,1,115,230,751
+Western Atlantic,Bahamas,Abaco,I,Bight of Old Robinson Bay,restricted,,,,,,"gear, species, size, area, bag",hook and line; fish trap; drumline; spear,1,3,21,490
+Western Atlantic,Bahamas,Abaco,I,Bight Reef,restricted,,,,,,"gear, area, bag, species, size",drumline; spear; hook and line; fish trap,1,3,21,457
+Western Atlantic,Bahamas,Abaco,I,Elbow Cay Reef,restricted,,,,,,"bag, gear, species, size",hook and line; spear; drumline; fish trap,1,3,21,55
+Western Atlantic,Bahamas,Abaco,I,Green Turtle Cay Reef,restricted,,,,,,"size, area, gear, species, bag",hook and line; fish trap; drumline; spear,1,3,21,56
+Western Atlantic,Bahamas,Abaco,I,Guana Cay Reef,restricted,,,,,,"gear, area, bag, species, size",fish trap; spear; hook and line; drumline,1,3,21,57
+Western Atlantic,Bahamas,Abaco,I,Snake Cay Creek,restricted,,,,,,,,1,3,21,809
+Western Atlantic,Bahamas,Abaco,I,Sponge Creek,restricted,,,,,,,,1,3,21,810
+Western Atlantic,Bahamas,Abaco,I,Water Cay Bay,restricted,,,,,,"species, gear, bag, area, size",fish trap; drumline; hook and line; spear,1,3,21,489
+Western Atlantic,Bahamas,Aklins,I,Aklins,restricted,,,,,,"gear, size, species, effort",,1,3,22,58
+Western Atlantic,Bahamas,Andros,B,North,restricted,,,,,,"size, gear, area, effort, species",spear; hook and line,1,3,23,60
+Western Atlantic,Bahamas,Andros,B,South,restricted,,,,,,"effort, species, gear, size",hook and line; spear,1,3,23,61
+Western Atlantic,Bahamas,Berry Islands,I,Chub Cay,restricted,,,,,,"species, size, effort, gear, area",spear; hook and line,1,3,274,590
+Western Atlantic,Bahamas,Bimini,I,Bimini North,restricted,,,,,,"gear, species, size",spear; hook and line; fish trap; drumline,1,3,24,62
+Western Atlantic,Bahamas,Bimini,I,Bimini South,restricted,,,,,,"gear, species, size",spear; fish trap; drumline; hook and line,1,3,24,515
+Western Atlantic,Bahamas,Conception,I,Conception,closed,Conception Island National Park,109.80,1964,>20km to next reef,medium,"area, size, effort, species, gear",,1,3,26,64
+Western Atlantic,Bahamas,Eleuthera,I,Eleuthera,restricted,,,,,,"effort, size, gear, species",,1,3,27,65
+Western Atlantic,Bahamas,Exumas,I,Middle,closed,Exuma Cays Land and Sea Park,455.80,1986,continuous,high,"effort, size, gear, area, species",,1,3,28,66
+Western Atlantic,Bahamas,Exumas,I,North,restricted,,,,,,"size, species, gear, effort",spear; hook and line,1,3,28,67
+Western Atlantic,Bahamas,Exumas,I,South,restricted,,,,,,"size, gear, species, effort",spear; hook and line,1,3,28,68
+Western Atlantic,Bahamas,Grand Bahama,I,Grand Bahama,restricted,,,,,,"gear, size, species, effort",,1,3,29,69
+Western Atlantic,Bahamas,Great Inagua,I,Great Inagua,restricted,,,,,,"size, effort, gear, species",,1,3,30,70
+Western Atlantic,Bahamas,Gun Cay,I,Gun Cay,restricted,,,,,,"species, gear, effort, size",,1,3,31,71
+Western Atlantic,Bahamas,New Providence,I,Nassau North,restricted,,,,,,"species, gear, effort, size",spear; hook and line,1,3,32,72
+Western Atlantic,Bahamas,New Providence,I,Nassau South,restricted,,,,,,"effort, gear, species, size",hook and line; spear,1,3,32,73
+Western Atlantic,Bahamas,San Salvador,I,Pelagic,closed,,,,,,"effort, temporal, entrants, bag, area, size, species, gear",spear; hook and line,1,3,33,803
+Western Atlantic,Bahamas,San Salvador,I,San Salvador,restricted,,,,,,"species, size, effort, gear",spear; hook and line,1,3,33,74
+Western Atlantic,Barbados,Barbados,V,Northeast,restricted,,,,,,"species, effort",fish trap; drumline; seine; spear; longline; hook and line; gillnet,1,10,43,90
+Western Atlantic,Barbados,Barbados,V,Northwest,restricted,,,,,,"effort, species",seine; drumline; fish trap; longline; hook and line; gillnet; spear,1,10,43,89
+Western Atlantic,Barbados,Barbados,V,Southeast,restricted,,,,,,"effort, species",drumline; gillnet; hook and line; spear; longline; seine; fish trap,1,10,43,88
+Western Atlantic,Barbados,Barbados,V,Southwest,restricted,,,,,,"effort, species",seine; gillnet; spear; longline; hook and line; fish trap; drumline,1,10,43,87
+Western Atlantic,Belize,Baccalar Chico,C,North,restricted,Baccalar Chico Marine Reserve,,,continuous,unknown,"species, effort, size, gear",gillnet,1,1,12,38
+Western Atlantic,Belize,Baccalar Chico,C,South,restricted,Baccalar Chico Marine Reserve,,,continuous,unknown,"species, size, effort, gear",gillnet,1,1,12,39
+Western Atlantic,Belize,Belize City,B,Belize City,restricted,,,,,,"size, species, effort",hook and line; seine; drumline; gillnet; longline; spear,1,1,13,40
+Western Atlantic,Belize,Caye Caulker,B,Caye Caulker,closed,Caye Caulker Marine Reserve,15.45,1998,continuous,high,"species, area, gear, size, effort",,1,1,14,41
+Western Atlantic,Belize,Caye Caulker,B,Caye Caulker Lagoon,closed,Caye Caulker Marine Reserve,15.45,1998,continuous,high,"area, gear, effort, size, species",,1,1,14,744
+Western Atlantic,Belize,Gladden Spit,I,Gladden Spit,restricted,Gladden Spit and Silk Cayes Marine Reserve,,,continuous,unknown,"gear, species, effort, size",gillnet,1,1,15,42
+Western Atlantic,Belize,Glovers Reef,A,East,closed,Glover's Reef Marine Reserve,70.00,1993,continuous,high,"size, effort, species, gear, area",,1,1,16,43
+Western Atlantic,Belize,Glovers Reef,A,Glovers Lagoon,closed,Glover's Reef Marine Reserve,70.00,1993,continuous,high,"effort, gear, species, area, size",,1,1,16,158
+Western Atlantic,Belize,Glovers Reef,A,North,restricted,Glover's Reef Marine Reserve,70.00,1993,continuous,high,"gear, species, effort, size",gillnet,1,1,16,44
+Western Atlantic,Belize,Glovers Reef,A,South,restricted,Glover's Reef Marine Reserve,70.00,1993,continuous,high,"effort, size, gear, species",gillnet,1,1,16,45
+Western Atlantic,Belize,Glovers Reef,A,West,restricted,Glover's Reef Marine Reserve General Use Zone,260.00,1993,continuous,high,"size, effort, species, gear, area",spear; hook and line,1,1,16,510
+Western Atlantic,Belize,Lighthouse Reef,A,Lighthouse Halfmoon,closed,Halfmoon Cay Natural Monument,41.20,1982,continuous,high,"gear, size, area, effort, species",,1,1,17,159
+Western Atlantic,Belize,Lighthouse Reef,A,Lighthouse Sandbore,restricted,,,,,,"species, size, effort",seine; longline; spear; drumline; gillnet; hook and line,1,1,17,160
+Western Atlantic,Belize,Lighthouse Reef,A,North,restricted,,,,,,"effort, size, gear, species",gillnet,1,1,17,46
+Western Atlantic,Belize,Lighthouse Reef,A,South,restricted,,,,,,"effort, size, gear, species",gillnet,1,1,17,47
+Western Atlantic,Belize,Riversdale,C,Riversdale,restricted,,,,,,"gear, temporal, entrants, effort, species",hook and line; gillnet; longline,1,1,345,802
+Western Atlantic,Belize,Silk Cayes,B,Silk Cayes,restricted,,,,,,"temporal, entrants, species, gear",gillnet; longline; spear; hook and line,1,1,346,804
+Western Atlantic,Belize,Southwater Cay,I,Lagoon,restricted,,,,,,"species, effort, size",gillnet; longline; seine; drumline; spear; hook and line,1,1,18,745
+Western Atlantic,Belize,Southwater Cay,I,North,restricted,South Water Caye Marine Reserve,120.00,2011,continuous,low,"size, effort, species, gear",gillnet,1,1,18,49
+Western Atlantic,Belize,Southwater Cay,I,South,restricted,South Water Caye Marine Reserve,120.00,2011,continuous,low,"size, gear, species, effort",gillnet,1,1,18,48
+Western Atlantic,Belize,Southwater Cay,I,Southwater Cay,restricted,South Water Caye Marine Reserve,120.00,2011,continuous,low,"size, area, gear, species, effort",gillnet; seine; hook and line; longline; spear; drumline,1,1,18,50
+Western Atlantic,Belize,Turneffe Atoll,A,Lagoon,restricted,,,,,,"effort, species, size",spear; longline; gillnet; drumline; hook and line; seine,1,1,19,746
+Western Atlantic,Belize,Turneffe Atoll,A,Middle,restricted,Turneffe Atoll Marine Reserve,,,continuous,unknown,"size, species, gear, effort",gillnet,1,1,19,51
+Western Atlantic,Belize,Turneffe Atoll,A,Reef,restricted,,,,,,"size, species, effort",gillnet; seine; drumline; spear; longline; hook and line,1,1,19,52
+Western Atlantic,Belize,Turneffe Atoll,A,South,restricted,Turneffe Atoll Marine Reserve,,,continuous,unknown,"effort, gear, species, size",gillnet,1,1,19,53
+Western Atlantic,Bermuda,Bermuda,V,North,restricted,,,,,,"species, gear, effort, size, area, bag, entrants, temporal",seine; fish trap; spear; hook and line; gillnet,1,123,343,796
+Western Atlantic,Brazil,Abrolhos,C,Abrolhos Archipelago,closed,"Abrolhos Marine National Park, high compliance zone",913.00,1983,<20km to next reef,high,"gear, species, area, size, effort",,1,75,310,719
+Western Atlantic,Brazil,Abrolhos,C,Parcel Abrolhos,restricted,,,,,,"effort, species",hook and line; gillnet; longline,1,75,310,720
+Western Atlantic,Brazil,Abrolhos,C,Parcel Paredes,closed,"Abrolhos Marine National Park, low compliance zone",913.00,1983,<20km to next reef,low,"effort, species, size, gear, area",,1,75,310,721
+Western Atlantic,Brazil,Abrolhos,C,Timbebas,closed,"Abrolhos Marine National Park, low compliance zone",913.00,1983,<20km to next reef,low,"area, gear, species, effort, size",,1,75,310,722
+Western Atlantic,Brazil,Fernando de Noronha,V,APA Area,restricted,,,,,,"area, gear, species",hook and line,1,75,130,610
+Western Atlantic,Brazil,Fernando de Noronha,V,National Park,closed,Fernando de Noronha Marine National Park,112.70,1988,continuous,high,"area, size, gear, species, effort",,1,75,130,166
+Western Atlantic,Brazil,Recife,C,North,restricted,,,,,,"effort, species",drumline; fish trap; seine; longline; gillnet; hook and line,1,75,139,336
+Western Atlantic,Brazil,Recife,C,South,restricted,,,,,,"species, effort",gillnet; longline; hook and line; seine; drumline; fish trap,1,75,139,413
+Western Atlantic,British West Indies,Montserrat,I,Montserrat West,restricted,,,,,,"gear, size",hook and line; seine; spear; fish trap,1,111,217,491
+Western Atlantic,Colombia,Cayos de Albuquerque,I,Albuquerque,restricted,Seaflower Biosphere Reserve,180000.00,2000,>20km to next reef,low,"species, gear, effort, size, area",spear; fish trap; longline; hook and line,1,109,344,800
+Western Atlantic,Colombia,Cayos de Albuquerque,I,West,restricted,Seaflower Biosphere Reserve,180000.00,2000,>20km to next reef,low,"effort, area, species, size, gear",hook and line; fish trap; longline; spear,1,109,344,801
+Western Atlantic,Colombia,Cayo Serranilla,I,Cayo Serranilla,restricted,Seaflower Biosphere Reserve,180000.00,2000,>20km to next reef,low,"effort, species, area, size, gear",fish trap; hook and line; longline; spear,1,109,252,556
+Western Atlantic,Colombia,Islas Del Rosario,I,Isla Grande,closed,National Park of the Corals Rosario and San Bernardo,1200.00,1985,<20km to next reef,medium,"gear, effort",gillnet; spear; longline; seine; hook and line; blast,1,109,211,478
+Western Atlantic,Colombia,Islas Del Rosario,I,Isla Tesoro,closed,National Park of the Corals Rosario and San Bernardo,1200.00,1985,<20km to next reef,medium,"gear, area",gillnet; seine; longline; spear; hook and line,1,109,211,479
+Western Atlantic,Colombia,Islas de San Bernardo,I,Isla Mangle,restricted,National Park of the Corals Rosario and San Bernardo,1200.00,1985,<20km to next reef,medium,"gear, area",longline,1,109,212,481
+Western Atlantic,Colombia,Islas de San Bernardo,I,Isla Tintipan,restricted,National Park of the Corals Rosario and San Bernardo,1200.00,1985,<20km to next reef,medium,entrants,longline,1,109,212,480
+Western Atlantic,Colombia,Old Providence Island,I,Old Providence Island,restricted,Seaflower Biosphere Reserve Central Sector,12716.00,2005,>20km to next reef,medium,"effort, area, gear, size, species",spear; hook and line; fish trap; longline,1,109,296,668
+Western Atlantic,Cuba,Guanahacabibes,I,Guanahacabibes Reef,closed,Guanahacabibes National Park,398.00,1987,continuous,medium,"area, gear, effort, species, size",hook and line; spear; fish trap,1,2,334,766
+Western Atlantic,Cuba,Guanahacabibes,I,Maria la Gorda,closed,Guanahacabibes National Park,398.00,1987,continuous,medium,"gear, effort, size, area, species",fish trap; spear,1,2,334,767
+Western Atlantic,Cuba,Isla de la Juventud,I,Punta Frances North,closed,Punta Frances National Marine Park,72.00,2000,>20km to next reef,medium,"gear, species",longline; spear; hook and line; gillnet,1,2,333,764
+Western Atlantic,Cuba,Isla de la Juventud,I,Punta Frances South,closed,Punta Frances National Marine Park,72.00,2000,>20km to next reef,medium,"species, gear",longline; gillnet; hook and line; spear,1,2,333,765
+Western Atlantic,Cuba,Jardines de la Reina,I,Jardines de la Reina,closed,Parque Nacional Jardines de la Reina,950.00,1996,>20km to next reef,high,"area, bag, entrants, gear, temporal, species, effort, size",,1,2,20,795
+Western Atlantic,Dominican Republic,Bayahibe,I,Bayahibe Reef,restricted,,,,,,size,spear; gillnet; hook and line,1,122,320,736
+Western Atlantic,Dominican Republic,Boca Chica,I,Boca Chica Reef,openly fished,,,,,,,hook and line; fish trap; longline; gillnet; spear,1,122,323,738
+Western Atlantic,Dominican Republic,Buen Hombre,I,Buen Hombre Reef,restricted,,,,,,"gear, species",gillnet; fish trap; hook and line,1,122,325,740
+Western Atlantic,Dominican Republic,Las Galeras,I,Las Galeras,openly fished,,,,,,species,hook and line; longline; spear; gillnet,1,122,321,743
+Western Atlantic,Dominican Republic,Montecristi,I,Montecristi Reef,closed,Montecristi National Marine Park,512.00,2000,>20km to next reef,low,"effort, gear",,1,122,326,741
+Western Atlantic,Dominican Republic,Palmar de Ochoa,I,Palmar de Ochoa,openly fished,,,,,,species,gillnet; spear; hook and line,1,122,324,739
+Western Atlantic,Dominican Republic,Pedernales,I,Pedernales Reef,openly fished,,,,,,,hook and line; gillnet; longline; spear,1,122,327,742
+Western Atlantic,Dominican Republic,Punta Cana,I,Punta Cana Reef,restricted,,,,,,gear,hook and line,1,122,319,735
+Western Atlantic,Dominican Republic,Santo Domingo,I,La Caleta,closed,La Caleta,26.00,1986,>20km to next reef,medium,,,1,122,318,734
+Western Atlantic,Dominican Republic,Sosua,I,Sosua Reef,closed,Sosua MPA,6.00,2005,<20km to next reef,low,"gear, effort",,1,122,322,737
+Western Atlantic,Dutch Caribbean,Aruba,I,Aruba North,restricted,,,,,,"species, size",gillnet; hook and line; spear,1,110,216,757
+Western Atlantic,Dutch Caribbean,Aruba,I,Aruba West,restricted,,,,,,"gear, size, species",spear; hook and line; gillnet,1,110,216,758
+Western Atlantic,Dutch Caribbean,Aruba,I,South East,restricted,,,,,,"species, size",gillnet; spear; hook and line,1,110,216,759
+Western Atlantic,Dutch Caribbean,Bonaire,I,North Coast,closed,Bonaire National Marine Park,67.00,1979,continuous,high,gear,hook and line; fish trap,1,110,335,768
+Western Atlantic,Dutch Caribbean,Bonaire,I,Protected Areas Combined,closed,Bonaire No-take,25.00,1979,continuous,high,gear,fish trap; hook and line,1,110,335,771
+Western Atlantic,Dutch Caribbean,Bonaire,I,South Coast,closed,Bonaire National Marine Park,67.00,1979,continuous,high,gear,hook and line; fish trap,1,110,335,770
+Western Atlantic,Dutch Caribbean,Bonaire,I,West Coast,closed,Bonaire National Marine Park,67.00,1979,continuous,high,gear,fish trap; hook and line,1,110,335,769
+Western Atlantic,Dutch Caribbean,Curacao,I,East Coast,restricted,,,,,,gear,fish trap; longline; hook and line; spear,1,110,332,762
+Western Atlantic,Dutch Caribbean,Curacao,I,North Coast,restricted,,,,,,gear,longline; fish trap; spear; hook and line,1,110,332,761
+Western Atlantic,Dutch Caribbean,Curacao,I,Protected Areas Combined,closed,Curacao Marine Park,6.00,1987,continuous,medium,gear,fish trap,1,110,332,763
+Western Atlantic,Dutch Caribbean,Curacao,I,West Coast,restricted,,,,,,gear,fish trap; hook and line; longline; spear,1,110,332,760
+Western Atlantic,Dutch Caribbean,Saba,I,Saba East,closed,Saba Marine Park,6.00,1999,>20km to next reef,high,gear,fish trap,1,110,286,612
+Western Atlantic,Dutch Caribbean,Saba,I,Saba West,closed,Saba Marine Park,6.00,1999,>20km to next reef,high,gear,fish trap,1,110,286,613
+Western Atlantic,Dutch Caribbean,Saba Bank,I,Bank 1,restricted,,,,,,gear,hook and line; trawl; gillnet; longline; drumline; fish trap,1,110,287,614
+Western Atlantic,Dutch Caribbean,Saba Bank,I,Bank 2,restricted,,,,,,gear,hook and line; trawl; gillnet; longline; drumline; fish trap,1,110,287,615
+Western Atlantic,Dutch Caribbean,Saba Bank,I,Bank 3,restricted,,,,,,gear,drumline; gillnet; trawl; longline; hook and line; fish trap,1,110,287,616
+Western Atlantic,Dutch Caribbean,St Eustatius,I,East,restricted,,,,,,gear,spear; gillnet; drumline; hook and line; fish trap,1,110,288,617
+Western Atlantic,Dutch Caribbean,St Eustatius,I,Reserve,closed,St. Eustatius National Marine Park,27.30,1996,continuous,medium,"gear, species",,1,110,288,619
+Western Atlantic,Dutch Caribbean,St Eustatius,I,West,restricted,,,,,,gear,spear; hook and line; gillnet; longline; fish trap,1,110,288,618
+Western Atlantic,Dutch Caribbean,St Maarten,I,Dutch Fishing,restricted,,,,,,"species, gear",drumline; hook and line; fish trap; spear,1,110,289,620
+Western Atlantic,Dutch Caribbean,St Maarten,I,Dutch Reserve,closed,Man of War Shoal Park,31.00,2011,>20km to next reef,medium,"species, gear",hook and line; fish trap,1,110,289,623
+Western Atlantic,Dutch Caribbean,St Maarten,I,French Fishing,restricted,,,,,,"species, gear",trawl; fish trap; spear; hook and line; longline,1,110,289,621
+Western Atlantic,Dutch Caribbean,St Maarten,I,French Reserve,closed,Reserve Naturelle,29.00,1998,<20km to next reef,medium,"gear, species",hook and line,1,110,289,622
+Western Atlantic,French West Indies,Guadeloupe,I,Grande cul de Sac,restricted,Grande cul de Sac,37.00,1990,>20km to next reef,low,"area, gear",fish trap; hook and line; seine; longline; gillnet; spear,1,79,132,171
+Western Atlantic,French West Indies,Guadeloupe,I,Petit Terre,closed,Petit Terre,10.00,1998,>20km to next reef,high,"gear, area",gillnet; hook and line; spear; fish trap; longline; seine,1,79,132,170
+Western Atlantic,French West Indies,Martinique,I,Martinique Reef 1,restricted,,,,,,"gear, area",hook and line; seine; longline; fish trap; gillnet; spear,1,79,141,182
+Western Atlantic,French West Indies,Martinique,I,Martinique Reef 2,restricted,,,,,,"gear, area",spear; longline; seine; gillnet; fish trap; hook and line,1,79,141,183
+Western Atlantic,Honduras,Bay Islands,I,Guanaja,openly fished,,,,,,,,1,5,34,75
+Western Atlantic,Honduras,Bay Islands,I,Roatan,openly fished,,,,,,,,1,5,34,76
+Western Atlantic,Honduras,Bay Islands,I,Utila,openly fished,,,,,,,,1,5,34,77
+Western Atlantic,Honduras,Miskitu Cays,C,Vivorillos cays,openly fished,,,,,,,,1,5,35,78
+Western Atlantic,Jamaica,Jamaica,V,Dragon Point,restricted,,,,,,"gear, size, effort, species",longline; hook and line; seine; spear; drumline; fish trap; gillnet,1,7,134,172
+Western Atlantic,Jamaica,Jamaica,V,East Portland,restricted,,,,,,"effort, gear, species, size",drumline; seine; hook and line; fish trap; longline; spear; gillnet,1,7,134,174
+Western Atlantic,Jamaica,Jamaica,V,Negril,closed,Negril Marine Park,160.00,1998,continuous,unknown,"area, size, effort, species, gear",,1,7,134,173
+Western Atlantic,Jamaica,Jamaica,V,Ocho Rios,restricted,,,,,,"gear, effort, size, species",spear; longline; fish trap; hook and line; drumline; seine; gillnet,1,7,134,175
+Western Atlantic,Jamaica,Pedro Bank,O,Pedro Bank,restricted,,,,,,"effort, species, gear, size",spear; gillnet; longline; seine; drumline; fish trap; hook and line,1,7,39,82
+Western Atlantic,Mexico,Banco Chinchorro,C,Banco Chinchorro,openly fished,,,,,,,,1,6,36,79
+Western Atlantic,Mexico,Puerto Morelos,C,Puerto Morelos,openly fished,,,,,,,,1,6,37,80
+Western Atlantic,Mexico,Xcalak,C,Xcalak,openly fished,,,,,,,,1,6,38,81
+Western Atlantic,Puerto Rico,Bajo de Sico,I,Bajo de Sico,openly fished,,,,,,,,1,96,280,600
+Western Atlantic,Puerto Rico,Desecheo,I,Desecheo,openly fished,,,,,,,,1,96,235,774
+Western Atlantic,Puerto Rico,Guayanilla,I,Guayanilla,openly fished,,,,,,,,1,96,278,599
+Western Atlantic,Puerto Rico,La Parguera,I,La Parguera,openly fished,,,,,,,,1,96,233,775
+Western Atlantic,Puerto Rico,Ponce,I,Ponce,openly fished,,,,,,,gillnet,1,96,279,598
+Western Atlantic,Puerto Rico,Rincon,I,Rincon,openly fished,,,,,,,,1,96,234,776
+Western Atlantic,Trinidad and Tobago,Tobago,V,Atlantic,restricted,,,,,,"size, gear, species, effort",hook and line; gillnet; spear; longline; seine; fish trap,1,11,44,92
+Western Atlantic,Trinidad and Tobago,Tobago,V,Buccoo North,closed,Buccoo Reef Marine Park,5.85,1973,continuous,medium,"area, effort, gear, size, species",,1,11,44,93
+Western Atlantic,Trinidad and Tobago,Tobago,V,Buccoo South,restricted,,,,,,"size, effort, species, gear",hook and line; gillnet; spear; longline; seine; fish trap,1,11,44,94
+Western Atlantic,Trinidad and Tobago,Tobago,V,Caribbean,restricted,,,,,,"species, gear, size, effort",seine; hook and line; spear; drumline; fish trap; gillnet; longline,1,11,44,797
+Western Atlantic,Trinidad and Tobago,Tobago,V,Charlotteville,restricted,,,,,,"size, effort, species, gear",seine; hook and line; gillnet; spear; longline; fish trap,1,11,44,91
+Western Atlantic,Trinidad and Tobago,Tobago,V,Sisters Reef,restricted,,,,,,"species, effort, size, gear",longline; hook and line; fish trap; spear; seine; gillnet,1,11,44,162
+Western Atlantic,Trinidad and Tobago,Trinidad,I,Toco,restricted,,,,,,"effort, gear, species, size",gillnet; fish trap; drumline; seine; longline; hook and line; spear,1,11,45,95
+Western Atlantic,Turks and Caicos,South Caicos,I,Back,restricted,,,,,,"species, effort, size, gear",gillnet; hook and line,1,9,42,85
+Western Atlantic,Turks and Caicos,South Caicos,I,Reserve,closed,Admiral Cockburn Land and Sea Park,4.00,1992,continuous,medium,"size, area, effort, species, gear",,1,9,42,86
+Western Atlantic,USA-Western Atlantic,Florida,I,Broward 1,restricted,,,,,,"effort, size, gear, species",hook and line,1,12,46,96
+Western Atlantic,USA-Western Atlantic,Florida,I,Broward 2,restricted,,,,,,"species, size, effort, gear",hook and line,1,12,46,97
+Western Atlantic,USA-Western Atlantic,Florida,I,Dry Tortugas 1,restricted,,,,,,"species, size, gear, effort",hook and line,1,12,46,98
+Western Atlantic,USA-Western Atlantic,Florida,I,Dry Tortugas 2,restricted,,,,,,"size, species, effort, gear",hook and line,1,12,46,99
+Western Atlantic,USA-Western Atlantic,Florida,I,Keys Tip 1,openly fished,,,,,,,longline; hook and line; gillnet,1,12,46,516
+Western Atlantic,USA-Western Atlantic,Florida,I,Keys Tip 2,openly fished,,,,,,,longline; gillnet; hook and line,1,12,46,517
+Western Atlantic,USA-Western Atlantic,Florida,I,Lower Keys 1,restricted,,,,,,"gear, species, effort, size",hook and line,1,12,46,100
+Western Atlantic,USA-Western Atlantic,Florida,I,Lower Keys 2,restricted,,,,,,"effort, size, gear, species",hook and line,1,12,46,101
+Western Atlantic,USA-Western Atlantic,Florida,I,Lower Keys 3,restricted,,,,,,"species, effort, gear, size",hook and line,1,12,46,102
+Western Atlantic,USA-Western Atlantic,Florida,I,Miami-Dade 1,restricted,,,,,,"size, effort, species, gear",hook and line,1,12,46,103
+Western Atlantic,USA-Western Atlantic,Florida,I,Miami-Dade 2,restricted,,,,,,"species, gear, effort, size",hook and line,1,12,46,104
+Western Atlantic,USA-Western Atlantic,Florida,I,Middle Keys 1,restricted,,,,,,"species, gear, size, effort",hook and line,1,12,46,105
+Western Atlantic,USA-Western Atlantic,Florida,I,Middle Keys 2,restricted,,,,,,"effort, size, species, gear",hook and line,1,12,46,106
+Western Atlantic,USA-Western Atlantic,Florida,I,Middle Keys 3,restricted,,,,,,"effort, species, gear, size",hook and line,1,12,46,107
+Western Atlantic,USA-Western Atlantic,Florida,I,Upper Keys 0,openly fished,,,,,,,,1,12,46,454
+Western Atlantic,USA-Western Atlantic,Florida,I,Upper Keys 1,restricted,,,,,,"effort, species, size, gear",hook and line,1,12,46,108
+Western Atlantic,USA-Western Atlantic,Florida,I,Upper Keys 2,restricted,,,,,,"species, size, effort, gear",hook and line,1,12,46,109
+Western Atlantic,USA-Western Atlantic,Florida,I,Upper Keys 3,restricted,,,,,,"size, gear, effort, species",hook and line,1,12,46,110
+Western Atlantic,USA-Western Atlantic,Florida,I,West Palm 1,restricted,,,,,,"effort, size, gear, species",hook and line,1,12,46,111
+Western Atlantic,USA-Western Atlantic,Florida,I,West Palm 2,restricted,,,,,,"gear, size, species, effort",hook and line,1,12,46,112

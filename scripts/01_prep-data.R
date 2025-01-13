@@ -1,24 +1,49 @@
 # prep data for analysis
-# "2025-01-08"
+# filter for species with greater than five individuals observed:
+# 'Carcharhinus amblyrhynchos', 'Carcharhinus galapagensis', 'Carcharhinus leucas', 'Carcharhinus limbatus', 'Carcharhinus melanopterus',
+# 'Galeocerdo cuvier', 'Ginglymostoma cirratum', 'Heterodontus portusjacksoni', 'Loxodon macrorhinus', 'Rhizoprionodon acutus', 'Sphyrna lewini', 'Sphyrna tiburo'
+# 2025-01-13
 
 library(tidyverse)
 library(GGally)
 library(sf)
 library(tmap)
+tmap_options(check.and.fix = TRUE)
+tmap_mode('view')
+sf_use_s2(FALSE)
 
 # functions for wrangling
 scale_2SD <- function(x) (x-mean(x, na.rm = T))/(2*sd(x, na.rm = T)) # function to mean center and scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
-logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) # log+min transform for skewed covariates
+#logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) # log+min transform for skewed covariates
+logtrans <- function(x) log(x + 1)
+
+# common species of interest
+spp <- c('Carcharhinus amblyrhynchos', 'Carcharhinus galapagensis', 'Carcharhinus leucas', 'Carcharhinus limbatus', 'Carcharhinus melanopterus',
+         'Galeocerdo cuvier', 'Ginglymostoma cirratum', 'Heterodontus portusjacksoni', 'Loxodon macrorhinus', 'Rhizoprionodon acutus', 'Sphyrna lewini', 'Sphyrna tiburo')
 
 # flux estimates (g/day) for sharks
 flux <- read.csv('data/flux-rate-estimates_01-11-2024.csv') |> 
-  select(Species, common_name, ingestion_C_g_day)
+  select(Species, common_name, ingestion_C_g_day) |> 
+  filter(Species %in% spp)
 
-# shark maxn data with covariates
+# finprint data from Natalie
+#fils <- list.files('data/FinPrintData2022/', full.names = T)
+#alldat <- lapply(fils, read.csv)
+#fdat_MacNeil <- read.csv('data/FinPrint_Set_Data_MacNeil_2020.csv')
+
+# join to create master datafile with maxn and covariates
+#dat <- select(alldat[[4]], region_name, location_name, set_lat, set_long, reef_id, set_id, genus, species, maxn) |> 
+ # left_join(select(alldat[[1]], region_name, location_name, reef_id, set_id, substrate_relief_mean, hard_coral, visibility)) |> # will remove sets that don't record visibility, hard coral or substrate relief 
+  #left_join(select(alldat[[5]], region_name, location_name, location_id, protection_status:fishing_restrictions, region_id:reef_id)) |> 
+  #left_join(select(rename(alldat[[3]], 'location_name' = FP_location_name), location_name, HDI, Government_Effectiveness, Population, Shark_Sanctuary)) |> 
+  #left_join(distinct(select(fdat_MacNeil, region_id, location_id, reef_id, set_id, Grav_Total))) |> 
+  #filter(!is.na(substrate_relief_mean) & !is.na(hard_coral) & !is.na(visibility))
+
+# maxn data
 dat <- read.csv('data/fp_data_foremily.csv') |> 
   mutate(genus_species = paste(genus, species)) |> 
-  # filter for species we have flux data for plus Caribbean and whitetip
-  filter(genus_species %in% c(" ", unique(flux$Species)) | common_name %in% c("Whitetip reef shark", "Caribbean reef shark")) |> 
+  # filter for common species of interest
+  filter(genus_species %in% c(" ", spp)) |> 
   mutate(maxn = ifelse(is.na(maxn), 0, maxn)) |> 
   # join flux data
   left_join(flux, by = c('genus_species' = 'Species')) |>
@@ -33,11 +58,8 @@ dat <- read.csv('data/fp_data_foremily.csv') |>
   summarise(maxn = sum(maxn),
             ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
   # join covariates of interest
-  left_join(select(read.csv('data/fp_data_foremily.csv'), set_lat, set_long, reef_id, set_id, location_id, region_id,
-                   mpa_name, mpa_compliance, fishing_restrictions, shark_protection_status, shark_sanctuary, HDI_2015, gov_effect_2016, population_2016, Grav_Total), 
-             by = 'set_id') |> 
-  # drop duplicated rows
-  distinct() |> 
+  left_join(distinct(select(read.csv('data/fp_data_foremily.csv'), set_lat, set_long, reef_id, set_id, location_id, region_id,
+                   mpa_name, mpa_compliance, fishing_restrictions, shark_protection_status, shark_sanctuary, HDI_2015, gov_effect_2016, population_2016, Grav_Total))) |> 
   # separate fishing restrictions into categorical variables for each limit type
   separate(col = 'fishing_restrictions', 
            into = c('limits1', 'limits2', 'limits3', 'limits4', 'limits5', 'limits6', 'limits7', 'limits8')) |> 
@@ -67,21 +89,6 @@ qtm(dat.sf, dots.col = 'ingestion_C_g_day')
 
 # visualise the data
 ggpairs(dat)
-
-# plot correlation between multiple outcomes (maxn and ingestion rates)
-dat |> 
-  ggplot() +
-  aes(x = maxn, y = ingestion_C_g_day) +
-  geom_jitter(alpha = 0.1) +
-  theme_classic()
-ggsave('outputs/figures/outcome-correlation.png', width = 5, height = 4)
-
-dat |> 
-  ggplot() +
-  aes(x = log(maxn+1), y = log(ingestion_C_g_day+1)) +
-  geom_jitter(alpha = 0.1) +
-  theme_classic()
-ggsave('outputs/figures/outcome-correlation_logged.png', width = 5, height = 4)
 
 # save wrangled data
 write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)

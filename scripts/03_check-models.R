@@ -5,7 +5,9 @@ library(brms)
 library(DHARMa)
 
 load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-08.csv')
+dat <- read.csv('data/fp_data_wrangled_2025-01-08.csv') |> 
+  mutate(across(c(set_id, reef_id:region_id, mpa_compliance, shark_protection_status,shark_sanctuary, mpa_present:temporal_limits), factor),
+         shark_protection_status = relevel(factor(shark_protection_status), ref = "Open"))
 
 # posterior traces and quantitative diagnostics ------------------------------
 
@@ -58,4 +60,4 @@ testSpatialAutocorrelation(qresids_hu_lognormal_int, dat$set_long2, dat$set_lat2
 pp_check(fit_zinb_int, type = 'bars', ndraws = 100)
 
 # ingestion model
-pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) + xlim(c(-1,10000))
+pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) #+ xlim(c(-1,10000))

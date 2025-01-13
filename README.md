@@ -4,7 +4,12 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- work on stronger priors for both models - maxn and ingestion
+- wrangle Jordan's data
+- get covariates
+- re-run models
+- work on third model
+
+- work on stronger priors and run more iterations for ingestion model
 - run for more iterations see if improves more iterations
 - try SAR lag models to address spatial autocorrelation - especially ingestion model
 
