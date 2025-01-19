@@ -5,24 +5,29 @@ library(brms)
 library(tidybayes)
 
 load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-08.csv') |> 
-  mutate(across(c(set_id, reef_id:region_id, mpa_compliance, shark_protection_status,shark_sanctuary, mpa_present:temporal_limits), factor),
-         shark_protection_status = relevel(factor(shark_protection_status), ref = "Open"))
+dat <- read.csv('data/fp_data_wrangled_2025-01-15.csv') |> 
+  mutate(across(c(set_id, reef_id:region_id, mpa_compliance, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
+         Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
+
+# have a quick look at effects of management
+mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE)
+mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE)
 
 # create scenario data
 no_management_abundance <- dat |> 
   mutate(shark_protection_status = 'Open',
          shark_sanctuary == 0,
-         temporal_limits == 0,
-         effort_limits == 0,
-         catch_limits == 0) |> 
+         size_limits == 0,
+         effort_limits == 0) |> 
   mutate(across(c(set_id, reef_id:region_id, mpa_compliance, shark_protection_status,shark_sanctuary, mpa_present:temporal_limits), factor),
          shark_protection_status = relevel(factor(shark_protection_status), ref = "Open"))
 
 management_abundance <- dat |> 
   mutate(shark_protection_status = 'Closed', 
          shark_sanctuary == 1,
+         size_limits == 1,
          effort_limits == 1)
+
 management_ingestion <- dat |> 
   mutate(shark_protection_status = 'Closed', 
          species_limits == 1)
@@ -32,6 +37,7 @@ management_ingestion <- dat |>
 # make predictions from the posterior and summarise outcomes at each site
 # then get the median value for each site and use to arrange sites from highest to lowest
 base_preds_zinb <- dat |> 
+  filter(Grav_Total > -0.2498083) |> 
   add_predicted_draws(fit_zinb_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Relative_abundance = mean(.prediction),
@@ -42,8 +48,8 @@ base_preds_zinb <- dat |>
   arrange(desc(Relative_abundance)) |> 
   ungroup() |> 
   mutate(Scenario = 'Status quo',
-         Site = 1:length(unique(dat$reef_id)),
-         Percent_Sites = ((1:n())/length(unique(dat$reef_id)))*100,
+         Site = 1:n(),
+         Percent_Sites = ((1:n())/n())*100,
          Cumulative_relative_abundance  = cumsum(Relative_abundance),
          Cumulative_variance = cumsum(Variance),
          y_upp = Cumulative_relative_abundance  + sqrt(Cumulative_variance),
@@ -51,6 +57,7 @@ base_preds_zinb <- dat |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 no_management_zinb <- no_management_abundance |> 
+  filter(Grav_Total > -0.2498083) |> 
   add_predicted_draws(fit_zinb_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Relative_abundance = mean(.prediction),
@@ -61,8 +68,8 @@ no_management_zinb <- no_management_abundance |>
   arrange(desc(Relative_abundance)) |>
   ungroup() |> 
   mutate(Scenario = 'No management',
-         Site = 1:length(unique(dat$reef_id)),
-         Percent_Sites = ((1:n())/length(unique(dat$reef_id)))*100,
+         Site = 1:n(),
+         Percent_Sites = ((1:n())/n())*100,
          Cumulative_relative_abundance  = cumsum(Relative_abundance),
          Cumulative_variance = cumsum(Variance),
          y_upp = Cumulative_relative_abundance  + sqrt(Cumulative_variance),
@@ -70,6 +77,7 @@ no_management_zinb <- no_management_abundance |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 management_zinb <- management_abundance |> 
+  filter(Grav_Total > -0.2498083) |> 
   add_predicted_draws(fit_zinb_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Relative_abundance = mean(.prediction),
@@ -80,8 +88,8 @@ management_zinb <- management_abundance |>
   arrange(desc(Relative_abundance)) |>
   ungroup() |> 
   mutate(Scenario = 'Management',
-         Site = 1:length(unique(dat$reef_id)),
-         Percent_Sites = ((1:n())/length(unique(dat$reef_id)))*100,
+         Site = 1:n(),
+         Percent_Sites = ((1:n())/n())*100,
          Cumulative_relative_abundance = cumsum(Relative_abundance),
          Cumulative_variance = cumsum(Variance),
          y_upp = Cumulative_relative_abundance + sqrt(Cumulative_variance),

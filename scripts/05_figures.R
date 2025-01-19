@@ -6,9 +6,9 @@ library(tidybayes)
 library(patchwork)
 
 load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-13.csv') |> 
-  mutate(across(c(set_id, reef_id:region_id, mpa_compliance, shark_protection_status,shark_sanctuary, mpa_present:temporal_limits), factor),
-         shark_protection_status = relevel(factor(shark_protection_status), ref = "Open"))
+dat <- read.csv('data/fp_data_wrangled_2025-01-16.csv') |> 
+  mutate(across(c(set_id:Shark_Sanctuary, mpa_present:Temporal_limits), factor),
+         Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 var_zinb <- get_variables(fit_zinb_int) # get variable names for plotting
 var_hu_lognormal <- get_variables(fit_hu_lognormal_int)
 pred_zinb <- read.csv('outputs/models/scenario-predictions_zinb.csv')
@@ -19,10 +19,10 @@ pred_hu_lognormal <- read.csv('outputs/models/scenario-predictions_hu_lognormal.
 datsub <- dat |> filter(maxn>0)
 datsub |> 
   ggplot() +
-  aes(x = maxn, y = ingestion_C_g_day) +
+  aes(x = maxn, y = ingestion_C_g_day, col = mult_outcomes) +
   geom_jitter(alpha = 0.1) +
-  geom_hline(yintercept = quantile(datsub$ingestion_C_g_day, 0.75), lty = 'dashed', alpha = 0.5) +
-  geom_vline(xintercept = quantile(datsub$maxn, 0.75), lty = 'dashed', alpha = 0.5) +
+  geom_hline(yintercept = quantile(dat$ingestion_C_g_day, 0.75), lty = 'dashed', alpha = 0.5) +
+  geom_vline(xintercept = quantile(dat$maxn, 0.75), lty = 'dashed', alpha = 0.5) +
   theme_classic()
 ggsave('outputs/figures/outcome-correlation_75.png', width = 5, height = 4)
 
@@ -39,8 +39,10 @@ ggsave('outputs/figures/outcome-correlation_logged.png', width = 5, height = 4)
 # maxn model 
 mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE)
 aa <- plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:shark_protection_status', categorical = F, prob = c(0.95)), plot = FALSE, 
-     #points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
-)[[1]] + theme_classic() + theme(legend.position = 'none', legend.title = element_blank())
+    # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
+)[[1]] + theme_classic() + 
+  xlim(c(-0.2498083, 1.608607)) + # if we truncate to where human gravity in open sites - don't see weird positive
+  theme(legend.position = 'none', legend.title = element_blank())
 aa
 plot(conditional_effects(fit_zinb_int, effects = 'shark_protection_status', categorical = F, prob = c(0.95)), plot = FALSE, 
      #points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)

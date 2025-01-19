@@ -2,7 +2,7 @@
 
 library(tidyverse)
 
-dat1 <- read.csv('data/fp_data_foremily.csv') # data from natalie
+#dat1 <- read.csv('data/fp_data_foremily.csv') # data from natalie
 
 spp <- c('Carcharhinus amblyrhynchos', 'Carcharhinus galapagensis', 'Carcharhinus leucas', 'Carcharhinus limbatus', 'Carcharhinus melanopterus',
          'Galeocerdo cuvier', 'Ginglymostoma cirratum', 'Heterodontus portusjacksoni', 'Loxodon macrorhinus', 
