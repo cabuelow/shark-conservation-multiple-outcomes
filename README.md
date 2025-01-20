@@ -4,13 +4,17 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- wrangle Jordan's data
-- get covariates
-- re-run models
-- work on third model
-
-- work on stronger priors and run more iterations for ingestion model
-- run for more iterations see if improves more iterations
+- truncation - change interaction plots so just plot a line where we aren't extrapolating
+- Redo plots 
+  - coef plot - add colours
+  - interaction plots with distribution of gravity
+  - delta gains - difference in prob of mult outcomes in open vs closed along a human gravity gradient
+        - then plot distribution of global gravity
+        - predict prob of multiple gains in closed (relative to open or restricted) in all reefs
+            - do some cross validation of the model to see if it makes sense to extrapolate
+- reclassify sets with missing shark protection status
+If so, then I also have a follow-up question, which is that some of the sets (n = 259) are unclassified for  ‘Shark_protection_status’ and some are ‘NA’ (n = 991). The ’NA’ are because we decided not to drop sets that don’t have records for visibility, hard coral, or substrate relief. But I wondered if you know the reason for the remaining 259 sets that are unclassified, and how we should deal with them? Some of them are in Shark sanctuaries and MPAs and some are not, and none of them have shark fishing restrictions/limits.
+Humm – for those in sanctuaries and MPAs I would call them closed; for the others they would be open if there are no restrictions in place.
 - try SAR lag models to address spatial autocorrelation - especially ingestion model
 
 - Evaluate new models with correct adjustment sets
