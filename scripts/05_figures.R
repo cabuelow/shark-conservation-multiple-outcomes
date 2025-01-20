@@ -45,7 +45,7 @@ aa <- plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protect
   ylim(c(0,0.9)) +
   ylab('MaxN') +
   xlab('Human Gravity (log + min transformed)') +
-  theme(legend.position = 'none', legend.title = element_blank())
+  theme(legend.position = 'left', legend.title = element_blank())
 aa
 
 # tidybayes plotting
@@ -178,7 +178,8 @@ cc <- plot(conditional_effects(fit_prob_mult_int, effects = 'Grav_Total:Shark_Pr
   ylim(c(0,0.17)) +
   ylab('Probability of multiple outcomes') +
   xlab('Human Gravity (log + min transformed)') +
-  theme(legend.position = 'none', legend.title = element_blank())
+  theme(legend.position = 'none', 
+        legend.title = element_blank())
 cc
 
 betas_mult_outcomes <- fit_prob_mult_int |> 
@@ -242,7 +243,7 @@ ABC
 EFG
 '
 a+b+c+free(plot_spacer()+aa)+free(bb)+free(cc) + plot_layout(design = layout)
-ggsave('outputs/figures/coef_plots.png', height = 7, width = 12)
+ggsave('outputs/figures/coef_plots.png', height = 7, width = 15)
 
 # counterfactual predictions ------------------------------
 

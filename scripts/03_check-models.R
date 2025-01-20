@@ -77,4 +77,4 @@ pp_check(fit_zinb_int, type = 'bars', ndraws = 100)
 pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) #+ xlim(c(-1,10000))
 
 # mult outcomes model
-pp_check(fit_zinb_int, type = 'bars', ndraws = 100)
+pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)

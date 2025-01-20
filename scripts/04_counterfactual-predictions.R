@@ -5,13 +5,9 @@ library(brms)
 library(tidybayes)
 
 load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-15.csv') |> 
-  mutate(across(c(set_id, reef_id:region_id, mpa_compliance, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
+dat <- read.csv('data/fp_data_wrangled_2025-01-16.csv') |>
+  mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
-
-# have a quick look at effects of management
-mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE)
-mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE)
 
 # create scenario data
 no_management_abundance <- dat |> 
