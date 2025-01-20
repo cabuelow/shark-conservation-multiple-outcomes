@@ -10,7 +10,8 @@ tmap_mode('view')
 sf_use_s2(FALSE)
 
 # functions for wrangling
-scale_2SD <- function(x) (x-mean(x, na.rm = T))/(2*sd(x, na.rm = T)) # function to mean center and scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
+#scale_2SD <- function(x) (x-mean(x, na.rm = T))/(2*sd(x, na.rm = T)) # function to mean center and scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
+scale_2SD <- function(x) (x/(2*sd(x, na.rm = T))) # function to scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
 logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) # log+min transform for skewed covariates
 
 # common species of interest (number of observations > 5)

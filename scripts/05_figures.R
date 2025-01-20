@@ -9,10 +9,9 @@ load("outputs/models/global_models.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-01-16.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
-var_zinb <- get_variables(fit_zinb_int) # get variable names for plotting
-var_hu_lognormal <- get_variables(fit_hu_lognormal_int)
-pred_zinb <- read.csv('outputs/models/scenario-predictions_zinb.csv')
-pred_hu_lognormal <- read.csv('outputs/models/scenario-predictions_hu_lognormal.csv')
+#var_zinb <- get_variables(fit_zinb_int) # get variable names for plotting
+#var_hu_lognormal <- get_variables(fit_hu_lognormal_int)
+preds <- read.csv('outputs/models/scenario-predictions.csv')
 
 # correlation between multiple outcomes (maxn and ingestion rates) ------------------------------
 
@@ -37,7 +36,7 @@ ggsave('outputs/figures/outcome-correlation_logged.png', width = 5, height = 4)
 
 # quick look at beta coefs and interaction
 # maxn model 
-mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE)
+mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE) # quick look at effet sizes
 aa <- plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_Status', categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
@@ -104,7 +103,7 @@ a <- betas |>
 a
 
 # ingestion model
-mcmc_plot(fit_hu_lognormal_int, variable = "^b_", regex = TRUE)
+mcmc_plot(fit_hu_lognormal_int, variable = "^b_", regex = TRUE) # quick look at effet sizes
 bb <- plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', categorical = F, prob = c(0.95)), plot = FALSE, 
      #points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
@@ -170,7 +169,7 @@ b <- betas_ingestion |>
 b
 
 # mult outcomes model
-mcmc_plot(fit_prob_mult_int, variable = "^b_", regex = TRUE)
+mcmc_plot(fit_prob_mult_int, variable = "^b_", regex = TRUE) # quick look at effet sizes
 cc <- plot(conditional_effects(fit_prob_mult_int, effects = 'Grav_Total:Shark_Protection_Status', categorical = F, prob = c(0.95)), plot = FALSE, 
            #points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
@@ -247,25 +246,17 @@ ggsave('outputs/figures/coef_plots.png', height = 7, width = 15)
 
 # counterfactual predictions ------------------------------
 
-pred_zinb |> 
-  #mutate(Scenario = factor(Scenario, levels = c('Management', 'Status quo', 'No management'))) |> 
+preds |> 
+  #filter(Variable == 'MaxN') |> 
+  mutate(Scenario = factor(Scenario, levels = c('Management', 'Status quo', 'No management')),
+         Variable = factor(Variable, levels = c('MaxN', 'Ingestion', 'Multiple_outcomes'))) |> 
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = y_low, ymax = y_upp, fill = Scenario), alpha = 0.2) +
-  geom_line(aes(x = Percent_Sites, y = Cumulative_relative_abundance, col = Scenario)) +
+  geom_line(aes(x = Percent_Sites, y = Cumulative_prediction, col = Scenario)) +
   #ggtitle('Relative abundance') +
+  facet_wrap(~Variable, scales = 'free_y') +
   xlab('% of Reefs') +
-  ylab('Cumulative relative abundance (MaxN)') +
+  ylab('Cumulative predicted outcome') +
   theme_classic()
-ggsave('outputs/figures/counterfactual_maxn.png', width = 5, height = 3)
-
-pred_hu_lognormal |> 
-  mutate(Scenario = factor(Scenario, levels = c('Management', 'Status quo', 'No management'))) |> 
-  ggplot() +
-  geom_ribbon(aes(x = Percent_Sites, ymin = y_low, ymax = y_upp, fill = Scenario), alpha = 0.2) +
-  geom_line(aes(x = Percent_Sites, y = Cumulative_ingestion, col = Scenario)) +
-  #ggtitle('Relative abundance') +
-  xlab('% of Reefs') +
-  ylab('Cumulative ingestion') +
-  theme_classic()
-ggsave('outputs/figures/counterfactual_ingestion.png', width = 5, height = 3)
+ggsave('outputs/figures/counterfactual_predictions.png', width = 8, height = 3)
 
