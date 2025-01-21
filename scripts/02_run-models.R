@@ -20,7 +20,7 @@ dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
 # maxn models ------------------------------
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_zinb_int <- brm(maxn ~ Gear_limits + Species_limits + Catch_limits + 
-                            Size_limits + Temporal_limits + Shark_Protection_Status + 
+                            Size_limits + Temporal_limits + #Shark_Protection_Status + 
                             Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                             mpa_compliance + Government_Effectiveness + Grav_Total + 
                             Population + 
@@ -34,7 +34,7 @@ pp_check(fit_prior_zinb_int, type = 'bars', ndraws = 100) + xlim(c(-1,30))
 
 # now estimate parameters
 fit_zinb_int <- brm(maxn ~ Gear_limits + Species_limits + Catch_limits + 
-                      Size_limits + Temporal_limits + Shark_Protection_Status + 
+                      Size_limits + Temporal_limits + #Shark_Protection_Status + 
                       Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                       mpa_compliance + Government_Effectiveness + Grav_Total + 
                       Population + Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -43,21 +43,10 @@ fit_zinb_int <- brm(maxn ~ Gear_limits + Species_limits + Catch_limits +
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
 
-# update to exclude different intercepts for human gravity:shark protection status interaction
-fit_zinb_int_noHGmain <- update(fit_zinb_int, formula. = ~. -Shark_Protection_Status)
-
-# update to exclude human gravity slope
-fit_zinb_int_noMain <- update(fit_zinb_int_noHGmain, formula. = ~. -Grav_Total)
-
-save(fit_zinb_int,
-     #fit_zinb_int_noHGmain,
-     #fit_zinb_int_noMain,
-     file = "outputs/models/global_models_zinb.rda")
-
 # ingestion models ------------------------------
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_hu_lognormal_int <- brm(ingestion_C_g_day ~ Gear_limits + Species_limits + Catch_limits + 
-                                    Size_limits + Temporal_limits + Shark_Protection_Status + 
+                                    Size_limits + Temporal_limits + #Shark_Protection_Status + 
                                     Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                                     mpa_compliance + Government_Effectiveness + Grav_Total + Population + 
                                     Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -71,7 +60,7 @@ pp_check(fit_prior_hu_lognormal_int, ndraws = 1000)
 
 # now estimate parameters
 fit_hu_lognormal_int <- brm(ingestion_C_g_day ~ Gear_limits + Species_limits + Catch_limits + 
-                              Size_limits + Temporal_limits + Shark_Protection_Status + 
+                              Size_limits + Temporal_limits + #Shark_Protection_Status + 
                               Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                               mpa_compliance + Government_Effectiveness + Grav_Total + Population + 
                               Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -81,22 +70,13 @@ fit_hu_lognormal_int <- brm(ingestion_C_g_day ~ Gear_limits + Species_limits + C
                          family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
 
-
-# update to exclude different intercepts for human gravity:shark protection status interaction
-fit_hu_lognormal_int_noHGmain <- update(fit_hu_lognormal_int, formula. = ~. -Shark_Protection_Status)
-
-# update to exclude human gravity slope
-fit_hu_lognormal_int_nMain <- update(fit_hu_lognormal_int_noHGmain, formula. = ~. -Grav_Total)
-
 save(fit_hu_lognormal_int,
-     fit_hu_lognormal_int_noHGmain,
-     fit_hu_lognormal_int_nMain,
      file = "outputs/models/global_models_lognormal.rda")
 
 # probability of being in upper quartile of both outcomes ------------------------------
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_prob_mult_int <- brm(mult_outcomes ~ Gear_limits + Species_limits + Catch_limits + 
-                                    Size_limits + Temporal_limits + Shark_Protection_Status + 
+                                    Size_limits + Temporal_limits + #Shark_Protection_Status + 
                                     Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                                     mpa_compliance + Government_Effectiveness + Grav_Total + Population + 
                                     Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -110,7 +90,7 @@ pp_check(fit_prior_prob_mult_int, ndraws = 1000, type = 'bars')
 
 # now estimate parameters
 fit_prob_mult_int <- brm(mult_outcomes ~ Gear_limits + Species_limits + Catch_limits + 
-                              Size_limits + Temporal_limits + Shark_Protection_Status + 
+                              Size_limits + Temporal_limits + #Shark_Protection_Status + 
                               Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                               mpa_compliance + Government_Effectiveness + Grav_Total + Population + 
                               Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -120,15 +100,6 @@ fit_prob_mult_int <- brm(mult_outcomes ~ Gear_limits + Species_limits + Catch_li
                             family = bernoulli(), 
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
 
-# update to exclude different intercepts for human gravity:shark protection status interaction
-fit_prob_mult_int_noHGmain <- update(fit_prob_mult_int, formula. = ~. -Shark_Protection_Status)
-
-# update to exclude human gravity slope
-fit_prob_mult_int_nMain <- update(fit_prob_mult_int_noHGmain, formula. = ~. -Grav_Total)
-
-
-save(ffit_prob_mult_int,
-     fit_prob_mult_int_noHGmain,
-     ffit_prob_mult_int_nMain,
+save(fit_prob_mult_int,
      file = "outputs/models/global_models_mult_outcome.rda")
    

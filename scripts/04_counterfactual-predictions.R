@@ -4,8 +4,9 @@ library(tidyverse)
 library(brms)
 library(tidybayes)
 
-load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-16.csv') |>
+load("outputs/models/global_models_noHGMain.rda")
+load("outputs/models/global_models_lognormal.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
@@ -14,16 +15,10 @@ dat <- read.csv('data/fp_data_wrangled_2025-01-16.csv') |>
 # make predictions from the posterior and summarise outcomes at each site
 # then get the median value for each site and use to arrange sites from highest to lowest
 base_preds_zinb <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |> 
-  add_predicted_draws(fit_zinb_int) |> 
+  add_predicted_draws(fit_zinb_int_noHGMain) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'MaxN',
@@ -37,8 +32,6 @@ base_preds_zinb <- dat |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 no_management_zinb <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
   # turn off management variables
   mutate(Shark_Protection_Status = 'Open',
          Shark_Sanctuary == 0,
@@ -47,14 +40,10 @@ no_management_zinb <- dat |>
          Species_limits == 0,
          Temporal_limits == 0,
          Size_limits == 0) |> 
-  add_predicted_draws(fit_zinb_int) |> 
+  add_predicted_draws(fit_zinb_int_noHGMain) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'MaxN',
@@ -67,24 +56,19 @@ no_management_zinb <- dat |>
          y_low = Cumulative_prediction  - sqrt(Cumulative_variance),
          y_low = ifelse(y_low < 0, 0, y_low))
 
-management_zinb <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
+management_zinb3 <- dat |> 
   # turn off management variables
   mutate(Shark_Protection_Status = 'Closed',
+         Grav_Total == 2.4,
          Gear_limits == 1) |> 
-  add_predicted_draws(fit_zinb_int) |> 
+  add_predicted_draws(fit_zinb_int_noHGMain) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'MaxN',
-         Scenario = 'Management',
+         Scenario = 'Effective management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
          Cumulative_prediction  = cumsum(Prediction),
@@ -101,16 +85,10 @@ pred_zinb <- bind_rows(base_preds_zinb, no_management_zinb, management_zinb)
 # make predictions from the posterior and summarise outcomes at each site
 # then get the median value for each site and use to arrange sites from highest to lowest
 base_preds_hu_lognormal <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
   add_predicted_draws(fit_hu_lognormal_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'Ingestion',
@@ -124,8 +102,6 @@ base_preds_hu_lognormal <- dat |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 no_management_hu_lognormal <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
   # turn off management variables
   mutate(Shark_Protection_Status = 'Open',
          Shark_Sanctuary == 0,
@@ -138,10 +114,6 @@ no_management_hu_lognormal <- dat |>
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'Ingestion',
@@ -155,22 +127,16 @@ no_management_hu_lognormal <- dat |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 management_hu_lognormal <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
   # turn off management variables
-  mutate(Shark_Protection_Status = 'Closed') |> 
+  mutate(Shark_Protection_Status = 'Restricted') |> 
   add_predicted_draws(fit_hu_lognormal_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'Ingestion',
-         Scenario = 'Management',
+         Scenario = 'Effective management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
          Cumulative_prediction  = cumsum(Prediction),
@@ -187,16 +153,10 @@ pred_hu_lognormal <- bind_rows(base_preds_hu_lognormal, no_management_hu_lognorm
 # make predictions from the posterior and summarise outcomes at each site
 # then get the median value for each site and use to arrange sites from highest to lowest
 base_preds_prob_mult <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |> 
   add_predicted_draws(fit_prob_mult_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'Multiple_outcomes',
@@ -210,8 +170,6 @@ base_preds_prob_mult <- dat |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 no_management_prob_mult <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
   # turn off management variables
   mutate(Shark_Protection_Status = 'Open',
          Shark_Sanctuary == 0,
@@ -224,10 +182,6 @@ no_management_prob_mult <- dat |>
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'Multiple_outcomes',
@@ -241,25 +195,18 @@ no_management_prob_mult <- dat |>
          y_low = ifelse(y_low < 0, 0, y_low))
 
 management_prob_mult <- dat |> 
-  # truncating predictions so that we aren't extrapolating to where we don't have human gravity in open or closed sites
-  filter(Grav_Total > min(filter(dat, Shark_Protection_Status == 'Open')$Grav_Total) & Grav_Total < max(filter(dat, Shark_Protection_Status == 'Closed')$Grav_Total)) |>
   # turn off management variables
   mutate(Shark_Protection_Status = 'Closed',
          Gear_limits == 1,
-         Species_limits == 1,
          Shark_Sanctuary == 1) |> 
   add_predicted_draws(fit_prob_mult_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction = mean(.prediction),
             Variance = var(.prediction)) |>
-  # averaging across sets to aggregate to reef level 
-  group_by(reef_id, location_id, region_id) |> 
-  summarise(Prediction = mean(Prediction),
-            Variance = mean(Variance)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
   mutate(Variable = 'Multiple_outcomes',
-         Scenario = 'Management',
+         Scenario = 'Effective management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
          Cumulative_prediction  = cumsum(Prediction),
