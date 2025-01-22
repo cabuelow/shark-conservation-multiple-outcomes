@@ -4,32 +4,37 @@ library(tidyverse)
 library(brms)
 library(DHARMa)
 
-load("outputs/models/global_models.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-16.csv') |>
+load("outputs/models/global_models_zinb_noHGMain.rda")
+load("outputs/models/global_models_lognormal.rda")
+load("outputs/models/global_models_mult_outcome.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
-# posterior traces and quantitative diagnostics ------------------------------
+# posterior traces, quantitative diagnostics, posterior predictive check ------------------------------
 
 # maxn model
-summary(fit_zinb_int)
-plot(fit_zinb_int)
+summary(fit_zinb_int_noHGMain)
+plot(fit_zinb_int_noHGMain)
+pp_check(fit_zinb_int_noHGMain, type = 'bars', ndraws = 100)
 
 # ingestion model
 summary(fit_hu_lognormal_int)
 plot(fit_hu_lognormal_int)
+pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) #+ xlim(c(-1,10000))
 
 # prob mult outcomes model
 summary(fit_prob_mult_int)
 plot(fit_prob_mult_int)
+pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)
 
 # structural model assumptions ------------------------------
 
 # maxn model
 qresids_int <- createDHARMa(
-  simulatedResponse = t(posterior_predict(fit_zinb_int)),
-  observedResponse = fit_zinb_int$data$maxn,
-  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
+  simulatedResponse = t(posterior_predict(fit_zinb_int_noHGMain)),
+  observedResponse = fit_zinb_int_noHGMain$data$maxn,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_noHGMain)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int)
 
@@ -67,14 +72,3 @@ testSpatialAutocorrelation(qresids_hu_lognormal_int, dat$set_long2, dat$set_lat2
 
 # test mult outcomes model
 testSpatialAutocorrelation(qresids_prob_mult_int, dat$set_long2, dat$set_lat2)
-
-# model fit ------------------------------
-
-# maxn model
-pp_check(fit_zinb_int, type = 'bars', ndraws = 100)
-
-# ingestion model
-pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) #+ xlim(c(-1,10000))
-
-# mult outcomes model
-pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)

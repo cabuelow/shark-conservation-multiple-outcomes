@@ -4,7 +4,6 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- truncation - change interaction plots so just plot a line where we aren't extrapolating
 - Redo plots 
   - coef plot - add colours
   - interaction plots with distribution of gravity
@@ -16,11 +15,6 @@ This repository contains code for developing a Bayesian hierarchical model to de
 If so, then I also have a follow-up question, which is that some of the sets (n = 259) are unclassified for  ‘Shark_protection_status’ and some are ‘NA’ (n = 991). The ’NA’ are because we decided not to drop sets that don’t have records for visibility, hard coral, or substrate relief. But I wondered if you know the reason for the remaining 259 sets that are unclassified, and how we should deal with them? Some of them are in Shark sanctuaries and MPAs and some are not, and none of them have shark fishing restrictions/limits.
 Humm – for those in sanctuaries and MPAs I would call them closed; for the others they would be open if there are no restrictions in place.
 - try SAR lag models to address spatial autocorrelation - especially ingestion model
-
-- Evaluate new models with correct adjustment sets
-- Get carbon ingestoin models running
-- Map the sweet spots with gravity for the 2 different outcomes
-- map out spatial distribution of the gains
 
 - Sophie is getting us SD for fish fluxes, she also says: Dk (Diet stoichiometry) parameter is by far what the model is most sensitive to. 
 - Fit models without MPA variables
