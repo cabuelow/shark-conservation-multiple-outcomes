@@ -21,25 +21,6 @@ global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1
   st_drop_geometry() |> 
   mutate(Grav_tot = scale_2SD(logtrans(Grav_tot)))
 
-# correlation between multiple outcomes (maxn and ingestion rates) ------------------------------
-
-datsub <- dat |> filter(maxn>0)
-datsub |> 
-  ggplot() +
-  aes(x = maxn, y = ingestion_C_g_day, col = mult_outcomes) +
-  geom_jitter(alpha = 0.1) +
-  geom_hline(yintercept = quantile(dat$ingestion_C_g_day, 0.75), lty = 'dashed', alpha = 0.5) +
-  geom_vline(xintercept = quantile(dat$maxn, 0.75), lty = 'dashed', alpha = 0.5) +
-  theme_classic()
-ggsave('outputs/figures/outcome-correlation_75.png', width = 5, height = 4)
-
-dat |> 
-  ggplot() +
-  aes(x = log(maxn+1), y = log(ingestion_C_g_day+1)) +
-  geom_jitter(alpha = 0.1) +
-  theme_classic()
-ggsave('outputs/figures/outcome-correlation_logged.png', width = 5, height = 4)
-
 # standardised effect sizes ------------------------------
 
 # maxn model 
