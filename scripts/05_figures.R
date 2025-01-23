@@ -94,6 +94,7 @@ a <- betas |>
 a
 
 # ingestion model
+# quick look at beta coefs and interaction
 mcmc_plot(fit_hu_lognormal_int, variable = "^b_", regex = TRUE) # quick look at effet sizes
 bb <- plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', categorical = F, prob = c(0.95)), plot = FALSE, 
      #points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
@@ -103,6 +104,7 @@ bb <- plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark
   #theme(legend.position = 'none', legend.title = element_blank())
 bb
 
+# manual plotting for better aesthetics
 betas_ingestion <- fit_hu_lognormal_int |> 
   gather_draws(b_Gear_limits1, b_Species_limits1, b_Catch_limits1,
                b_Temporal_limits1, b_Size_limits1,
@@ -161,6 +163,7 @@ b <- betas_ingestion |>
 b
 
 # mult outcomes model
+# quick look at beta coefs and interaction
 mcmc_plot(fit_prob_mult_int, variable = "^b_", regex = TRUE) # quick look at effet sizes
 cc <- plot(conditional_effects(fit_prob_mult_int, effects = 'Grav_Total:Shark_Protection_Status', categorical = F, prob = c(0.95)), plot = FALSE, 
            #points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
@@ -171,6 +174,7 @@ cc <- plot(conditional_effects(fit_prob_mult_int, effects = 'Grav_Total:Shark_Pr
         legend.title = element_blank())
 cc
 
+# manual plotting for better aesthetics
 betas_mult_outcomes <- fit_prob_mult_int |> 
   gather_draws(b_Gear_limits1, b_Species_limits1, b_Catch_limits1,
                b_Temporal_limits1, b_Size_limits1,
