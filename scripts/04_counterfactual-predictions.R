@@ -10,6 +10,7 @@ load("outputs/models/global_models_mult_outcome.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
+#normalise <- function(xi, x){(xi - min(x)) / (max(x) - min(x)) * 100}
 
 # maxn ------------------------------
 
@@ -31,8 +32,7 @@ base_preds_zinb <- dat |>
          Scenario = 'Status quo',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 no_management_zinb <- dat |> 
   # turn off management variables
@@ -58,8 +58,7 @@ no_management_zinb <- dat |>
          Scenario = 'No management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 management_zinb1 <- dat |> 
   # turn off management variables
@@ -79,8 +78,7 @@ management_zinb1 <- dat |>
          Scenario = 'Effective closures',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 management_zinb2 <- dat |> 
   # turn off management variables
@@ -100,8 +98,7 @@ management_zinb2 <- dat |>
          Scenario = 'Effective restrictions',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 # bind predictions together
 pred_zinb <- bind_rows(base_preds_zinb, no_management_zinb, management_zinb1, management_zinb2)
@@ -126,8 +123,7 @@ base_preds_hu_lognormal <- dat |>
          Scenario = 'Status quo',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 no_management_hu_lognormal <- dat |> 
   # turn off management variables
@@ -153,8 +149,7 @@ no_management_hu_lognormal <- dat |>
          Scenario = 'No management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 management_hu_lognormal <- dat |> 
   # turn off management variables
@@ -174,8 +169,7 @@ management_hu_lognormal <- dat |>
          Scenario = 'Effective restrictions',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 # bind predictions together
 pred_hu_lognormal <- bind_rows(base_preds_hu_lognormal, no_management_hu_lognormal, management_hu_lognormal)
@@ -200,8 +194,7 @@ base_preds_prob_mult <- dat |>
          Scenario = 'Status quo',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 no_management_prob_mult <- dat |> 
   # turn off management variables
@@ -227,8 +220,7 @@ no_management_prob_mult <- dat |>
          Scenario = 'No management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 management_prob_mult1 <- dat |> 
   # turn off management variables
@@ -249,8 +241,7 @@ management_prob_mult1 <- dat |>
          Scenario = 'Effective closures',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 management_prob_mult2 <- dat |> 
   # turn off management variables
@@ -270,8 +261,7 @@ management_prob_mult2 <- dat |>
          Scenario = 'Effective restrictions',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
-         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"),
-         across(c(Prediction_cumulative:low_50_cumulative), ~(./max(.))*100, .names = "{.col}_percent"))
+         across(c(Prediction:low_50), cumsum, .names = "{.col}_cumulative"))
 
 # bind predictions together 
 pred_mult_out <- bind_rows(base_preds_prob_mult, no_management_prob_mult, management_prob_mult1, management_prob_mult2)

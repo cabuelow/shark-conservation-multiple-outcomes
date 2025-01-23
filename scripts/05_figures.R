@@ -92,15 +92,15 @@ a <- betas |>
                                                  'MPA compliance', 'MPA present', 'Population size'))), 
              x = .value, xmin = .lower, xmax = .upper, shape = `Evidence for positive effect`)) +
   geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
-  geom_errorbar(data = filter(betas, .width == 0.95), colour="#636363", width=.1) +
+  geom_errorbar(data = filter(betas, .width == 0.95), colour="#F0F0F0", width=.1, size = 2) +
   geom_errorbar(data = filter(betas, .width == 0.80), colour="#BDBDBD", width=0, size = 1) +
-  geom_errorbar(data = filter(betas, .width == 0.50), colour="#F0F0F0", width=0, size = 2) +
-  geom_errorbar(data = filter(betas, .width == 0.95 & .variable == "Human gravity X Closed shark fishing"), colour="tomato", width=.1) +
+  geom_errorbar(data = filter(betas, .width == 0.50), colour="#636363", width=0) +
+  geom_errorbar(data = filter(betas, .width == 0.95 & .variable == "Human gravity X Closed shark fishing"), colour="tomato", width=.1, size = 2, alpha = 0.2) +
   geom_errorbar(data = filter(betas, .width == 0.80 & .variable == "Human gravity X Closed shark fishing"), colour="tomato", width=0, size = 1, alpha = 0.4) +
-  geom_errorbar(data = filter(betas, .width == 0.50 & .variable == "Human gravity X Closed shark fishing"), colour="tomato", width=0, size = 2, alpha = 0.2) +
-  geom_errorbar(data = filter(betas, .width == 0.95 & .variable == "Gear limits"), colour="skyblue3", width=.1) +
+  geom_errorbar(data = filter(betas, .width == 0.50 & .variable == "Human gravity X Closed shark fishing"), colour="tomato", width=0) +
+  geom_errorbar(data = filter(betas, .width == 0.95 & .variable == "Gear limits"), colour="skyblue3", width=.1, size = 2,alpha = 0.2) +
   geom_errorbar(data = filter(betas, .width == 0.80 & .variable == "Gear limits"), colour="skyblue3", width=0, size = 1, alpha = 0.4) +
-  geom_errorbar(data = filter(betas, .width == 0.50 & .variable == "Gear limits"), colour="skyblue3", width=0, size = 2, alpha = 0.2) +
+  geom_errorbar(data = filter(betas, .width == 0.50 & .variable == "Gear limits"), colour="skyblue3", width=0) +
   geom_point() +
   scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for positive effect") +
   #stat_halfeye() +
@@ -161,12 +161,12 @@ b <- betas_ingestion |>
                                                       'MPA compliance', 'MPA present', 'Population size'))), 
              x = .value, xmin = .lower, xmax = .upper, shape = factor(`Evidence for positive effect`))) +
   geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
-  geom_errorbar(data = filter(betas_ingestion, .width == 0.95), colour="#636363", width=.1) +
+  geom_errorbar(data = filter(betas_ingestion, .width == 0.95), colour="#F0F0F0", width=.1, size = 2) +
   geom_errorbar(data = filter(betas_ingestion, .width == 0.80), colour="#BDBDBD", width=0, size = 1) +
-  geom_errorbar(data = filter(betas_ingestion, .width == 0.50), colour="#F0F0F0", width=0, size = 2) +
-  geom_errorbar(data = filter(betas_ingestion, .width == 0.95 & .variable == "Human gravity X Restricted shark fishing"), colour="darkolivegreen", width=.1) +
-  geom_errorbar(data = filter(betas_ingestion, .width == 0.80 & .variable == "Human gravity X Restricted shark fishing"), colour="darkolivegreen", width=0, size = 1, alpha = 0.4) +
-  geom_errorbar(data = filter(betas_ingestion, .width == 0.50 & .variable == "Human gravity X Restricted shark fishing"), colour="darkolivegreen", width=0, size = 2, alpha = 0.2) +
+  geom_errorbar(data = filter(betas_ingestion, .width == 0.50), colour="#636363", width=0) +
+  geom_errorbar(data = filter(betas_ingestion, .width == 0.95 & .variable == "Human gravity X Restricted shark fishing"), colour="lightpink", width=.1, size = 2, alpha = 0.2) +
+  geom_errorbar(data = filter(betas_ingestion, .width == 0.80 & .variable == "Human gravity X Restricted shark fishing"), colour="lightpink", width=0, size = 1, alpha = 0.3) +
+  geom_errorbar(data = filter(betas_ingestion, .width == 0.50 & .variable == "Human gravity X Restricted shark fishing"), colour="lightpink", width=0) +
   geom_point() +
   scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for positive effect") +
   #stat_halfeye() +
@@ -229,18 +229,18 @@ c <- betas_mult_outcomes |>
                                                       'MPA compliance', 'MPA present', 'Population size'))), 
              x = .value, xmin = .lower, xmax = .upper, shape = factor(`Evidence for positive effect`))) +
   geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95), colour="#636363", width=.1) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95), colour="#F0F0F0", width=.1, size = 2) +
   geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.80), colour="#BDBDBD", width=0, size = 1) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50), colour="#F0F0F0", width=0, size = 2) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95 & .variable == "Shark sanctuary"), colour="mediumorchid4", width=.1) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50), colour="#636363", width=0) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95 & .variable == "Shark sanctuary"), colour="mediumorchid4", width=.1, size = 2, alpha = 0.2) +
   geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.80 & .variable == "Shark sanctuary"), colour="mediumorchid4", width=0, size = 1, alpha = 0.4) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50 & .variable == "Shark sanctuary"), colour="mediumorchid4", width=0, size = 2, alpha = 0.2) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95 & .variable == "Human gravity X Closed shark fishing"), colour="mediumorchid4", width=.1) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50 & .variable == "Shark sanctuary"), colour="mediumorchid4", width=0) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95 & .variable == "Human gravity X Closed shark fishing"), colour="mediumorchid4", width=.1, size = 2, alpha = 0.2) +
   geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.80 & .variable == "Human gravity X Closed shark fishing"), colour="mediumorchid4", width=0, size = 1, alpha = 0.4) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50 & .variable == "Human gravity X Closed shark fishing"), colour="mediumorchid4", width=0, size = 2, alpha = 0.2) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95 & .variable == "Gear limits"), colour="goldenrod3", width=.1) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50 & .variable == "Human gravity X Closed shark fishing"), colour="mediumorchid4", width=0) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.95 & .variable == "Gear limits"), colour="goldenrod3", width=.1, size = 2, alpha = 0.2) +
   geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.80 & .variable == "Gear limits"), colour="goldenrod3", width=0, size = 1, alpha = 0.4) +
-  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50 & .variable == "Gear limits"), colour="goldenrod3", width=0, size = 2, alpha = 0.2) +
+  geom_errorbar(data = filter(betas_mult_outcomes, .width == 0.50 & .variable == "Gear limits"), colour="goldenrod3", width=0) +
   geom_point() +
   scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for positive effect") +
   #stat_halfeye() +
@@ -253,19 +253,31 @@ c <- betas_mult_outcomes |>
 c
 
 # plot counterfactual predictions ------------------------------
-
-aaa <- base_preds_zinb |> 
-  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits'))) |> 
+aaa <- preds |> 
+  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
+         Scenario = case_when(Variable == 'Shark abundance' & Scenario == 'Effective closures' ~ 'Effective closures - Shark abundance',
+                              Variable == 'Shark abundance' & Scenario == 'Effective restrictions' ~ 'Effective restrictions - Shark abundance',
+                              Variable == 'Shark ingestion rate' & Scenario == 'Effective restrictions' ~ 'Effective restrictions - Shark ingestion rate',
+                              Variable == 'Probability of co-benefits' & Scenario == 'Effective closures' ~ 'Effective closures - Co-benefits',
+                              Variable == 'Probability of co-benefits' & Scenario == 'Effective restrictions' ~ 'Effective restrictions - Co-benefits',
+                              .default = Scenario)) |> 
   ggplot() +
-  geom_ribbon(aes(x = Percent_Sites, ymin = low_95_cumulative_percent, ymax = upp_95_cumulative_percent, group = Scenario, fill = "0.95"), alpha = 0.9) +
-  geom_ribbon(aes(x = Percent_Sites, ymin = low_80_cumulative_percent, ymax = upp_80_cumulative_percent, group = Scenario, fill = "0.8"), alpha = 0.9) +
-  geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent, ymax = upp_50_cumulative_percent, group = Scenario, fill = "0.5"), alpha = 0.9) +
-  geom_line(aes(x = Percent_Sites, y = Prediction_cumulative_percent, col = Scenario)) +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_95_cumulative, ymax = upp_95_cumulative, group = Scenario, fill = "0.95"), alpha = 0.9) +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_80_cumulative, ymax = upp_80_cumulative, group = Scenario, fill = "0.8"), alpha = 0.9) +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative, ymax = upp_50_cumulative, group = Scenario, fill = "0.5"), alpha = 0.9) +
+  geom_line(aes(x = Percent_Sites, y = Prediction_cumulative, col = Scenario)) +
   scale_fill_manual(values = c('0.5' = "#636363", '0.8' = "#BDBDBD", '0.95' = "#F0F0F0"), name = 'Credible interval') +
+  scale_colour_manual(values = c('Status quo' = 'black', 'No management' = 'deeppink3', 
+                                 'Effective closures - Shark abundance' = 'tomato',
+                                 'Effective restrictions - Shark abundance' = 'skyblue3',
+                                 'Effective restrictions - Shark ingestion rate' = 'lightpink',
+                                 'Effective closures - Co-benefits' = 'mediumorchid4',
+                                 'Effective restrictions - Co-benefits' = 'goldenrod3')) +
   facet_wrap(~Variable, scales = 'free_y') +
   xlab('% of Sets') +
-  ylab('Cumulative predicted outcome (%)') +
-  theme_classic()
+  ylab('Cumulative predicted outcome') +
+  theme_classic() +
+  theme(legend.key.size = unit(0.2, 'cm'))
 aaa
 ggsave('outputs/figures/counterfactual_predictions.png', width = 8, height = 3)
 
@@ -315,7 +327,7 @@ p <- new_dat |>
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
   stat_lineribbon(aes(y = .epred), .width = c(.95, .80, .50), alpha = 0.9, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
-  scale_color_brewer(palette = "Set2", name = 'Shark Protection Status') +
+  scale_color_manual(values = c("Closed" = "#D55E00", "Restricted" = "#E69F00", "Open" = "#0072B2"), name = 'Shark Protection Status') +
   ylab('Average predicted outcome') +
   xlab('') +
   xlim(c(0, max(global_gravity$Grav_tot))) +
