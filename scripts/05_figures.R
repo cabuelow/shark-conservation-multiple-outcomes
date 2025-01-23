@@ -6,6 +6,9 @@ library(brms)
 library(tidybayes)
 library(patchwork)
 library(modelr)
+library(sf)
+logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) 
+scale_2SD <- function(x) (x/(2*sd(x, na.rm = T))) 
 
 load("outputs/models/global_models_zinb_noHGMain.rda")
 load("outputs/models/global_models_lognormal.rda")
@@ -14,6 +17,9 @@ dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 preds <- read.csv('outputs/models/scenario-predictions.csv')
+global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1.0.shp') |> 
+  st_drop_geometry() |> 
+  mutate(Grav_tot = scale_2SD(logtrans(Grav_tot)))
 
 # correlation between multiple outcomes (maxn and ingestion rates) ------------------------------
 
@@ -246,30 +252,24 @@ c <- betas_mult_outcomes |>
   theme(axis.text.y = element_blank())
 c
 
-# counterfactual predictions ------------------------------
+# plot counterfactual predictions ------------------------------
 
-aaa <- preds |> 
-  mutate(#Scenario = factor(Scenario, levels = c('Effective management', 'Status quo', 'No management')),
-         Variable = case_when(Variable == 'MaxN' ~ 'Shark abundance',
-                              Variable == 'Ingestion' ~ 'Shark ingestion rate',
-                              Variable == 'Multiple_outcomes' ~ 'Probability of co-benefits'),
-         Scenario = case_when(Scenario == 'Effective management (fisheries)' ~ 'Effective restrictions',
-                              Scenario == 'Effective management (tourism)' ~ 'Effective closures',
-                              .default = Scenario),
-         Variable = factor(Variable, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits'))) |> 
+aaa <- base_preds_zinb |> 
+  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits'))) |> 
   ggplot() +
-  geom_ribbon(aes(x = Percent_Sites, ymin = y_low, ymax = y_upp, fill = Scenario), alpha = 0.2) +
-  geom_line(aes(x = Percent_Sites, y = Cumulative_prediction, col = Scenario)) +
-  #ggtitle('Relative abundance') +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_95_cumulative_percent, ymax = upp_95_cumulative_percent, group = Scenario, fill = "0.95"), alpha = 0.9) +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_80_cumulative_percent, ymax = upp_80_cumulative_percent, group = Scenario, fill = "0.8"), alpha = 0.9) +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent, ymax = upp_50_cumulative_percent, group = Scenario, fill = "0.5"), alpha = 0.9) +
+  geom_line(aes(x = Percent_Sites, y = Prediction_cumulative_percent, col = Scenario)) +
+  scale_fill_manual(values = c('0.5' = "#636363", '0.8' = "#BDBDBD", '0.95' = "#F0F0F0"), name = 'Credible interval') +
   facet_wrap(~Variable, scales = 'free_y') +
   xlab('% of Sets') +
-  ylab('Cumulative predicted outcome') +
+  ylab('Cumulative predicted outcome (%)') +
   theme_classic()
 aaa
 ggsave('outputs/figures/counterfactual_predictions.png', width = 8, height = 3)
 
-
-# patch together
+# patch counterfactual predictions and coef plots together
 layout <- '
 AAA
 EFG
@@ -279,94 +279,116 @@ aaa/a+b+c + plot_layout(design = layout)
 #a+b+c+free(plot_spacer()+aa)+free(bb)+free(cc) + plot_layout(design = layout)
 ggsave('outputs/figures/prediction_coef_plots.png', height = 7, width = 12)
 
-# conservation gains along human gravity gradient ------------------------------
+# predict conditional effects of shark protection status along human gravity gradient ------------------------------
+# here all non-focal continuous covariates are set to their mean value and 
+# categorical covariates are set to their reference category
+# and we assume there are no random intercepts for reefs, locations, and regions
 
-# predict conditional effects of shark protection status along human gravity gradient
-
+# get new data to estimate the conditional effects (following description above)
 nd_zinb <- conditional_effects(fit_zinb_int_noHGMain)[["Grav_Total:Shark_Protection_Status"]]
 nd_hu_lognormal <- conditional_effects(fit_hu_lognormal_int)[["Grav_Total:Shark_Protection_Status"]]
 nd_mult_out <- conditional_effects(fit_prob_mult_int)[["Grav_Total:Shark_Protection_Status"]]
 
-aa <- nd_zinb |> 
-  add_epred_draws(fit_zinb_int_noHGMain, re_formula = NA) |> 
-  ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
-  stat_lineribbon(aes(y = .epred), .width = c(.95, .80, .50), alpha = 0.9) +
-  #geom_point(data = dat) +
-  #scale_fill_brewer(palette = "Greys") +
-  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363")) +
-  scale_color_brewer(palette = "Set2") +
-  ylab('Average shark abundance') +
-  xlab('Human Gravity (log + min transformed)') +
-  theme_classic() +
-  theme(legend.title = element_blank())
-aa
+# using the new data, add draws from the expectation of the 
+# posterior predictive distribution (residual error is ignored),
+# and bind together
+new_dat <- bind_rows(nd_zinb |> 
+                       add_epred_draws(fit_zinb_int_noHGMain, re_formula = NA) |> 
+                       ungroup() |> 
+                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                       mutate(outcome = 'Shark abundance'),
+                     nd_hu_lognormal |> 
+                       add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
+                       ungroup() |> 
+                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                       mutate(outcome = 'Shark ingestion rate'),
+                     nd_mult_out |> 
+                       add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
+                       ungroup() |> 
+                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                       mutate(outcome = 'Probability of co-benefits'))
 
-bb <- nd_hu_lognormal |> 
-  add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
+# plot the conditional effect of the 
+# interaction between human gravity and shark protection status for each model
+p <- new_dat |> 
+  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits'))) |> 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
-  stat_lineribbon(aes(y = .epred), .width = c(.95, .80, .50), alpha = 0.9) +
-  #geom_point(data = dat) +
-  #scale_fill_brewer(palette = "Greys") +
-  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363")) +
-  scale_color_brewer(palette = "Set2") +
-  ylab('Average ingestion rate') +
-  xlab('Human Gravity (log + min transformed)') +
-  theme_classic() +
-  theme(legend.title = element_blank())
-bb
+  stat_lineribbon(aes(y = .epred), .width = c(.95, .80, .50), alpha = 0.9, size = 0.5) +
+  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
+  scale_color_brewer(palette = "Set2", name = 'Shark Protection Status') +
+  ylab('Average predicted outcome') +
+  xlab('') +
+  xlim(c(0, max(global_gravity$Grav_tot))) +
+  facet_wrap(~outcome, scales = 'free_y', ncol = 1) + 
+  theme_classic()
+p
 
-cc <- nd_mult_out |> 
-  add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
-  ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
-  stat_lineribbon(aes(y = .epred), .width = c(.95, .80, .50), alpha = 0.9) +
-  #geom_point(data = dat) +
-  #scale_fill_brewer(palette = "Greys") +
-  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363")) +
-  scale_color_brewer(palette = "Set2") +
-  ylab('Average probability of co-benefits') +
+# frequency of gravity values globally
+pp <- global_gravity |> 
+  mutate(cat = "Global gravity distribution") |> 
+  ggplot(aes(x = Grav_tot)) +
+  geom_density(fill = 'pink') +
+  facet_wrap(~cat) +
   xlab('Human Gravity (log + min transformed)') +
-  theme_classic() +
-  theme(legend.title = element_blank())
-cc
+  ylab('Frequency') +
+  theme_classic()
+pp
 
+# patch together
+layout <- '
+A
+A
+A
+B
+'
+p/pp + plot_layout(design = layout)
+ggsave('outputs/figures/interaction-plots.png', width = 4.5, height = 6)
+
+# conservation gains along human gravity gradient ------------------------------
+
+# do the same as above, but calculate gains from closing shark fisheries
 gains_dat <- bind_rows(nd_zinb |> 
   add_epred_draws(fit_zinb_int_noHGMain, re_formula = NA) |> 
   ungroup() |> 
   select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
   pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |>
-  mutate(gains = Closed - Open) |> 
+  mutate(gains = Closed - Open,
+         percent_gains = (gains/max(gains))*100) |> 
   mutate(outcome = 'Shark abundance'),
   nd_hu_lognormal |> 
     add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
     ungroup() |> 
     select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
     pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
-    mutate(gains = Closed - Open) |> 
+    mutate(gains = Closed - Open,
+           percent_gains = (gains/max(gains))*100) |> 
     mutate(outcome = 'Shark ingestion rate'),
   nd_mult_out |> 
     add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
     ungroup() |> 
     select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
     pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
-    mutate(gains = Closed - Open) |> 
-    mutate(outcome = 'Probability of multiple outcomes'))
-  
-gains_dat |> 
-  group_by(outcome, Grav_Total) |> 
-  summarise(gains = mean(gains),
-            sd = sqrt(var(gains))) |> 
-  ggplot(aes(x = Grav_Total, y = gains, color = outcome)) +
-  geom_line()
+    mutate(gains = Closed - Open,
+           percent_gains = (gains/max(gains))*100) |> 
+    mutate(outcome = 'Probability of co-benefits'))
+
+# then plot gains along the human gravity gradient
+g <- gains_dat |> 
+  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
+         cat = 'Conservation gains from Effective closures') |> 
+  ggplot(aes(x = Grav_Total, y = percent_gains, color = outcome)) +
   stat_lineribbon(.width = c(.95, .80, .50), alpha = 0.9) +
-  #geom_point(data = dat) +
-  #scale_fill_brewer(palette = "Greys") +
-  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363")) +
-  scale_color_brewer(palette = "Set2") +
-  ylab('MaxN') +
-  xlab('Human Gravity (log + min transformed)') +
-  theme_classic() +
-  theme(legend.title = element_blank())
+  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
+  scale_color_brewer(palette = "Set2", name = 'Outcome') +
+  ylab('Percent gains') +
+  xlim(c(0, max(global_gravity$Grav_tot))) +
+  facet_wrap(~cat) +
+  xlab('') +
+  ylim(c(0, 25)) +
+  theme_classic()
+g
 
-
-  
+# patch together with global gravity distribution
+g/pp
+ggsave('outputs/figures/gains-plots.png', width = 5.2, height = 5)
 
