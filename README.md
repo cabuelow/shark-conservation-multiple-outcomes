@@ -4,30 +4,18 @@ This repository contains code for developing a Bayesian hierarchical model to de
 
 **TODO**
 
-- Redo plots 
-  - coef plot - add colours
-  - interaction plots with distribution of gravity
-  - delta gains - difference in prob of mult outcomes in open vs closed along a human gravity gradient
-        - then plot distribution of global gravity
-        - predict prob of multiple gains in closed (relative to open or restricted) in all reefs
-            - do some cross validation of the model to see if it makes sense to extrapolate
-- reclassify sets with missing shark protection status
-If so, then I also have a follow-up question, which is that some of the sets (n = 259) are unclassified for  ‘Shark_protection_status’ and some are ‘NA’ (n = 991). The ’NA’ are because we decided not to drop sets that don’t have records for visibility, hard coral, or substrate relief. But I wondered if you know the reason for the remaining 259 sets that are unclassified, and how we should deal with them? Some of them are in Shark sanctuaries and MPAs and some are not, and none of them have shark fishing restrictions/limits.
+- write up a description of the scripts and what they do
+- estimate what has been achieved from cumulative prediction plots
+- make cumulative prediction 
+- do some cross validation of the model to see if it makes sense to extrapolate
+- reclassify sets with missing shark protection status and re-run models
+- From Aaron on classifying sites: If so, then I also have a follow-up question, which is that some of the sets (n = 259) are unclassified for  ‘Shark_protection_status’ and some are ‘NA’ (n = 991). The ’NA’ are because we decided not to drop sets that don’t have records for visibility, hard coral, or substrate relief. But I wondered if you know the reason for the remaining 259 sets that are unclassified, and how we should deal with them? Some of them are in Shark sanctuaries and MPAs and some are not, and none of them have shark fishing restrictions/limits.
 Humm – for those in sanctuaries and MPAs I would call them closed; for the others they would be open if there are no restrictions in place.
-- try SAR lag models to address spatial autocorrelation - especially ingestion model
-
-- Sophie is getting us SD for fish fluxes, she also says: Dk (Diet stoichiometry) parameter is by far what the model is most sensitive to. 
-- Fit models without MPA variables
-- do HDI^2
-- Run model on carbon ingestion rates
- - From Matt C: My hunch is that likely there's a collider that is an outcome of both the MPA presence and reef shark abundance, that is biasing the estimate of MPAs in the global model. There are lots of things that could reasonably be downstream outcomes of both MPAs and reef shark abundance, so it's not really a surprise. Depending on how long the model takes to run, you might systematically remove exposure variables from the full model to identify which is causing the problem. We might fully remove that variable from the full model or just use a different model for MPAs. Overall, I think it's fine to use the MPA specific DAG to look at the effect of MPAs. There's a ton of room for error in such a complicated dag like we have for the full system and if it's giving us an obviously (I think?) wrong result (MPAs are bad for sharks), it's fine to trim down the set of controls that we better understand. 
-- fit simulatneous autoregressive (SAR) lag models to address spatial autocorrelation.
+- try SAR lag models to address spatial autocorrelation - abundance and ingestion models
   - SAR lag models incorporate a spatial weights matrix to account for autocorrelation in the responsevariable by estimating the strength of the spatial dependencies among sites as an additional parameter
   - https://onlinelibrary.wiley.com/doi/full/10.1111/ele.14058
   - https://github.com/chloewsch/genetics_biogeographic_regions/blob/main/2_Analysis.R
-- also consider using the group mean covariate design (Byrnes and Dee preprint)
 - brms uses non-centered parameterisation by default: https://discourse.mc-stan.org/t/brms-priors-for-random-effect-sds-and-non-centered-parameterizations/32415/3
-- once have models for carbon ingestion and abundance - map out synergies and tradeoffs in a biplot when trying to maximise outcomes
 
 - for Carbon ingestion model
   - consider measurement error models in brms, can propagate uncertainty in the estimates ingestion rates (getting sd from Sophies fishflux point estimates)
@@ -36,8 +24,4 @@ Humm – for those in sanctuaries and MPAs I would call them closed; for the oth
   - https://bookdown.org/content/4857/missing-data-and-other-opportunities.html#measurement-error
   - https://github.com/paul-buerkner/brms/issues/698
   
-- MPA predictor variabels
-  - see discussion of when multicollinearity is an issue in causal inference
-    - should be ok if we have a lot of data
-    - Also Schisterman et al. 2018 use simulation to show that if SCM is used effects are unbiased in presence of multicollinearity, but just more uncertain
 - Justification for lognormal GLM: https://stats.stackexchange.com/questions/47840/linear-model-with-log-transformed-response-vs-generalized-linear-model-with-log
