@@ -119,7 +119,7 @@ base_preds_hu_lognormal <- dat |>
             low_50 = quantile(.epred, 0.25)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
-  mutate(Variable = 'Shark ingestion rate',
+  mutate(Variable = 'Predation potential',
          Scenario = 'Status quo',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
@@ -145,7 +145,7 @@ no_management_hu_lognormal <- dat |>
             low_50 = quantile(.epred, 0.25)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
-  mutate(Variable = 'Shark ingestion rate',
+  mutate(Variable = 'Predation potential',
          Scenario = 'No management',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
@@ -165,7 +165,7 @@ management_hu_lognormal <- dat |>
             low_50 = quantile(.epred, 0.25)) |>
   arrange(desc(Prediction)) |> 
   ungroup() |> 
-  mutate(Variable = 'Shark ingestion rate',
+  mutate(Variable = 'Predation potential',
          Scenario = 'Effective restrictions',
          Site = 1:n(),
          Percent_Sites = ((1:n())/n())*100,
