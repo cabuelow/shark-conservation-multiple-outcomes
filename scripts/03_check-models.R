@@ -6,6 +6,7 @@ library(DHARMa)
 
 load("outputs/models/global_models_zinb_noHGMain.rda")
 load("outputs/models/global_models_lognormal.rda")
+load("outputs/models/global_models_hu_lognormal_spatial.rda")
 load("outputs/models/global_models_mult_outcome.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
@@ -22,6 +23,9 @@ pp_check(fit_zinb_int_noHGMain, type = 'bars', ndraws = 100)
 summary(fit_hu_lognormal_int)
 plot(fit_hu_lognormal_int)
 pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) #+ xlim(c(-1,10000))
+summary(fit_hu_lognormal_int_s)
+plot(fit_hu_lognormal_int_s)
+pp_check(fit_hu_lognormal_int_s, 'dens_overlay', ndraws = 100)
 
 # prob mult outcomes model
 summary(fit_prob_mult_int)
@@ -44,6 +48,12 @@ qresids_hu_lognormal_int <- createDHARMa(
   observedResponse = fit_hu_lognormal_int$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int)), 1, mean))
 plot(qresids_hu_lognormal_int)
+
+qresids_hu_lognormal_int_s <- createDHARMa(
+  simulatedResponse = t(posterior_predict(fit_hu_lognormal_int_s)),
+  observedResponse = fit_hu_lognormal_int_s$data$ingestion_C_g_day,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int_s)), 1, mean))
+plot(qresids_hu_lognormal_int_s)
 
 # prob mult outcomes model
 qresids_prob_mult_int <- createDHARMa(
@@ -69,6 +79,7 @@ testSpatialAutocorrelation(qresids_int, dat$set_long2, dat$set_lat2)
 
 # test ingestion model
 testSpatialAutocorrelation(qresids_hu_lognormal_int, dat$set_long2, dat$set_lat2)
+testSpatialAutocorrelation(qresids_hu_lognormal_int_s, dat$set_long2, dat$set_lat2)
 
 # test mult outcomes model
 testSpatialAutocorrelation(qresids_prob_mult_int, dat$set_long2, dat$set_lat2)

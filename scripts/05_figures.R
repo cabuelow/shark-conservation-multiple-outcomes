@@ -250,7 +250,7 @@ aaa <- preds |>
   scale_colour_manual(values = c('No management' = '#00A0E1', 
                                  'Effective closures' = '#D7642C',
                                  'Effective restrictions' = '#E6A532')) +
-  scale_y_continuous(breaks = seq(-20, 50, by = 5)) +
+  scale_y_continuous(breaks = seq(-50, 50, by = 5)) +
   facet_wrap(~Variable) +
   xlab('% of Sets') +
   ylab('Cumulative predicted outcome \n (% of total Status quo)') +
@@ -339,47 +339,127 @@ ggsave('outputs/figures/interaction-plots.png', width = 4.5, height = 6)
 
 # do the same as above, but calculate gains from closing shark fisheries
 gains_dat <- bind_rows(nd_zinb |> 
-  add_epred_draws(fit_zinb_int_noHGMain, re_formula = NA) |> 
-  ungroup() |> 
-  select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-  pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |>
-  mutate(gains = Closed - Open,
-         percent_gains = (gains/max(gains))*100) |> 
-  mutate(outcome = 'Shark abundance'),
-  nd_hu_lognormal |> 
-    add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
-    ungroup() |> 
-    select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-    pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
-    mutate(gains = Closed - Open,
-           percent_gains = (gains/max(gains))*100) |> 
-    mutate(outcome = 'Predation potential'),
-  nd_mult_out |> 
-    add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
-    ungroup() |> 
-    select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-    pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
-    mutate(gains = Closed - Open,
-           percent_gains = (gains/max(gains))*100) |> 
-    mutate(outcome = 'Probability of co-benefits'))
+                         add_epred_draws(fit_zinb_int_noHGMain, re_formula = NA) |> 
+                         ungroup() |> 
+                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |>
+                         mutate(gains = Closed - Open,
+                                percent_gains = (gains/max(gains))*100) |> 
+                         mutate(outcome = 'Shark abundance'),
+                       nd_hu_lognormal |> 
+                         add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
+                         ungroup() |> 
+                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
+                         mutate(gains = Closed - Open,
+                                percent_gains = (gains/max(gains))*100) |> 
+                         mutate(outcome = 'Shark ingestion rate'),
+                       nd_mult_out |> 
+                         add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
+                         ungroup() |> 
+                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
+                         mutate(gains = Closed - Open,
+                                percent_gains = (gains/max(gains))*100) |> 
+                         mutate(outcome = 'Probability of co-benefits'))
 
 # then plot gains along the human gravity gradient
+
 g <- gains_dat |> 
-  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits')),
-         cat = 'Conservation gains from Effective closures') |> 
+  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
+         cat = 'Conservation gains from effective closures') |> 
   ggplot(aes(x = Grav_Total, y = percent_gains, color = outcome)) +
-  stat_lineribbon(.width = c(.95, .80, .50), alpha = 0.9) +
-  scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
-  scale_color_brewer(palette = "Set2", name = 'Outcome') +
-  ylab('Gains (normalised)') +
+  #stat_lineribbon(aes(fill_ramp = after_stat(level))) +
+  #stat_lineribbon(.width = c(.50), alpha = 0.4, aes(fill=outcome)) +
+  stat_lineribbon(.width = c(0), aes(fill=outcome)) +
+  scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  scale_color_manual(values = c( "#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  #scale_fill_manual(values = c("#4B9558", "#99B2DD", "#E9AFA3"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  ylab('Percent gains (normalised)') +
   xlim(c(0, max(global_gravity$Grav_tot))) +
   facet_wrap(~cat) +
   xlab('') +
-  ylim(c(0, NA)) +
-  theme_classic()
+  ylim(c(0, 15)) +
+  theme_classic()+
+  guides(color = guide_legend(override.aes = list(fill = NA, alpha=1)),
+         linetype = guide_legend(override.aes = list(fill = NA))) +
+  theme(legend.key = element_rect(fill = "white"))
 g
 
+# Find the peaks for each outcome
+
+peaks <- gains_dat |> 
+  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
+         cat = 'Conservation gains from effective closures') |> 
+  group_by(outcome) |> 
+  slice_max(percent_gains, n = 1) |> 
+  select(outcome, percent_gains, Grav_Total)
+
+# Check these make sense - they don't..
+
+print(peaks)
+
+manual_peaks <- data.frame(
+  outcome = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits'), 
+  Grav_Total =c(0.95, 2.15, 0.42)
+)
+manual_peaks %>% 
+  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')))%>%
+  glimpse()
+
+manual_peaks
+
+# frequency of gravity values globally with vertical lines for peaks in conservation gains
+
+global_gravity1 <- dat |> 
+  select(Grav_Total) |> 
+  rename('Grav_tot' = Grav_Total) |> 
+  mutate(type = 'Study') |> 
+  bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) |> 
+  mutate(cat = "Gravity distribution")
+global_gravity2 <- dat |> 
+  group_by(reef_id) |> 
+  summarise(Grav_tot = mean(Grav_Total)) |> 
+  select(Grav_tot) |> 
+  mutate(type = 'Study') |> 
+  bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) |> 
+  mutate(cat = "Gravity distribution")
+
+pp_gains <- ggplot(global_gravity1) +
+  geom_density(aes(x = Grav_tot, fill = type), color = NA) +
+  geom_density(aes(x = Grav_tot, linetype = type)) +
+  geom_vline(data = manual_peaks, aes(xintercept = Grav_Total, color = outcome), linetype = "dashed", size = 1) +
+  scale_color_manual(values = c("#41AFAA", "#AF4B91", "#466EB4"), name = 'Outcome') +
+  scale_fill_manual(values = c('lightgrey', "transparent"), name = '') +
+  scale_linetype_manual(values = c('solid', 'dashed'), guide = 'none') +
+  facet_wrap(~cat) +
+  xlab('Human Gravity (log + min transformed)') +
+  ylab('Frequency') +
+  theme_classic() + 
+  theme(#legend.position="none",
+                         legend.key = element_rect(fill = "white", color = NA))
+pp_gains
 # patch together with global gravity distribution
-g/pp
-ggsave('outputs/figures/gains-plots.png', width = 5.2, height = 5)
+g/pp_gains+ plot_annotation(tag_levels = 'A')
+ggsave('outputs/figures/Figure3_newcolours_v2_set.tiff', width = 5.5, height = 5)
+
+pp_gains2 <- ggplot(global_gravity2) +
+  geom_density(aes(x = Grav_tot, fill = type), color = NA) +
+  geom_density(aes(x = Grav_tot, linetype = type)) +
+  geom_vline(data = manual_peaks, aes(xintercept = Grav_Total, color = outcome), linetype = "dashed", size = 1) +
+  scale_color_manual(values = c("#41AFAA", "#AF4B91", "#466EB4"), name = 'Outcome') +
+  scale_fill_manual(values = c('lightgrey', "transparent"), name = '') +
+  scale_linetype_manual(values = c('solid', 'dashed'), guide = 'none') +
+  facet_wrap(~cat) +
+  xlab('Human Gravity (log + min transformed)') +
+  ylab('Frequency') +
+  theme_classic() + 
+  theme(#legend.position="none",
+    legend.key = element_rect(fill = "white", color = NA))
+pp_gains2
+# patch together with global gravity distribution
+
+g/pp_gains2+ plot_annotation(tag_levels = 'A')
+ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 5.5, height = 5)
+
 
