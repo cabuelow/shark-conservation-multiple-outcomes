@@ -25,7 +25,7 @@ global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1
 # maxn model 
 # quick look at beta coefs and interaction
 mcmc_plot(fit_zinb_int_noHGMain, variable = "^b_", regex = TRUE) # quick look at effect sizes
-plot(conditional_effects(fit_zinb_int_noHGMain, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
+plot(conditional_effects(fit_zinb_int_s, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
   ylab('MaxN') +

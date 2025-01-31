@@ -41,6 +41,12 @@ qresids_int <- createDHARMa(
   fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_noHGMain)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int)
+qresids_int_s <- createDHARMa(
+  simulatedResponse = t(posterior_predict(fit_zinb_int_s)),
+  observedResponse = fit_zinb_int_s$data$maxn,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_s)), 1, mean),
+  integerResponse = TRUE)
+plot(qresids_int_s)
 
 # ingestion model
 qresids_hu_lognormal_int <- createDHARMa(
@@ -48,7 +54,6 @@ qresids_hu_lognormal_int <- createDHARMa(
   observedResponse = fit_hu_lognormal_int$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int)), 1, mean))
 plot(qresids_hu_lognormal_int)
-
 qresids_hu_lognormal_int_s <- createDHARMa(
   simulatedResponse = t(posterior_predict(fit_hu_lognormal_int_s)),
   observedResponse = fit_hu_lognormal_int_s$data$ingestion_C_g_day,
@@ -76,6 +81,7 @@ while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
 
 # test maxn model
 testSpatialAutocorrelation(qresids_int, dat$set_long2, dat$set_lat2)
+testSpatialAutocorrelation(qresids_int_s, dat$set_long2, dat$set_lat2)
 
 # test ingestion model
 testSpatialAutocorrelation(qresids_hu_lognormal_int, dat$set_long2, dat$set_lat2)
