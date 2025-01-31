@@ -11,6 +11,8 @@ Humm – for those in sanctuaries and MPAs I would call them closed; for the oth
 - try gp to model spatial autocorrelation, but computationally intensive:
       https://paulbuerkner.com/brms/reference/brmsformula.html: Gaussian process terms can be fitted using the gp function in the pterms part of the model formula. Similar to smooth terms, Gaussian processes can be used to model complex non-linear relationships, for instance temporal or spatial autocorrelation. However, they are computationally demanding and are thus not recommended for very large datasets or approximations need to be used.
 - have approximated GPs with k = 3, but hasn't overcome autocorrelation issue...might be too loong to fit for exact GPs...
+  how to choose number of basis functions?
+  - https://link.springer.com/article/10.1007/s11222-022-10167-2
   - https://peter-stewart.github.io/blog/gaussian-process-occupancy-tutorial/
   - https://betanalpha.github.io/assets/case_studies/gaussian_processes.html
   - https://mc-stan.org/docs/2_29/stan-users-guide/gaussian-process-regression.html

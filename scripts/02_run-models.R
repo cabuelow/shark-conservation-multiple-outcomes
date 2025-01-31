@@ -60,13 +60,13 @@ fit_zinb_int_s <- brm(maxn ~ Gear_limits + Species_limits + Catch_limits +
                         Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                         mpa_compliance + Government_Effectiveness + Grav_Total + 
                         Population + Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id) +
-                        gp(set_long2, set_lat2, k = 3),
+                        gp(set_long2, set_lat2, k = 10),
                       prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
                       iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                       data = dat, family = zero_inflated_negbinomial(), 
                       control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int_s,
-     file = "outputs/models/global_models_zinb_spatial.rda")
+save(fit_zinb_int_s_10,
+     file = "outputs/models/global_models_zinb_spatial_10.rda")
 
 # ingestion models ------------------------------
 # first set weakly informative priors and only sample the priors to do a prior predictive check
