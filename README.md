@@ -10,6 +10,14 @@ This repository contains code for developing a Bayesian hierarchical model to de
 Humm – for those in sanctuaries and MPAs I would call them closed; for the others they would be open if there are no restrictions in place.
 - try gp to model spatial autocorrelation, but computationally intensive:
       https://paulbuerkner.com/brms/reference/brmsformula.html: Gaussian process terms can be fitted using the gp function in the pterms part of the model formula. Similar to smooth terms, Gaussian processes can be used to model complex non-linear relationships, for instance temporal or spatial autocorrelation. However, they are computationally demanding and are thus not recommended for very large datasets or approximations need to be used.
+- have approximated GPs with k = 3, but hasn't overcome autocorrelation issue...might be too loong to fit for exact GPs...
+  - https://peter-stewart.github.io/blog/gaussian-process-occupancy-tutorial/
+  - https://betanalpha.github.io/assets/case_studies/gaussian_processes.html
+  - https://mc-stan.org/docs/2_29/stan-users-guide/gaussian-process-regression.html
+- Run model with the different community groups, or just average body size? - as body size increases, this is how effect of management changes, then we have a three way interaction...probably too complex...
+- Get models running on cloud so can try more....
+
+
 
 Notes:
 - brms uses non-centered parameterisation by default: https://discourse.mc-stan.org/t/brms-priors-for-random-effect-sds-and-non-centered-parameterizations/32415/3
