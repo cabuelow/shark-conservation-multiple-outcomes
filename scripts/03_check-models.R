@@ -18,6 +18,9 @@ dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
 summary(fit_zinb_int_noHGMain)
 plot(fit_zinb_int_noHGMain)
 pp_check(fit_zinb_int_noHGMain, type = 'bars', ndraws = 100)
+summary(fit_zinb_int_s_10)
+plot(fit_zinb_int_s_10)
+pp_check(fit_zinb_int_s_10, type = 'bars', ndraws = 100)
 
 # ingestion model
 summary(fit_hu_lognormal_int)
@@ -42,9 +45,9 @@ qresids_int <- createDHARMa(
   integerResponse = TRUE)
 plot(qresids_int)
 qresids_int_s <- createDHARMa(
-  simulatedResponse = t(posterior_predict(fit_zinb_int_s)),
-  observedResponse = fit_zinb_int_s$data$maxn,
-  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_s)), 1, mean),
+  simulatedResponse = t(posterior_predict(fit_zinb_int_s_10)),
+  observedResponse = fit_zinb_int_s_10$data$maxn,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_s_10)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int_s)
 
@@ -58,7 +61,7 @@ qresids_hu_lognormal_int_s <- createDHARMa(
   simulatedResponse = t(posterior_predict(fit_hu_lognormal_int_s)),
   observedResponse = fit_hu_lognormal_int_s$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int_s)), 1, mean))
-plot(qresids_hu_lognormal_int_s)
+plot(qresids_hu_lognormal_int_s_10)
 
 # prob mult outcomes model
 qresids_prob_mult_int <- createDHARMa(
@@ -69,19 +72,9 @@ plot(qresids_prob_mult_int)
 
 # spatial autocorrelation ------------------------------
 
-# jitter lats and longs where they are the same for sets
-dat$set_lat2 <- dat$set_lat
-dat$set_long2 <- dat$set_long
-while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
-  dat$duplicated <- duplicated(select(dat, set_lat2, set_long2))
-  dat <- dat |> 
-    mutate(set_lat2 = ifelse(duplicated == TRUE, set_lat2 + runif(1, 0, 0.000000001), set_lat2),
-           set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))
-}
-
 # test maxn model
-testSpatialAutocorrelation(qresids_int, dat$set_long2, dat$set_lat2)
-testSpatialAutocorrelation(qresids_int_s, dat$set_long2, dat$set_lat2)
+testSpatialAutocorrelation(qresids_int, fit_zinb_int$set_long2, fit_zinb_int$set_lat2)
+testSpatialAutocorrelation(qresids_int_s, fit_zinb_int_s_10$data$set_long2, fit_zinb_int_s_10$data$set_lat2)
 
 # test ingestion model
 testSpatialAutocorrelation(qresids_hu_lognormal_int, dat$set_long2, dat$set_lat2)
