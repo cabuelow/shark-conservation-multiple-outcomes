@@ -15,6 +15,7 @@ Humm – for those in sanctuaries and MPAs I would call them closed; for the oth
 - have approximated GPs with k = 3, but hasn't overcome autocorrelation issue...might be too loong to fit for exact GPs...
   how to choose number of basis functions?
   - **Takes 32 hours to run model with approx. GP (k = 10) for zinb..., run on a GPU?
+  - Or artefact of large data - significant Moran's I ...
   - https://link.springer.com/article/10.1007/s11222-022-10167-2
   - https://peter-stewart.github.io/blog/gaussian-process-occupancy-tutorial/
   - https://betanalpha.github.io/assets/case_studies/gaussian_processes.html
