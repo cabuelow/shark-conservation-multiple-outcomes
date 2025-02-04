@@ -242,21 +242,23 @@ c
 # plot counterfactual predictions ------------------------------
 
 aaa <- preds |>   
+  filter(Scenario == 'No management') |> 
   mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits'))) |> 
   ggplot() +
-  geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent_status_quo, ymax = upp_50_cumulative_percent_status_quo, group = Scenario, fill = "50%"), alpha = 0.4) +
-  geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo, col = Scenario)) +
-  scale_fill_manual(values = c('50%' = "#636363", '0.8' = "#BDBDBD", '0.95' = "#F0F0F0"), name = 'Credible interval') +
-  scale_colour_manual(values = c('No management' = '#00A0E1', 
-                                 'Effective closures' = '#D7642C',
-                                 'Effective restrictions' = '#E6A532')) +
+  geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent_status_quo, ymax = upp_50_cumulative_percent_status_quo, group = Variable, fill = Variable), alpha = 0.4) +
+  geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo, col = Variable)) +
+  #scale_fill_manual(values = c('50%' = "#636363", '0.8' = "#BDBDBD", '0.95' = "#F0F0F0"), name = 'Credible interval') +
+  #scale_colour_manual(values = c('No management' = '#00A0E1', 
+   #                              'Effective closures' = '#D7642C',
+    #                             'Effective restrictions' = '#E6A532')) +
   scale_y_continuous(breaks = seq(-50, 50, by = 5)) +
-  facet_wrap(~Variable) +
+  #facet_wrap(~Variable) +
   xlab('% of Sets') +
   ylab('Cumulative predicted outcome \n (% of total Status quo)') +
   geom_hline(yintercept = 0, lty = 'dashed', alpha = 0.5) +
   theme_classic() +
-  theme(legend.key.size = unit(0.5, 'cm'))
+  theme(legend.key.size = unit(0.5, 'cm'),
+        le)
 aaa
 ggsave('outputs/figures/counterfactual_predictions.png', width = 8, height = 3)
 
