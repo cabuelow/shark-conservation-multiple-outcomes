@@ -5,11 +5,6 @@ This repository contains code for developing a Bayesian hierarchical model to de
 **TODO**
 
 - write up a description of the scripts and what they do
-- reclassify sets with missing shark protection status and re-run models
-- From Aaron on classifying sites: If so, then I also have a follow-up question, which is that some of the sets (n = 259) are unclassified for  ‘Shark_protection_status’ and some are ‘NA’ (n = 991). 
-The ’NA’ are because we decided not to drop sets that don’t have records for visibility, hard coral, or substrate relief. 
-But I wondered if you know the reason for the remaining 259 sets that are unclassified, and how we should deal with them? Some of them are in Shark sanctuaries and MPAs and some are not, and none of them have shark fishing restrictions/limits.
-Humm – for those in sanctuaries and MPAs I would call them closed; for the others they would be open if there are no restrictions in place.
 - try gp to model spatial autocorrelation, but computationally intensive:
       https://paulbuerkner.com/brms/reference/brmsformula.html: Gaussian process terms can be fitted using the gp function in the pterms part of the model formula. Similar to smooth terms, Gaussian processes can be used to model complex non-linear relationships, for instance temporal or spatial autocorrelation. However, they are computationally demanding and are thus not recommended for very large datasets or approximations need to be used.
 - have approximated GPs with k = 3, but hasn't overcome autocorrelation issue...might be too loong to fit for exact GPs...

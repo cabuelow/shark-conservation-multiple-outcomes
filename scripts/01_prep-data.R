@@ -1,5 +1,5 @@
 # prep data for analysis
-# 2025-01-23
+# 2025-02-03
 
 library(tidyverse)
 library(GGally)
@@ -10,7 +10,6 @@ tmap_mode('view')
 sf_use_s2(FALSE)
 
 # functions for wrangling
-#scale_2SD <- function(x) (x-mean(x, na.rm = T))/(2*sd(x, na.rm = T)) # function to mean center and scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
 scale_2SD <- function(x) (x/(2*sd(x, na.rm = T))) # function to scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
 logtrans <- function(x) log(x + (min(x[x>0], na.rm = T))) # log+min transform for skewed covariates
 
@@ -30,7 +29,6 @@ flux <- read.csv('data/flux-rate-estimates_01-11-2024.csv') |>
 fils <- list.files('data/FinPrintData2022/', full.names = T)
 alldat <- lapply(fils, read.csv)
 fdat_MacNeil <- read.csv('data/FinPrint_Set_Data_MacNeil_2020.csv')
-#fdat_Goetze <- read.csv('data/maxn_data_raw.csv')
 
 # join to create master datafile with maxn and covariates
 dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_long, reef_id, set_id, genus, species, maxn) |> 
@@ -52,6 +50,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   mutate(genus_species = paste(genus, species)) |> 
   # filter for common species of interest
   filter(genus_species %in% c(" ", spp)) |> 
+  # NAs are 0s
   mutate(maxn = ifelse(is.na(maxn), 0, maxn)) |> 
   # join flux data
   left_join(flux, by = c('genus_species' = 'Species')) |>
@@ -65,12 +64,14 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   summarise(maxn = sum(maxn),
             ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
   ungroup() |> 
+  # classify sets unclassified for Shark Protection Status
+  # if there are no fishing restrictions and set is in a shark sanctuary or MPA, assume is 'Closed' to fishing, otherwise is Open
+  #mutate(Shark_Protection_Status = case_when((Shark_Protection_Status == '' | is.na(Shark_Protection_Status)) & Shark_Sanctuary == 1 & Shark_fishing_restrictions == '' ~ 'Closed',
+   #                                          (Shark_Protection_Status == '' | is.na(Shark_Protection_Status)) & mpa_name != "" & Shark_fishing_restrictions == '' ~ 'Closed',
+    #                                         (Shark_Protection_Status == '' | is.na(Shark_Protection_Status)) & Shark_Sanctuary == 0 & mpa_name == "" & Shark_fishing_restrictions == '' ~ 'Open',
+     #                                        .default = Shark_Protection_Status)) |> 
   # filter out sets with no information on shark protection status or fishing restrictions
   filter(!is.na(Shark_Protection_Status) & !is.na(Shark_fishing_restrictions) & Shark_Protection_Status != '') |> 
-  # if there are no fishing restrictions and set is in a shark sanctuary, assume is 'Closed' to fishing
-  #mutate(Shark_Protection_Status = case_when(Shark_Protection_Status == '' & Shark_Sanctuary == 1 & Shark_fishing_restrictions == '' ~ 'Closed',
-   #                                          Shark_Protection_Status == '' & Shark_Sanctuary == 0 & Shark_fishing_restrictions == '' ~ 'Open',
-    #                                         .default = Shark_Protection_Status)) |> 
   # separate fishing restrictions into categorical variables for each limit type
   separate(col = 'Shark_fishing_restrictions', 
            into = c('limits1', 'limits2', 'limits3', 'limits4', 'limits5', 'limits6', 'limits7'), remove = F) |> 
