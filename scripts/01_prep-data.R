@@ -83,7 +83,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          Catch_limits = ifelse(limits1 == 'Bag' | limits2 == 'Bag' | limits3 == 'Bag' | limits4 == 'Bag' | limits5 == 'Bag' | limits6 == 'Bag' | limits7 == 'Bag', 1, 0),
          #Effort_limits = ifelse(limits1 == 'Effort' | limits2 == 'Effort' | limits3 == 'Effort' | limits4 == 'Effort' | limits5 == 'Effort' | limits8 == 'Effort', 1, 0),
          Size_limits = ifelse(limits1 == 'Size' | limits2 == 'Size' | limits3 == 'Size' | limits4 == 'Size' | limits5 == 'Size' | limits6 == 'Size' | limits7 == 'Size', 1, 0),
-         Temporal_limits = ifelse(limits1 == 'Temporal' | limits2 == 'Temporal' | limits3 == 'Temporal' | limits4 == 'Temporal' | limits5 == 'Temporal' | limits6 == 'Temporal' | limits7 == 'Temporal', 1, 0),
+         Temporal_limits = ifelse(limits1 == 'Temporal' | limits2 == 'Temporal' | limits3 == 'Temporal' | limits4 == 'Temporal' | limits5 == 'Temporal' | limits6 == 'Temporal' | limits7 == 'Temporal', 1, 0), 
          across(c(Area_limits:Temporal_limits), ~ifelse(is.na(.), 0, .))) |>
   # put continuous covariates on same scale as binary by dividing by 2 standard deviations (as recommended by Gelman), also mean center to improve interpretation of coeffs in presence of interactions
   mutate(mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0), # dummy variable for high compliance mpas
@@ -91,8 +91,11 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          across(c(Population, Grav_Total), logtrans),
          across(c(HDI, Government_Effectiveness, Population, Grav_Total), scale_2SD),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open")) |> 
+  # remove sets that we aren't sure are closed
+  mutate(drop = ifelse(Shark_Protection_Status == 'Closed' & Shark_Sanctuary == 0 & mpa_present == 0 & Species_limits == 1 & Area_limits == 0 & Entrants_limits == 0 & Gear_limits == 0 & Catch_limits == 0 & Size_limits == 0 & Temporal_limits == 0, 'drop', NA)) |> 
+  filter(is.na(drop)) |> 
   # remove variables not needed for analysis
-  select(-c(mpa_name, limits1:limits7)) |> 
+  select(-c(mpa_name, limits1:limits7, drop)) |> 
   # make variable of presence in upper quartile of both outcomes (maxn and ingestion)
   mutate(mult_outcomes = ifelse(maxn > quantile(maxn, 0.75) & ingestion_C_g_day > quantile(ingestion_C_g_day, 0.75), 1, 0))
 
