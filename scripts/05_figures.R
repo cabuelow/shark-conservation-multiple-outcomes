@@ -65,63 +65,48 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                               .variable %in% c('Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)', 'Human development index (HDI)^2',
                                                'MPA compliance', 'MPA present') ~ 'Confounders adjusted for')) |> 
   mutate(category = factor(category, levels = c('Focal management variables', 'Confounders adjusted for')),
-         `Evidence for positive effect` = case_when(.width == 0.5 & .lower > 0 ~ '> 50%',
+         `Evidence for effect` = case_when(.width == 0.5 & .lower > 0 ~ '> 50%',
+                                           .width == 0.5 & .upper < 0 ~ '> 50%',
                                                     #.width == 0.8 & .lower > 0 | .upper < 0 ~ '> 80%',
                                                     #.width == 0.95 & .lower > 0 | .upper < 0 ~ '> 95%',
-                                                    .default = 'None'))
+                                                    .default = 'None')) |> 
+  mutate(.variable = factor(.variable, levels = c('Human gravity X \n Closed shark fishing', 
+                                                  'Human gravity X \n Restricted shark fishing',
+                                                  'Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)', 'Human development index (HDI)^2',
+                                                  'MPA compliance', 'MPA present')))
 
 # plot 
 
-betas_manage <- filter(betas, category == 'Focal management variables')
-betas_confound <- filter(betas, category == 'Confounders adjusted for')
+#betas_manage <- filter(betas, category == 'Focal management variables')
+#betas_confound <- filter(betas, category == 'Confounders adjusted for')
 
 a <- ggplot() +
   geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
-  geom_errorbar(data = filter(betas_manage, .width == 0.95), 
-                aes(y = .variable, xmin = .lower, xmax = .upper,
+  geom_errorbar(data = filter(betas, .width == 0.95), 
+                aes(y = fct_rev(.variable), xmin = .lower, xmax = .upper,
                 col = fct_rev(factor(Outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits')))),
                 alpha = 0.9, width = .1, position=position_dodge(width=0.5)) +
-  geom_errorbar(data = filter(betas_manage, .width == 0.50), 
-                aes(y = .variable, xmin = .lower, xmax = .upper,
+  geom_errorbar(data = filter(betas, .width == 0.50), 
+                aes(y = fct_rev(.variable), xmin = .lower, xmax = .upper,
                     col = fct_rev(factor(Outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits')))),
                 alpha = 0.5, width = 0, size = 2, position=position_dodge(width=0.5)) +
-  geom_point(data = filter(betas_manage, .width == 0.50), 
-             aes(y = .variable, x = .value,
+  geom_point(data = filter(betas, .width == 0.50), 
+             aes(y = fct_rev(.variable), x = .value,
                  col = fct_rev(factor(Outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits'))),
-                 shape = `Evidence for positive effect`), position=position_dodge(width=0.5)) +
+                 shape = `Evidence for effect`), 
+             size = 3,
+             position=position_dodge(width=0.5)) +
   scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome', guide = 'none') +
-  scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for positive effect") +
-  facet_wrap(~category, ncol = 1, scales = 'free_y') +
-  xlim(c(-5, 3.5)) +
-  xlab('') +
+  scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for effect") +
+  #facet_wrap(~category, ncol = 1, scales = 'free_y') +
+  #xlim(c(-5, 3.5)) +
+  xlab('Standardized effect size') +
   ylab('') +
-  theme_classic() #+
-  #theme(legend.position = 'none')
+  theme_classic() +
+  theme(legend.position = 'bottom')
 a
+ggsave('outputs/figures/coef_plot.png', height = 5.5, width = 5)
 
-b <- ggplot() +
-  geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
-  geom_errorbar(data = filter(betas_confound, .width == 0.95), 
-                aes(y = .variable, xmin = .lower, xmax = .upper,
-                    col = fct_rev(factor(Outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits')))),
-                alpha = 0.9, width = .1, position=position_dodge(width=0.5)) +
-  geom_errorbar(data = filter(betas_confound, .width == 0.50), 
-                aes(y = .variable, xmin = .lower, xmax = .upper,
-                    col = fct_rev(factor(Outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits')))),
-                alpha = 0.5, width = 0, size = 2, position=position_dodge(width=0.5)) +
-  geom_point(data = filter(betas_confound, .width == 0.50), 
-             aes(y = .variable, x = .value,
-                 col = fct_rev(factor(Outcome, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits'))),
-                 shape = `Evidence for positive effect`), position=position_dodge(width=0.5)) +
-  scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome', guide = 'none') +
-  scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for positive effect", guide = 'none') +
-  facet_wrap(~category, ncol = 1, scales = 'free_y') +
-  xlim(c(-5, 3.5)) +
-  xlab('Standardised effect size') +
-  ylab('') +
-  theme_classic() #+
-#theme(legend.position = 'none')
-b
 # plot counterfactual predictions ------------------------------
 
 aaa <- preds |>   
@@ -297,29 +282,6 @@ h <- gains_dat |>
   theme(legend.key = element_rect(fill = "white"))
 h
 
-# Find the peaks for each outcome
-
-peaks <- gains_dat |> 
-  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
-         cat = 'Conservation gains from effective closures') |> 
-  group_by(outcome) |> 
-  slice_max(percent_gains, n = 1) |> 
-  select(outcome, percent_gains, Grav_Total)
-
-# Check these make sense - they don't..
-
-print(peaks)
-
-manual_peaks <- data.frame(
-  outcome = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits'), 
-  Grav_Total =c(0.95, 2.15, 0.42)
-)
-manual_peaks %>% 
-  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')))%>%
-  glimpse()
-
-manual_peaks
-
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
 
 global_gravity1 <- dat |> 
@@ -357,7 +319,7 @@ ggsave('outputs/figures/Figure3_newcolours_v2_set.tiff', width = 5.5, height = 5
 pp_gains2 <- ggplot(global_gravity2) +
   geom_density(aes(x = Grav_tot, fill = type), color = NA) +
   geom_density(aes(x = Grav_tot, linetype = type)) +
-  geom_vline(data = manual_peaks, aes(xintercept = Grav_Total, color = outcome), linetype = "dashed", size = 1) +
+  #geom_vline(data = manual_peaks, aes(xintercept = Grav_Total, color = outcome), linetype = "dashed", size = 1) +
   scale_color_manual(values = c("#41AFAA", "#AF4B91", "#466EB4"), name = 'Outcome') +
   scale_fill_manual(values = c('lightgrey', "transparent"), name = '') +
   scale_linetype_manual(values = c('solid', 'dashed'), guide = 'none') +
@@ -370,7 +332,7 @@ pp_gains2 <- ggplot(global_gravity2) +
 pp_gains2
 # patch together with global gravity distribution
 
-g/pp_gains2+ plot_annotation(tag_levels = 'A')
-ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 5.5, height = 5)
+g/h/pp_gains2+ plot_annotation(tag_levels = 'A')
+ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 5.5, height = 7)
 
 
