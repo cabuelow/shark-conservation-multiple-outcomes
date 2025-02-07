@@ -4,10 +4,10 @@ library(tidyverse)
 library(brms)
 library(tidybayes)
 
-load("outputs/models/global_models_zinb_noHGMain.rda")
+load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
-load("outputs/models/global_models_mult_outcome.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
+load("outputs/models/global_models_mult_outcome_v2.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-02-07_v2.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
@@ -16,7 +16,7 @@ dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
 # make predictions from the posterior and summarise outcomes at each site
 # then get the median or mean value for each site and use to arrange sites from highest to lowest
 base_preds_zinb <- dat |> 
-  add_epred_draws(fit_zinb_int_noHGMain) |> 
+  add_epred_draws(fit_zinb_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction_status_quo = median(.epred),
             upp_95_status_quo = quantile(.epred, 0.975),
@@ -28,14 +28,8 @@ base_preds_zinb <- dat |>
 
 no_management_zinb <- dat |> 
   # turn off management variables
-  mutate(Shark_Protection_Status = 'Open',
-         #Shark_Sanctuary = 0,
-         #Catch_limits = 0,
-         Gear_limits = 0) |> 
-         #Species_limits = 0,
-         #Temporal_limits = 0,
-         #Size_limits = 0) |> 
-  add_epred_draws(fit_zinb_int_noHGMain) |> 
+  mutate(Shark_Protection_Status = 'Open') |> 
+  add_epred_draws(fit_zinb_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction_no_management = median(.epred),
             upp_95_no_management = quantile(.epred, 0.975),
@@ -54,8 +48,6 @@ pred_zinb <- base_preds_zinb |>
          low_50 = `low_50_no_management`-`low_50_status_quo`) |> 
   ungroup() |> 
   arrange(Gains) |> 
-#pred_zinb_no_management <- bind_rows(arrange(filter(pred_zinb_no_management, Gains > 0), desc(Gains)),
- #                                    arrange(filter(pred_zinb_no_management, Gains <= 0), Gains)) |> 
   mutate(Variable = 'Shark abundance',
          Scenario = 'No management',
          Site = 1:n(),
@@ -83,12 +75,6 @@ base_preds_hu_lognormal <- dat |>
 no_management_hu_lognormal <- dat |> 
   # turn off management variables
   mutate(Shark_Protection_Status = 'Open') |> 
-         #Shark_Sanctuary = 0,
-         #Catch_limits = 0,
-         #Gear_limits = 0,
-         #Species_limits = 0,
-         #Temporal_limits = 0,
-         #Size_limits = 0) |> 
   add_epred_draws(fit_hu_lognormal_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction_no_management = median(.epred),
@@ -134,13 +120,7 @@ base_preds_prob_mult <- dat |>
 
 no_management_prob_mult <- dat |> 
   # turn off management variables
-  mutate(Shark_Protection_Status = 'Open',
-         Shark_Sanctuary = 0,
-        # Catch_limits = 0,
-         Gear_limits = 0) |> 
-         #Species_limits = 0,
-         #Temporal_limits = 0,
-         #Size_limits = 0) |> 
+  mutate(Shark_Protection_Status = 'Open') |> 
   add_epred_draws(fit_prob_mult_int) |> 
   group_by(set_id, reef_id, location_id, region_id) |> 
   summarise(Prediction_no_management = median(.epred),
@@ -179,12 +159,9 @@ preds |>
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent_status_quo, ymax = upp_50_cumulative_percent_status_quo, fill = Variable), alpha = 0.4) +
   geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo, col = Variable)) +
-  #scale_fill_manual(values = c('50%' = "#636363", '0.8' = "#BDBDBD", '0.95' = "#F0F0F0"), name = 'Credible interval') +
-  #scale_colour_manual(values = c('No management' = '#00A0E1', 
-   #                              'Effective closures' = '#D7642C',
-    #                             'Effective restrictions' = '#E6A532')) +
-  #scale_y_continuous(breaks = seq(-50, 200, by = 5)) +
-  #facet_wrap(~Variable) +
+  scale_color_manual(values = c("#AF4B91", "#466EB4", "#41AFAA"), name = 'Outcome') +
+  scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = 'Outcome') +
+  labs(color = "Outcome", fill = 'Outcome') +
   xlab('% of Sets') +
   ylab('Cumulative predicted outcome \n (% of total Status quo)') +
   geom_hline(yintercept = 0, lty = 'dashed', alpha = 0.5) +

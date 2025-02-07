@@ -97,17 +97,18 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   # remove variables not needed for analysis
   select(-c(mpa_name, limits1:limits7, drop)) |> 
   # make variable of presence in upper quartile of both outcomes (maxn and ingestion)
-  mutate(mult_outcomes = ifelse(maxn > quantile(maxn, 0.75) & ingestion_C_g_day > quantile(ingestion_C_g_day, 0.75), 1, 0))
+  mutate(mult_outcomes = ifelse(maxn > quantile(maxn, 0.85) & ingestion_C_g_day > quantile(ingestion_C_g_day, 0.85), 1, 0))
 
 # summarise the data
 dat_summary <- dat |> 
-  group_by(Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits, Entrants_limits, Gear_limits, Species_limits, Catch_limits, Size_limits, Temporal_limits) |> 
+  group_by(Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits, Entrants_limits, Gear_limits, Species_limits, Catch_limits, Size_limits, Temporal_limits, mult_outcomes) |> 
   summarise(n = n())
 View(dat_summary)
 
 # map the data
 dat.sf <- dat |> 
-  st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326)
+  st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326) |> 
+  filter(Shark_Protection_Status == 'Open' & mult_outcomes == 1)
 tmap_mode('view')
 qtm(dat.sf, dots.col = 'Shark_Protection_Status')
 qtm(dat.sf, dots.col = 'maxn')
@@ -115,4 +116,4 @@ qtm(dat.sf, dots.col = 'ingestion_C_g_day')
 qtm(dat.sf, dots.col = 'mult_outcomes')
 
 # save wrangled data
-write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)
+write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '_v2.csv'), row.names = F)
