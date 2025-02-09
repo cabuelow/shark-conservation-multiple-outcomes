@@ -11,7 +11,7 @@ scale_2SD <- function(x) (x/(2*sd(x, na.rm = T)))
 
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
-load("outputs/models/global_models_mult_outcome.rda")
+load("outputs/models/global_models_mult_outcome_v2.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-02-07_v2.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -50,6 +50,7 @@ betas_mult_outcomes <- fit_prob_mult_int |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Probability of co-benefits')
 
+# bind together
 betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |> 
   mutate(.variable = recode(.variable, 
                             b_Grav_Total = 'Human gravity',
@@ -67,19 +68,15 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
   mutate(category = factor(category, levels = c('Focal management variables', 'Confounders adjusted for')),
          `Evidence for effect` = case_when(.width == 0.5 & .lower > 0 ~ '> 50%',
                                            .width == 0.5 & .upper < 0 ~ '> 50%',
-                                                    #.width == 0.8 & .lower > 0 | .upper < 0 ~ '> 80%',
-                                                    #.width == 0.95 & .lower > 0 | .upper < 0 ~ '> 95%',
-                                                    .default = 'None')) |> 
+                                           #.width == 0.8 & .lower > 0 | .upper < 0 ~ '> 80%',
+                                           #.width == 0.95 & .lower > 0 | .upper < 0 ~ '> 95%',
+                                           .default = 'None')) |> 
   mutate(.variable = factor(.variable, levels = c('Human gravity X \n Closed shark fishing', 
                                                   'Human gravity X \n Restricted shark fishing',
                                                   'Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)', 'Human development index (HDI)^2',
                                                   'MPA compliance', 'MPA present')))
 
 # plot 
-
-#betas_manage <- filter(betas, category == 'Focal management variables')
-#betas_confound <- filter(betas, category == 'Confounders adjusted for')
-
 a <- ggplot() +
   geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
   geom_errorbar(data = filter(betas, .width == 0.95), 
@@ -96,14 +93,16 @@ a <- ggplot() +
                  shape = `Evidence for effect`), 
              size = 3,
              position=position_dodge(width=0.5)) +
-  scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome', guide = 'none') +
+  scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
   scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence for effect") +
   #facet_wrap(~category, ncol = 1, scales = 'free_y') +
   #xlim(c(-5, 3.5)) +
   xlab('Standardized effect size') +
   ylab('') +
   theme_classic() +
-  theme(legend.position = 'bottom')
+  theme(legend.position = 'bottom') +
+  guides(color=guide_legend(ncol =1),
+         shape=guide_legend(ncol =1))
 a
 ggsave('outputs/figures/coef_plot.png', height = 5.5, width = 5)
 
@@ -125,19 +124,6 @@ aaa <- preds |>
   theme(legend.key.size = unit(0.5, 'cm'))
 aaa
 ggsave('outputs/figures/counterfactual_predictions.png', width = 5, height = 3)
-
-layout <- '
-######AAAAAAAAAAAAAAAA#
-######AAAAAAAAAAAAAAAA#
-#CCCCCCCCCCCCCCCCCCCCCC
-#CCCCCCCCCCCCCCCCCCCCCC
-#CCCCCCCCCCCCCCCCCCCCCC
-#CCCCCCCCCCCCCCCCCCCCCC
-'
-
-free(aaa)/free(a/b) + plot_layout(design = layout) + plot_annotation(tag_levels = 'A')
-#a+b+c+free(plot_spacer()+aa)+free(bb)+free(cc) + plot_layout(design = layout)
-ggsave('outputs/figures/prediction_coef_plots.png', height = 7.5, width = 7)
 
 # predict conditional effects of shark protection status along human gravity gradient ------------------------------
 # here all non-focal continuous covariates are set to their mean value and 
@@ -206,7 +192,7 @@ ggsave('outputs/figures/interaction-plots.png', width = 4.5, height = 6)
 
 # conservation gains along human gravity gradient ------------------------------
 
-# do the same as above, but calculate gains from closing shark fisheries
+# do the same as above, but calculate gains from closing or restricting shark fisheries
 gains_dat <- bind_rows(nd_zinb |> 
                          add_epred_draws(fit_zinb_int, re_formula = NA) |> 
                          ungroup() |> 
@@ -239,7 +225,7 @@ gains_dat <- bind_rows(nd_zinb |>
                          mutate(outcome = 'Probability of co-benefits'))
 
 # then plot gains along the human gravity gradient
-
+# closures
 g <- gains_dat |> 
   mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
          cat = 'Conservation gains from effective closures') |> 
@@ -261,6 +247,7 @@ g <- gains_dat |>
   theme(legend.key = element_rect(fill = "white"))
 g
 
+# restrictions
 h <- gains_dat |> 
   mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
          cat = 'Conservation gains from effective restrictions') |> 
@@ -283,13 +270,13 @@ h <- gains_dat |>
 h
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
-
 global_gravity1 <- dat |> 
   select(Grav_Total) |> 
   rename('Grav_tot' = Grav_Total) |> 
   mutate(type = 'Study') |> 
   bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) |> 
   mutate(cat = "Gravity distribution")
+# averaged across reefs
 global_gravity2 <- dat |> 
   group_by(reef_id) |> 
   summarise(Grav_tot = mean(Grav_Total)) |> 
@@ -314,7 +301,7 @@ pp_gains <- ggplot(global_gravity1) +
 pp_gains
 # patch together with global gravity distribution
 g/h/pp_gains+ plot_annotation(tag_levels = 'A')
-ggsave('outputs/figures/Figure3_newcolours_v2_set.tiff', width = 5.5, height = 5)
+ggsave('outputs/figures/Figure3_newcolours_v2_set.tiff', width = 5.5, height = 7)
 
 pp_gains2 <- ggplot(global_gravity2) +
   geom_density(aes(x = Grav_tot, fill = type), color = NA) +
@@ -331,7 +318,6 @@ pp_gains2 <- ggplot(global_gravity2) +
     legend.key = element_rect(fill = "white", color = NA))
 pp_gains2
 # patch together with global gravity distribution
-
 g/h/pp_gains2+ plot_annotation(tag_levels = 'A')
 ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 5.5, height = 7)
 
