@@ -11,7 +11,7 @@ library(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
-dat <- read.csv('data/fp_data_wrangled_2025-02-07.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-02-07_v2.csv') |> 
          mutate(across(c(set_id:Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 # jitter lats and longs where they are the same for sets
@@ -21,8 +21,7 @@ while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
   dat$duplicated <- duplicated(select(dat, set_lat2, set_long2))
   dat <- dat |> 
     mutate(set_lat2 = ifelse(duplicated == TRUE, set_lat2 + runif(1, 0, 0.000000001), set_lat2),
-           set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))
-}
+           set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))}
 
 # maxn models ------------------------------
 # first set weakly informative priors and only sample the priors to do a prior predictive check
@@ -74,12 +73,11 @@ pp_check(fit_prior_hu_lognormal_int, ndraws = 1000)
 fit_hu_lognormal_int <- brm(ingestion_C_g_day ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                               mpa_compliance + Government_Effectiveness + Grav_Total + 
                               Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
-                         prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
-                         iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
-                         data = dat, 
-                         family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
-                         control = list(max_treedepth = 15, adapt_delta = 0.99))
-
+                            prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
+                            iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                            data = dat, 
+                            family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
+                            control = list(max_treedepth = 15, adapt_delta = 0.99))
 save(fit_hu_lognormal_int, file = "outputs/models/global_models_lognormal.rda")
 
 # include a gaussian process for coordinates to account for spatial autocorrelation
@@ -98,23 +96,23 @@ save(fit_hu_lognormal_int_s, file = "outputs/models/global_models_hu_lognormal_s
 fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                                  mpa_compliance + Government_Effectiveness + Grav_Total + 
                                  Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
-                                  prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
-                                  iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
-                                  data = dat, 
-                                  family = bernoulli(), 
-                                  control = list(max_treedepth = 15, adapt_delta = 0.99),
-                                  sample_prior = "only")
+                               prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
+                               iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                               data = dat, 
+                               family = bernoulli(), 
+                               control = list(max_treedepth = 15, adapt_delta = 0.99),
+                               sample_prior = "only")
 pp_check(fit_prior_prob_mult_int, ndraws = 1000, type = 'bars')
 
 # now estimate parameters
 fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                            mpa_compliance + Government_Effectiveness + Grav_Total + 
                            Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
-                            prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
-                            iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
-                            data = dat, 
-                            family = bernoulli(), 
-                            control = list(max_treedepth = 15, adapt_delta = 0.99))
+                         prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
+                         iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                         data = dat, 
+                         family = bernoulli(), 
+                         control = list(max_treedepth = 15, adapt_delta = 0.99))
 
 save(fit_prob_mult_int, file = "outputs/models/global_models_mult_outcome.rda")
    
