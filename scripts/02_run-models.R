@@ -11,7 +11,7 @@ library(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
-dat <- read.csv('data/fp_data_wrangled_2025-02-07_v2.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |> 
          mutate(across(c(set_id:Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 # jitter lats and longs where they are the same for sets

@@ -12,7 +12,7 @@ scale_2SD <- function(x) (x/(2*sd(x, na.rm = T)))
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_mult_outcome_v2.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-02-07_v2.csv') |>
+dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 preds <- read.csv('outputs/models/scenario-predictions.csv')
@@ -199,9 +199,9 @@ gains_dat <- bind_rows(nd_zinb |>
                          select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |>
                          mutate(gains_Closed = Closed - Open,
-                                percent_gains_Closed = (gains_Closed/max(gains_Closed))*100,
-                                gains_Restricted = Restricted - Open,
-                                percent_gains_Restricted = (gains_Restricted/max(gains_Closed))*100) |> 
+                                #percent_gains_Closed = (gains_Closed/max(Open))*100,
+                                gains_Restricted = Restricted - Open) |> 
+                                #percent_gains_Restricted = (gains_Restricted/max(Open))*100) |> 
                          mutate(outcome = 'Shark abundance'),
                        nd_hu_lognormal |> 
                          add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
@@ -209,9 +209,9 @@ gains_dat <- bind_rows(nd_zinb |>
                          select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
                          mutate(gains_Closed = Closed - Open,
-                                percent_gains_Closed = (gains_Closed/max(gains_Closed))*100,
-                                gains_Restricted = Restricted - Open,
-                                percent_gains_Restricted = (gains_Restricted/max(gains_Closed))*100) |>
+                                #percent_gains_Closed = (gains_Closed/max(Open))*100,
+                                gains_Restricted = Restricted - Open) |> 
+                                #percent_gains_Restricted = (gains_Restricted/max(Open))*100) |>
                          mutate(outcome = 'Shark ingestion rate'),
                        nd_mult_out |> 
                          add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
@@ -219,55 +219,94 @@ gains_dat <- bind_rows(nd_zinb |>
                          select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
                          mutate(gains_Closed = Closed - Open,
-                                percent_gains_Closed = (gains_Closed/max(gains_Closed))*100,
-                                gains_Restricted = Restricted - Open,
-                                percent_gains_Restricted = (gains_Restricted/max(gains_Closed))*100) |>
-                         mutate(outcome = 'Probability of co-benefits'))
+                                #percent_gains_Closed = (gains_Closed/max(Open))*100,
+                                gains_Restricted = Restricted - Open) |> 
+                                #percent_gains_Restricted = (gains_Restricted/max(Open))*100) |>
+                         mutate(outcome = 'Probability of co-benefits')) |> 
+  pivot_longer(cols = c(gains_Closed, gains_Restricted), names_to = 'Gains', values_to = 'value')
 
 # then plot gains along the human gravity gradient
-# closures
+# abundance
+xlim_a <- gains_dat |> 
+  filter(outcome == 'Shark abundance') |> 
+  group_by(Grav_Total, Gains) |> 
+  summarise(Closed = median(Closed))
+  
 g <- gains_dat |> 
+  filter(outcome == 'Shark abundance') |> 
   mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
          cat = 'Conservation gains from effective closures') |> 
-  ggplot(aes(x = Grav_Total, y = percent_gains_Closed, color = outcome)) +
-  #stat_lineribbon(aes(fill_ramp = after_stat(level))) +
-  stat_lineribbon(.width = c(.50), alpha = 0.4, aes(fill=outcome)) +
-  stat_lineribbon(.width = c(0), aes(fill=outcome)) +
-  scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
-  scale_color_manual(values = c( "#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  ggplot(aes(x = Grav_Total, y = value, color = outcome, linetype = Gains)) +
+  stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#AF4B91") +
+  stat_lineribbon(.width = c(0), col = "#AF4B91") +
+  #scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  #scale_color_manual(values = c( "#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
   #scale_fill_manual(values = c("#4B9558", "#99B2DD", "#E9AFA3"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
-  ylab('Gains (normalised)') +
+  ylab('Gains') +
   xlim(c(0, max(global_gravity$Grav_tot))) +
-  facet_wrap(~cat) +
+  facet_wrap(~outcome, scale = 'free_y', ncol = 1) +
   xlab('') +
-  ylim(c(0, 5)) +
+  ylim(c(0, max(xlim_a$Closed))) +
   theme_classic()+
-  guides(color = guide_legend(override.aes = list(fill = NA, alpha=1)),
-         linetype = guide_legend(override.aes = list(fill = NA))) +
-  theme(legend.key = element_rect(fill = "white"))
+  theme(legend.position = 'none')
 g
 
-# restrictions
+# ingestion
+xlim_b <- gains_dat |> 
+  filter(outcome == 'Shark ingestion rate') |> 
+  group_by(Grav_Total, Gains) |> 
+  summarise(Closed = median(Closed))
+
 h <- gains_dat |> 
+  filter(outcome == 'Shark ingestion rate') |> 
   mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
-         cat = 'Conservation gains from effective restrictions') |> 
-  ggplot(aes(x = Grav_Total, y = percent_gains_Restricted, color = outcome)) +
-  #stat_lineribbon(aes(fill_ramp = after_stat(level))) +
-  stat_lineribbon(.width = c(.50), alpha = 0.4, aes(fill=outcome)) +
-  stat_lineribbon(.width = c(0), aes(fill=outcome)) +
-  scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
-  scale_color_manual(values = c( "#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+         cat = 'Conservation gains from effective closures') |> 
+  ggplot(aes(x = Grav_Total, y = value, color = outcome, linetype = Gains)) +
+  stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#466EB4") +
+  stat_lineribbon(.width = c(0), col = "#466EB4") +
+  #scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  #scale_color_manual(values = c( "#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
   #scale_fill_manual(values = c("#4B9558", "#99B2DD", "#E9AFA3"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
-  ylab('Gains (normalised)') +
+  ylab('Gains in Shark Abundance') +
   xlim(c(0, max(global_gravity$Grav_tot))) +
-  facet_wrap(~cat) +
+  facet_wrap(~outcome, scale = 'free_y', ncol = 1) +
   xlab('') +
-  ylim(c(0, 5)) +
-  theme_classic()+
-  guides(color = guide_legend(override.aes = list(fill = NA, alpha=1)),
-         linetype = guide_legend(override.aes = list(fill = NA))) +
-  theme(legend.key = element_rect(fill = "white"))
+  ylim(c(0, max(xlim_b$Closed))) +
+  theme_classic() +
+  theme(legend.position = 'none')
+ # guides(color = guide_legend(override.aes = list(fill = NA, alpha=1)),
+  #       linetype = guide_legend(override.aes = list(fill = NA))) +
+  #theme(legend.key = element_rect(fill = "white"))
 h
+
+# mult outcomes
+
+xlim_c <- gains_dat |> 
+  filter(outcome == 'Probability of co-benefits') |> 
+  group_by(Grav_Total, Gains) |> 
+  summarise(Closed = median(Closed))
+
+i <- gains_dat |> 
+  filter(outcome == 'Probability of co-benefits') |> 
+  mutate(outcome = factor(outcome, levels = c('Shark abundance', 'Shark ingestion rate', 'Probability of co-benefits')),
+         cat = 'Conservation gains from effective closures') |> 
+  ggplot(aes(x = Grav_Total, y = value, linetype = Gains)) +
+  #stat_lineribbon(aes(fill_ramp = after_stat(level))) +
+  stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#41AFAA") +
+  stat_lineribbon(.width = c(0), col = "#41AFAA") +
+  #scale_fill_manual(values = c("#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  #scale_color_manual(values = c( "#AF4B91", "#466EB4","#41AFAA"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  #scale_fill_manual(values = c("#4B9558", "#99B2DD", "#E9AFA3"), name = "Outcome", labels = c("Shark abundance", "Predation potential", "Probability of co-benefits")) +
+  xlim(c(0, max(global_gravity$Grav_tot))) +
+  facet_wrap(~outcome, scale = 'free_y', ncol = 1) +
+  xlab('') +
+  ylim(c(0, max(xlim_c$Closed))) +
+  theme_classic() +
+  theme(legend.position = 'none')
+  #guides(color = guide_legend(override.aes = list(fill = NA, alpha=1)),
+   #      linetype = guide_legend(override.aes = list(fill = NA))) +
+  #theme(legend.key = element_rect(fill = "white"))
+i
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
 global_gravity1 <- dat |> 
@@ -285,24 +324,6 @@ global_gravity2 <- dat |>
   bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) |> 
   mutate(cat = "Gravity distribution")
 
-pp_gains <- ggplot(global_gravity1) +
-  geom_density(aes(x = Grav_tot, fill = type), color = NA) +
-  geom_density(aes(x = Grav_tot, linetype = type)) +
-  #geom_vline(data = manual_peaks, aes(xintercept = Grav_Total, color = outcome), linetype = "dashed", size = 1) +
-  scale_color_manual(values = c("#41AFAA", "#AF4B91", "#466EB4"), name = 'Outcome') +
-  scale_fill_manual(values = c('lightgrey', "transparent"), name = '') +
-  scale_linetype_manual(values = c('solid', 'dashed'), guide = 'none') +
-  facet_wrap(~cat) +
-  xlab('Human Gravity (log + min transformed)') +
-  ylab('Frequency') +
-  theme_classic() + 
-  theme(#legend.position="none",
-                         legend.key = element_rect(fill = "white", color = NA))
-pp_gains
-# patch together with global gravity distribution
-g/h/pp_gains+ plot_annotation(tag_levels = 'A')
-ggsave('outputs/figures/Figure3_newcolours_v2_set.tiff', width = 5.5, height = 7)
-
 pp_gains2 <- ggplot(global_gravity2) +
   geom_density(aes(x = Grav_tot, fill = type), color = NA) +
   geom_density(aes(x = Grav_tot, linetype = type)) +
@@ -318,7 +339,7 @@ pp_gains2 <- ggplot(global_gravity2) +
     legend.key = element_rect(fill = "white", color = NA))
 pp_gains2
 # patch together with global gravity distribution
-g/h/pp_gains2+ plot_annotation(tag_levels = 'A')
-ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 5.5, height = 7)
+g/h/i/pp_gains2+ plot_annotation(tag_levels = 'A')
+ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 4, height = 8)
 
 

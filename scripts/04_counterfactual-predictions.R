@@ -7,7 +7,7 @@ library(tidybayes)
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_mult_outcome_v2.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-02-07_v2.csv') |>
+dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
@@ -167,3 +167,4 @@ preds |>
   geom_hline(yintercept = 0, lty = 'dashed', alpha = 0.5) +
   theme_classic() +
   theme(legend.key.size = unit(0.5, 'cm'))
+

@@ -59,7 +59,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          ingestion_C_g_day = ifelse(is.na(ingestion_C_g_day), 0, ingestion_C_g_day)) |> 
   # sum maxn and ingestion rates across species at each set
   group_by(set_lat, set_long, set_id, reef_id, location_id, region_id,
-           mpa_name, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status,
+           mpa_name, mpa_compliance, mpa_year_founded, Shark_fishing_restrictions, Shark_Protection_Status,
            Shark_Sanctuary, HDI, Government_Effectiveness, Population, Grav_Total) |> 
   summarise(maxn = sum(maxn),
             ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
@@ -76,6 +76,8 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   separate(col = 'Shark_fishing_restrictions', 
            into = c('limits1', 'limits2', 'limits3', 'limits4', 'limits5', 'limits6', 'limits7'), remove = F) |> 
   mutate(mpa_present = ifelse(mpa_name == "", 0, 1), # dummy variable for mpa presence
+         mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0), # dummy variable for high compliance mpas
+         mpa_age = ifelse(is.na(mpa_year_founded), 0, 2024 - mpa_year_founded),
          Area_limits = ifelse(limits1 == 'Area' | limits2 == 'Area' | limits3 == 'Area' | limits4 == 'Area' | limits5 == 'Area' | limits6 == 'Area' | limits7 == 'Area', 1, 0),
          Entrants_limits = ifelse(limits1 == 'Entrants' | limits2 == 'Entrants' | limits3 == 'Entrants' | limits4 == 'Entrants' | limits5 == 'Entrants' | limits6 == 'Entrants' | limits7 == 'Entrants', 1, 0),
          Gear_limits = ifelse(limits1 == 'Gear' | limits2 == 'Gear' | limits3 == 'Gear' | limits4 == 'Gear' | limits5 == 'Gear'| limits6 == 'Gear' | limits7 == 'Gear', 1, 0),
@@ -86,10 +88,9 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          Temporal_limits = ifelse(limits1 == 'Temporal' | limits2 == 'Temporal' | limits3 == 'Temporal' | limits4 == 'Temporal' | limits5 == 'Temporal' | limits6 == 'Temporal' | limits7 == 'Temporal', 1, 0), 
          across(c(Area_limits:Temporal_limits), ~ifelse(is.na(.), 0, .))) |>
   # put continuous covariates on same scale as binary by dividing by 2 standard deviations (as recommended by Gelman), also mean center to improve interpretation of coeffs in presence of interactions
-  mutate(mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0), # dummy variable for high compliance mpas
-         across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
-         across(c(Population, Grav_Total), logtrans),
-         across(c(HDI, Government_Effectiveness, Population, Grav_Total), scale_2SD),
+  mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits), factor),
+         across(c(Population, Grav_Total, mpa_age), logtrans),
+         across(c(HDI, Government_Effectiveness, Population, Grav_Total, mpa_age), scale_2SD),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open")) |> 
   # remove sets that we aren't sure are closed
   mutate(drop = ifelse(Shark_Protection_Status == 'Closed' & Shark_Sanctuary == 0 & mpa_present == 0 & Species_limits == 1 & Area_limits == 0 & Entrants_limits == 0 & Gear_limits == 0 & Catch_limits == 0 & Size_limits == 0 & Temporal_limits == 0, 'drop', NA)) |> 
@@ -116,4 +117,4 @@ qtm(dat.sf, dots.col = 'ingestion_C_g_day')
 qtm(dat.sf, dots.col = 'mult_outcomes')
 
 # save wrangled data
-write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '_v2.csv'), row.names = F)
+write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)
