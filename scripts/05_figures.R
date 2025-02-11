@@ -342,4 +342,173 @@ pp_gains2
 g/h/i/pp_gains2+ plot_annotation(tag_levels = 'A')
 ggsave('outputs/figures/Figure3_newcolours_v2_reef.tiff', width = 4, height = 8)
 
+## first-order derivatives -----------------------------------------
+head(gains_dat)
+# Need to loop through to account for 3x outcomes 
+# gains closed and restricted
+# each draw
 
+# There's probably a jankier way of doing this where we can be cheeky with how we arrange the dataframe,
+# but this is probably better?
+
+outcome_list <- list()
+
+for (l in unique(gains_dat$outcome)) {
+  
+  # Create a filtered dataframe
+  outcome_df <- 
+    gains_dat %>% 
+    dplyr::filter(outcome == l)
+  
+  gains_list <- list()
+  
+  for (k in unique(outcome_df$Gains)) {
+    
+    # Create a filtered dataframe
+    gains_df <- 
+      outcome_df %>% 
+      dplyr::filter(Gains == k)
+    
+    der_list <- list()
+    
+    # Iterate through each draw
+    for (j in 1:length(unique(gains_df$.draw))) {
+      
+      # Create the dataframe to infill
+      der_df <- 
+        gains_df %>% 
+        dplyr::filter(.draw == j) %>% 
+        dplyr::select(Grav_Total, .draw, value) %>% 
+        arrange(Grav_Total) %>% 
+        mutate(first_der = NA)
+      
+      # Iterate through each row of data
+      for (i in 1:nrow(der_df)) {
+        
+        if (i < nrow(der_df)) {
+          
+          # Calculate the first-order derivative
+          der_df$first_der[i] <- (der_df$value[i + 1] - der_df$value[i])/(der_df$Grav_Total[i + 1] - der_df$Grav_Total[i])
+          
+        } else break
+        
+      }
+      
+      der_list[[j]] <- der_df
+      
+    }
+    
+    # Bind all the gains dataframes together
+    gains_list[[k]] <- 
+      do.call(rbind, der_list) %>% 
+      mutate(Gains = paste(k))
+    
+    # Leave a message for ourselves
+    cat(paste('Finished calculating', paste(l), 'gains for fishing:', gsub('gains_', '', k), '\n'))
+    
+  }
+  
+  # Bind all the outcomes dataframes together
+  outcome_list[[l]] <- 
+    do.call(rbind, gains_list) %>% 
+    mutate(outcome = paste(l))
+  
+}
+
+derivatives_df <- 
+  do.call(rbind, outcome_list) %>% 
+  drop_na()
+
+# Save this
+write.csv(derivatives_df, 'outputs/models/conservation-gains-derivatives.csv', row.names = FALSE)
+  
+der_plots <- list()
+
+for (i in unique(derivatives_df$outcome)) {
+  
+  if (i == 'Shark abundance') {
+    plot_colour <- '#AF4B91'
+    x_lab <- ''
+    } else if (i == 'Shark ingestion rate') {
+    plot_colour <- '#466EB4'
+    x_lab <- ''
+    } else {
+    plot_colour <- '#41AFAA'
+    x_lab <- 'Human gravity'
+    }
+  
+  der_plots[[i]] <- 
+    derivatives_df %>% 
+    dplyr::filter(outcome == i) %>% 
+    ggplot(aes(x = Grav_Total, y = first_der, linetype = Gains)) +
+    stat_lineribbon(.width = c(.50), alpha = 0.4, fill = plot_colour) +
+    stat_lineribbon(.width = c(0), colour = plot_colour) +
+    geom_hline(aes(yintercept = 0), colour = 'grey20') +
+    labs(x = x_lab,
+         y = paste(i, "f'(x)")) +
+    theme_classic() +
+    theme(legend.position = 'none')
+  
+}
+
+derivatives_plot <- 
+  der_plots[[1]] + der_plots[[2]] + der_plots[[3]] + plot_layout(ncol = 1)
+
+ggsave('outputs/figures/conservation-gains-derivatives.png', derivatives_plot,
+       height = 10, width = 4, dpi = 300)
+
+# What's the median gravity value where the inflection occurs
+derivatives_df %>% 
+  group_by(Gains, outcome, Grav_Total) %>% 
+  median_hdci(first_der, .width = 0.5) %>% 
+  ungroup() %>% 
+  dplyr::filter(.lower <= 0 & .upper >= 0) %>% 
+  # get the mean gravity
+  group_by(Gains, outcome) %>% 
+  summarise(med_gravity = median(Grav_Total, na.rm = TRUE)) %>% 
+  ungroup()
+
+# How many cells in the gravity raster have the associated gravity values
+derivatives_df2 <- 
+  derivatives_df %>% 
+  group_by(Gains, outcome, Grav_Total) %>% 
+  median_hdci(first_der, .width = 0.5) %>% 
+  ungroup() %>% 
+  dplyr::filter(.lower <= 0 & .upper >= 0) %>% 
+  # We only want open closed for gains and co-benefits and shark abundance for outcome
+  dplyr::filter(Gains == 'gains_Closed' & outcome != 'Shark ingestion rate')
+
+# We're just going to loop through to get the min and max value to infill into a dataframe
+derivatives_closed <- 
+  derivatives_df2 %>% 
+  group_by(outcome) %>% 
+  dplyr::slice_min(Grav_Total) %>% 
+  ungroup() %>% 
+  mutate(grav_min = Grav_Total) %>% 
+  dplyr::select(outcome, grav_min) %>% 
+  left_join(derivatives_df2 %>% 
+              group_by(outcome) %>% 
+              dplyr::slice_max(Grav_Total) %>% 
+              ungroup() %>% 
+              mutate(grav_max = Grav_Total) %>% 
+              dplyr::select(outcome, grav_max),
+            by = 'outcome')
+
+derivatives_closed
+
+# How many reef_id for probability of co-benefits
+global_gravity %>% 
+  as_tibble() %>% 
+  dplyr::filter(Grav_tot <= derivatives_closed$grav_max[1] & Grav_tot >= derivatives_closed$grav_min[1]) %>% 
+  count() 
+
+global_gravity %>% 
+  as_tibble() %>% 
+  dplyr::filter(Grav_tot <= 0.269 & Grav_tot >= 0.25) %>% 
+  count() 
+
+# How many reef_id for shark abundance
+global_gravity %>% 
+  as_tibble() %>% 
+  dplyr::filter(Grav_tot <= derivatives_closed$grav_max[2] & Grav_tot >= derivatives_closed$grav_min[2]) %>% 
+  count()
