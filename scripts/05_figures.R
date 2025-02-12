@@ -516,3 +516,58 @@ inflection_df <-
 
 inflection_df
 
+# What's the median gravity value where the inflection occurs
+derivatives_df %>% 
+  group_by(Gains, outcome, Grav_Total) %>% 
+  median_hdci(first_der, .width = 0.5) %>% 
+  ungroup() %>% 
+  dplyr::filter(.lower <= 0 & .upper >= 0) %>% 
+  # get the mean gravity
+  group_by(Gains, outcome) %>% 
+  summarise(med_gravity = median(Grav_Total, na.rm = TRUE)) %>% 
+  ungroup()
+
+# How many cells in the gravity raster have the associated gravity values
+derivatives_df2 <- 
+  derivatives_df %>% 
+  group_by(Gains, outcome, Grav_Total) %>% 
+  median_hdci(first_der, .width = 0.5) %>% 
+  ungroup() %>% 
+  dplyr::filter(.lower <= 0 & .upper >= 0) %>% 
+  # We only want open closed for gains and co-benefits and shark abundance for outcome
+  dplyr::filter(Gains == 'gains_Closed' & outcome != 'Shark ingestion rate')
+
+# We're just going to loop through to get the min and max value to infill into a dataframe
+derivatives_closed <- 
+  derivatives_df2 %>% 
+  group_by(outcome) %>% 
+  dplyr::slice_min(Grav_Total) %>% 
+  ungroup() %>% 
+  mutate(grav_min = Grav_Total) %>% 
+  dplyr::select(outcome, grav_min) %>% 
+  left_join(derivatives_df2 %>% 
+              group_by(outcome) %>% 
+              dplyr::slice_max(Grav_Total) %>% 
+              ungroup() %>% 
+              mutate(grav_max = Grav_Total) %>% 
+              dplyr::select(outcome, grav_max),
+            by = 'outcome')
+
+derivatives_closed
+
+# How many reef_id for probability of co-benefits
+global_gravity %>% 
+  as_tibble() %>% 
+  dplyr::filter(Grav_tot <= derivatives_closed$grav_max[1] & Grav_tot >= derivatives_closed$grav_min[1]) %>% 
+  count() 
+
+global_gravity %>% 
+  as_tibble() %>% 
+  dplyr::filter(Grav_tot <= 0.269 & Grav_tot >= 0.25) %>% 
+  count() 
+
+# How many reef_id for shark abundance
+global_gravity %>% 
+  as_tibble() %>% 
+  dplyr::filter(Grav_tot <= derivatives_closed$grav_max[2] & Grav_tot >= derivatives_closed$grav_min[2]) %>% 
+  count()
