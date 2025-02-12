@@ -458,57 +458,61 @@ ggsave('outputs/figures/conservation-gains-derivatives.png', derivatives_plot,
        height = 10, width = 4, dpi = 300)
 
 # What's the median gravity value where the inflection occurs
-derivatives_df %>% 
-  group_by(Gains, outcome, Grav_Total) %>% 
-  median_hdci(first_der, .width = 0.5) %>% 
-  ungroup() %>% 
-  dplyr::filter(.lower <= 0 & .upper >= 0) %>% 
-  # get the mean gravity
-  group_by(Gains, outcome) %>% 
-  summarise(med_gravity = median(Grav_Total, na.rm = TRUE)) %>% 
-  ungroup()
+# We originally tried to include the 50% credible interval in this calculation
+# But this meant that we couldn't actually calculate a "peak" for closed: predation and most of the 
+# restricted curves because they're super close to being a flat line
 
-# How many cells in the gravity raster have the associated gravity values
-derivatives_df2 <- 
+# So instead, we'll just find the gravity value where the median value crosses 0
+# Maybe we'll do each pairwise calculation to find the two gravity points that produces a mean
+# first derivative close to 0
+med_derivatives <- 
   derivatives_df %>% 
   group_by(Gains, outcome, Grav_Total) %>% 
-  median_hdci(first_der, .width = 0.5) %>% 
+  summarise(med_der = median(first_der)) %>% 
   ungroup() %>% 
-  dplyr::filter(.lower <= 0 & .upper >= 0) %>% 
-  # We only want open closed for gains and co-benefits and shark abundance for outcome
-  dplyr::filter(Gains == 'gains_Closed' & outcome != 'Shark ingestion rate')
+  mutate_if(is.character, as.factor)
 
-# We're just going to loop through to get the min and max value to infill into a dataframe
-derivatives_closed <- 
-  derivatives_df2 %>% 
-  group_by(outcome) %>% 
-  dplyr::slice_min(Grav_Total) %>% 
-  ungroup() %>% 
-  mutate(grav_min = Grav_Total) %>% 
-  dplyr::select(outcome, grav_min) %>% 
-  left_join(derivatives_df2 %>% 
-              group_by(outcome) %>% 
-              dplyr::slice_max(Grav_Total) %>% 
-              ungroup() %>% 
-              mutate(grav_max = Grav_Total) %>% 
-              dplyr::select(outcome, grav_max),
-            by = 'outcome')
+df <- 
+  med_derivatives %>% 
+  dplyr::filter(Gains == 'gains_Restricted' & outcome == 'Probability of co-benefits') %>% 
+  arrange(Grav_Total) %>% 
+  mutate(sign = sign(med_der))
+  
+df
 
-derivatives_closed
+rle(df$sign) -> t
 
-# How many reef_id for probability of co-benefits
-global_gravity %>% 
-  as_tibble() %>% 
-  dplyr::filter(Grav_tot <= derivatives_closed$grav_max[1] & Grav_tot >= derivatives_closed$grav_min[1]) %>% 
-  count() 
+inflection_list <- list()
 
-global_gravity %>% 
-  as_tibble() %>% 
-  dplyr::filter(Grav_tot <= 0.269 & Grav_tot >= 0.25) %>% 
-  count() 
+k <- 1
+for (i in unique(med_derivatives$Gains)) {
+  for (j in unique(med_derivatives$outcome)) {
+    
+    sub_df <- 
+      med_derivatives %>% 
+      dplyr::filter(Gains == i & outcome == j) %>% 
+      arrange(Grav_Total) %>% 
+      # Specify what the sign is
+      mutate(sign = sign(med_der))
+    
+    # Find position where the sign first switches
+    pos_1 <- rle(sub_df$sign)$lengths[1]
+    
+    # Take the two rows of data where the sign switches
+    inflection_list[[k]] <- 
+      sub_df %>% 
+      dplyr::slice(pos_1, pos_1 + 1)
+    
+    k <- k + 1
+    
+  }
+}
 
-# How many reef_id for shark abundance
-global_gravity %>% 
-  as_tibble() %>% 
-  dplyr::filter(Grav_tot <= derivatives_closed$grav_max[2] & Grav_tot >= derivatives_closed$grav_min[2]) %>% 
-  count()
+inflection_df <- 
+  do.call(rbind, inflection_list) %>% 
+  group_by(Gains, outcome) %>% 
+  summarise(median_gravity = median(Grav_Total, na.rm = TRUE)) %>% 
+  ungroup()
+
+inflection_df
+
