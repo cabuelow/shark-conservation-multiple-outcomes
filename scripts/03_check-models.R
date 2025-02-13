@@ -4,9 +4,9 @@ library(tidyverse)
 library(brms)
 library(DHARMa)
 
-load("outputs/models/global_models_zinb_s.rda")
+load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
-load("outputs/models/global_models_hu_lognormal_spatial.rda")
+#load("outputs/models/global_models_hu_lognormal_spatial.rda")
 load("outputs/models/global_models_mult_outcome.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
@@ -15,9 +15,9 @@ dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
 # posterior traces, quantitative diagnostics, posterior predictive check ------------------------------
 
 # maxn model
-summary(fit_zinb_int_noHGMain)
-plot(fit_zinb_int_noHGMain)
-pp_check(fit_zinb_int_noHGMain, type = 'bars', ndraws = 100)
+summary(fit_zinb_int)
+plot(fit_zinb_int)
+pp_check(fit_zinb_int, type = 'bars', ndraws = 100)
 summary(fit_zinb_int_s)
 plot(fit_zinb_int_s)
 pp_check(fit_zinb_int_s, type = 'bars', ndraws = 100)
@@ -39,9 +39,9 @@ pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)
 
 # maxn model
 qresids_int <- createDHARMa(
-  simulatedResponse = t(posterior_predict(fit_zinb_int_noHGMain)),
-  observedResponse = fit_zinb_int_noHGMain$data$maxn,
-  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_noHGMain)), 1, mean),
+  simulatedResponse = t(posterior_predict(fit_zinb_int)),
+  observedResponse = fit_zinb_int$data$maxn,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int)
 qresids_int_s <- createDHARMa(
@@ -71,9 +71,17 @@ qresids_prob_mult_int <- createDHARMa(
 plot(qresids_prob_mult_int)
 
 # spatial autocorrelation ------------------------------
+# jitter lats and longs where they are the same for sets
+dat$set_lat2 <- dat$set_lat
+dat$set_long2 <- dat$set_long
+while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
+  dat$duplicated <- duplicated(select(dat, set_lat2, set_long2))
+  dat <- dat |> 
+    mutate(set_lat2 = ifelse(duplicated == TRUE, set_lat2 + runif(1, 0, 0.000000001), set_lat2),
+           set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))}
 
 # test maxn model
-testSpatialAutocorrelation(qresids_int, fit_zinb_int$set_long2, fit_zinb_int$set_lat2)
+testSpatialAutocorrelation(qresids_int, dat$set_long2, dat$set_lat2)
 testSpatialAutocorrelation(qresids_int_s, fit_zinb_int_s$data$set_long2, fit_zinb_int_s$data$set_lat2)
 
 # test ingestion model
