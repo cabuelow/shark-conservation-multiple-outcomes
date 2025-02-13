@@ -10,6 +10,7 @@ library(brms)
 library(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
+set.seed(123)
 
 dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |> 
          mutate(across(c(set_id:Shark_Sanctuary, mpa_present:Temporal_limits), factor),

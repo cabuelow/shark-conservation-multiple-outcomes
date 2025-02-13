@@ -3,6 +3,7 @@
 library(tidyverse)
 library(brms)
 library(DHARMa)
+set.seed(123)
 
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
