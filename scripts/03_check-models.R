@@ -4,11 +4,11 @@ library(tidyverse)
 library(brms)
 library(DHARMa)
 
-load("outputs/models/global_models_zinb_noHGMain.rda")
+load("outputs/models/global_models_zinb_s.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_hu_lognormal_spatial.rda")
 load("outputs/models/global_models_mult_outcome.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
+dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
@@ -18,9 +18,9 @@ dat <- read.csv('data/fp_data_wrangled_2025-01-20.csv') |>
 summary(fit_zinb_int_noHGMain)
 plot(fit_zinb_int_noHGMain)
 pp_check(fit_zinb_int_noHGMain, type = 'bars', ndraws = 100)
-summary(fit_zinb_int_s_10)
-plot(fit_zinb_int_s_10)
-pp_check(fit_zinb_int_s_10, type = 'bars', ndraws = 100)
+summary(fit_zinb_int_s)
+plot(fit_zinb_int_s)
+pp_check(fit_zinb_int_s, type = 'bars', ndraws = 100)
 
 # ingestion model
 summary(fit_hu_lognormal_int)
@@ -45,9 +45,9 @@ qresids_int <- createDHARMa(
   integerResponse = TRUE)
 plot(qresids_int)
 qresids_int_s <- createDHARMa(
-  simulatedResponse = t(posterior_predict(fit_zinb_int_s_10)),
-  observedResponse = fit_zinb_int_s_10$data$maxn,
-  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_s_10)), 1, mean),
+  simulatedResponse = t(posterior_predict(fit_zinb_int_s)),
+  observedResponse = fit_zinb_int_s$data$maxn,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_s)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int_s)
 
@@ -74,7 +74,7 @@ plot(qresids_prob_mult_int)
 
 # test maxn model
 testSpatialAutocorrelation(qresids_int, fit_zinb_int$set_long2, fit_zinb_int$set_lat2)
-testSpatialAutocorrelation(qresids_int_s, fit_zinb_int_s_10$data$set_long2, fit_zinb_int_s_10$data$set_lat2)
+testSpatialAutocorrelation(qresids_int_s, fit_zinb_int_s$data$set_long2, fit_zinb_int_s$data$set_lat2)
 
 # test ingestion model
 testSpatialAutocorrelation(qresids_hu_lognormal_int, dat$set_long2, dat$set_lat2)

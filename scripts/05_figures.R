@@ -20,11 +20,28 @@ global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1
   st_drop_geometry() |> 
   mutate(Grav_tot = scale_2SD(logtrans(Grav_tot)))
 
+# estimate stats for paper ------------------------------
+
+# change in outcomes with no management
+filter(preds, Variable == 'Shark abundance' & Percent_Sites == 100)$Gains_cumulative_percent_status_quo
+filter(preds, Variable == 'Predation potential' & Percent_Sites == 100)$Gains_cumulative_percent_status_quo
+filter(preds, Variable == 'Probability of co-benefits' & Percent_Sites == 100)$Gains_cumulative_percent_status_quo
+filter(preds, Variable == 'Shark abundance' & Percent_Sites == 100)$Gains_cumulative
+filter(preds, Variable == 'Predation potential' & Percent_Sites == 100)$Gains_cumulative
+
+# sets with no sharks present
+nrow(filter(dat, maxn == 0))/nrow(dat)
+# reefs with no sharks present
+dreef <- dat |> 
+  group_by(reef_id) |> 
+  summarise(maxn = sum(maxn))
+nrow(filter(dreef, maxn == 0))/nrow(dreef)
+
 # standardised effect sizes ------------------------------
 
 # maxn model 
 # quick look at beta coefs and interaction
-mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
+mcmc_plot(fit_zinb, variable = "^b_", regex = TRUE) # quick look at effect sizes
 plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
@@ -173,7 +190,7 @@ p
 pp <- global_gravity |> 
   mutate(cat = "Global gravity distribution") |> 
   ggplot(aes(x = Grav_tot)) +
-  geom_density(fill = 'pink') +
+  geom_density(fill = '#172A3A') +
   facet_wrap(~cat) +
   xlab('Human Gravity (log + min transformed)') +
   ylab('Frequency') +
