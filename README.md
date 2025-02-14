@@ -10,7 +10,8 @@ To reproduce the analysis, run scripts in the following order:
 2. 02_run-models.R: Run models to estimate the effects of management on reef shark conservation outcomes.
 3. 03_check-models.R: Check MCMC convergence and structural model assumptions.
 4. 04_counterfactual-predictions.R: Make predictions from models under management scenarios.
-5. 05_figures.R: Make figures for manuscript.
+5. 05_sensitivity-analyses.R: Run sensitivity analyses.
+6. 06_figures.R: Make figures for manuscript.
 
 #### TODO
 

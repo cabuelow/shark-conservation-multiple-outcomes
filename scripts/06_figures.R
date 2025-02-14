@@ -588,3 +588,4 @@ global_gravity %>%
   as_tibble() %>% 
   dplyr::filter(Grav_tot <= derivatives_closed$grav_max[2] & Grav_tot >= derivatives_closed$grav_min[2]) %>% 
   count()
+
