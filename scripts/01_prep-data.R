@@ -64,12 +64,6 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   summarise(maxn = sum(maxn),
             ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
   ungroup() |> 
-  # classify sets unclassified for Shark Protection Status
-  # if there are no fishing restrictions and set is in a shark sanctuary or MPA, assume is 'Closed' to fishing, otherwise is Open
-  #mutate(Shark_Protection_Status = case_when((Shark_Protection_Status == '' | is.na(Shark_Protection_Status)) & Shark_Sanctuary == 1 & Shark_fishing_restrictions == '' ~ 'Closed',
-   #                                          (Shark_Protection_Status == '' | is.na(Shark_Protection_Status)) & mpa_name != "" & Shark_fishing_restrictions == '' ~ 'Closed',
-    #                                         (Shark_Protection_Status == '' | is.na(Shark_Protection_Status)) & Shark_Sanctuary == 0 & mpa_name == "" & Shark_fishing_restrictions == '' ~ 'Open',
-     #                                        .default = Shark_Protection_Status)) |> 
   # filter out sets with no information on shark protection status or fishing restrictions
   filter(!is.na(Shark_Protection_Status) & !is.na(Shark_fishing_restrictions) & Shark_Protection_Status != '') |> 
   # separate fishing restrictions into categorical variables for each limit type
@@ -83,11 +77,10 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          Gear_limits = ifelse(limits1 == 'Gear' | limits2 == 'Gear' | limits3 == 'Gear' | limits4 == 'Gear' | limits5 == 'Gear'| limits6 == 'Gear' | limits7 == 'Gear', 1, 0),
          Species_limits = ifelse(limits1 == 'Species' | limits2 == 'Species' | limits3 == 'Species' | limits4 == 'Species' | limits5 == 'Species' | limits6 == 'Species' | limits7 == 'Species', 1, 0),
          Catch_limits = ifelse(limits1 == 'Bag' | limits2 == 'Bag' | limits3 == 'Bag' | limits4 == 'Bag' | limits5 == 'Bag' | limits6 == 'Bag' | limits7 == 'Bag', 1, 0),
-         #Effort_limits = ifelse(limits1 == 'Effort' | limits2 == 'Effort' | limits3 == 'Effort' | limits4 == 'Effort' | limits5 == 'Effort' | limits8 == 'Effort', 1, 0),
          Size_limits = ifelse(limits1 == 'Size' | limits2 == 'Size' | limits3 == 'Size' | limits4 == 'Size' | limits5 == 'Size' | limits6 == 'Size' | limits7 == 'Size', 1, 0),
          Temporal_limits = ifelse(limits1 == 'Temporal' | limits2 == 'Temporal' | limits3 == 'Temporal' | limits4 == 'Temporal' | limits5 == 'Temporal' | limits6 == 'Temporal' | limits7 == 'Temporal', 1, 0), 
          across(c(Area_limits:Temporal_limits), ~ifelse(is.na(.), 0, .))) |>
-  # put continuous covariates on same scale as binary by dividing by 2 standard deviations (as recommended by Gelman), also mean center to improve interpretation of coeffs in presence of interactions
+  # put continuous covariates on same scale as binary by dividing by 2 standard deviations (as recommended by Gelman)
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits), factor),
          across(c(Population, Grav_Total, mpa_age), logtrans),
          across(c(HDI, Government_Effectiveness, Population, Grav_Total, mpa_age), scale_2SD),
@@ -97,7 +90,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   filter(is.na(drop)) |> 
   # remove variables not needed for analysis
   select(-c(mpa_name, limits1:limits7, drop)) |> 
-  # make variable of presence in upper quartile of both outcomes (maxn and ingestion)
+  # make variable of presence in upper quantile of both outcomes (maxn and ingestion)
   mutate(mult_outcomes = ifelse(maxn > quantile(maxn, 0.85) & ingestion_C_g_day > quantile(ingestion_C_g_day, 0.85), 1, 0))
 
 # summarise the data
