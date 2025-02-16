@@ -1,5 +1,4 @@
 # run models to estimate effects of shark protection status (open, closed, restricted) on reef shark abundance (maxN) and carbon ingestion rates
-# (see 'check-DAG-data-consistency.R' for code to produce the DAG)
 # the minimial sufficient covariate adjustment set was: 
 # HDI, MPA presence, MPA compliance, government effectiveness, human gravity, shark sanctuary
 # note we do not include main effect of Shark Protection Status to allow only slope to vary
@@ -25,6 +24,7 @@ while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
            set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))}
 
 # maxn models ------------------------------
+
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_zinb_int <- brm(maxn ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                             mpa_compliance + Government_Effectiveness + Grav_Total + 
@@ -69,6 +69,7 @@ fit_zinb_int_s <- brm(maxn ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present +
 save(fit_zinb_int_s, file = "outputs/models/global_models_zinb_s.rda")
 
 # ingestion models ------------------------------
+
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_hu_lognormal_int <- brm(ingestion_C_g_day ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                                     mpa_compliance + Government_Effectiveness + Grav_Total + 
@@ -105,6 +106,7 @@ fit_hu_lognormal_int <- brm(ingestion_C_g_day ~ Shark_Sanctuary + HDI + I(HDI^2)
 save(fit_hu_lognormal_int, file = "outputs/models/global_models_lognormal.rda")
 
 # probability of being in upper quartile of both outcomes ------------------------------
+
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + I(HDI^2) + mpa_present + 
                                  mpa_compliance + Government_Effectiveness + Grav_Total + 

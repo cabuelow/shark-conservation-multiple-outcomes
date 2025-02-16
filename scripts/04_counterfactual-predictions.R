@@ -40,7 +40,6 @@ no_management_zinb <- dat |>
             low_50_no_management = quantile(.epred, 0.25))
 
 # calculate gains
-# no management
 pred_zinb <- base_preds_zinb |>
   left_join(no_management_zinb, by = c('set_id', 'reef_id', 'location_id', 'region_id')) |> 
   mutate(Gains = `Prediction_no_management`-`Prediction_status_quo`,
@@ -86,7 +85,6 @@ no_management_hu_lognormal <- dat |>
             low_50_no_management = quantile(.epred, 0.25))
 
 # calculate gains
-# no management
 pred_hu_lognormal <- base_preds_hu_lognormal |>
   left_join(no_management_hu_lognormal, by = c('set_id', 'reef_id', 'location_id', 'region_id')) |> 
   mutate(Gains = `Prediction_no_management`-`Prediction_status_quo`,
@@ -132,7 +130,6 @@ no_management_prob_mult <- dat |>
             low_50_no_management = quantile(.epred, 0.25))
 
 # calculate gains
-# no management
 pred_prob_mult <- base_preds_prob_mult |>
   left_join(no_management_prob_mult, by = c('set_id', 'reef_id', 'location_id', 'region_id')) |>  
   mutate(Gains = `Prediction_no_management`-`Prediction_status_quo`,
@@ -153,6 +150,7 @@ pred_prob_mult <- base_preds_prob_mult |>
 preds <- bind_rows(pred_zinb, pred_hu_lognormal, pred_prob_mult)
 write.csv(preds, 'outputs/models/scenario-predictions.csv', row.names = F)
 
+# plot
 preds |>   
   filter(Scenario == 'No management') |> 
   mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits'))) |> 
