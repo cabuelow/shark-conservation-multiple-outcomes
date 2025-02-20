@@ -165,7 +165,7 @@ PlotA_scatter_set_gg <- ggplotify::as.ggplot(PlotA_scatter_set)
 
 # maxn model 
 # quick look at beta coefs and interaction
-mcmc_plot(fit_zinb, variable = "^b_", regex = TRUE) # quick look at effect sizes
+mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
 plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
@@ -175,24 +175,25 @@ plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_St
 
 # pull out betas from each model
 betas_zinb <- fit_zinb_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_IHDIE2, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Shark abundance')
 
 betas_ingestion <- fit_hu_lognormal_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_IHDIE2, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Predation potential')
 
 betas_mult_outcomes <- fit_prob_mult_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_IHDIE2, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, 
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, 
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Probability of co-benefits')
 
 # bind together
-betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |> 
+betas <- #bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |> 
+  betas_zinb |> 
   mutate(.variable = recode(.variable, 
                             b_Grav_Total = 'Human gravity',
                             `b_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
@@ -200,7 +201,6 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                             b_Shark_Sanctuary1 = 'Shark sanctuary',
                             b_Government_Effectiveness = 'Governance effectiveness',
                             b_HDI = 'Human development index (HDI)',
-                            b_IHDIE2 = 'Human development index (HDI)^2',
                             b_mpa_compliance1 = 'MPA compliance',
                             b_mpa_present1 = 'MPA present')) |> 
   mutate(category = case_when(.variable %in% c('Human gravity X \n Closed shark fishing', 'Human gravity X \n Restricted shark fishing') ~ 'Focal management variables',
@@ -235,16 +235,14 @@ fig2b <- ggplot() +
                  shape = `Evidence for effect`), 
              size = 3,
              position=position_dodge(width=0.5)) +
-  scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
-  scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence\nfor effect") +
-  scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', bquote(HDI^2), 'HDI','Governance effectiveness','Gravity',
-                                       'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10))+
+  #scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
+  #scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence\nfor effect") +
+  #scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', bquote(HDI^2), 'HDI','Governance effectiveness','Gravity',
+                            #           'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10))+
   xlab('Standardized effect size\n ') +
   ylab('') +
   publication_theme()+
-  theme(axis.text.y = element_text(vjust = 0.5));fig2b
-
-
+  theme(legend.position = 'none', axis.text.y = element_text(vjust = 0.5));fig2b
 
 # combining fig2 plots ---------------------------
 prow<- plot_grid(PlotA_scatter_set_gg,fig2b +

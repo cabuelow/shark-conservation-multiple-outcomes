@@ -7,7 +7,6 @@ set.seed(123)
 
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
-#load("outputs/models/global_models_hu_lognormal_spatial.rda")
 load("outputs/models/global_models_mult_outcome.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
