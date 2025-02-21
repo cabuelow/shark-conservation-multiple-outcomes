@@ -49,7 +49,7 @@ fit_zinb <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                      mpa_compliance + Government_Effectiveness + Grav_Total + 
                      Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
                     prior = c(prior(normal(0, 2), class = b),
-                          prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
+                              prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
@@ -165,7 +165,7 @@ fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present +
                            mpa_compliance + Government_Effectiveness + Grav_Total + 
                            Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                          prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
-                         iter = 4000, warmup = 2000, cores = 4, chains = 4, thin = 1,
+                         iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))

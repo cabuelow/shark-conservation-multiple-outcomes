@@ -85,7 +85,7 @@ heatmap_dat <- dat |>
   group_by(reef_id) |>
   mutate(reef_maxn = mean(maxn)) |>
   mutate(reef_ingestion_C_g_day = mean(ingestion_C_g_day)) |>
-  ungroup |>
+  ungroup() |>
   mutate(log_maxn = log(maxn + 1)) |>
   mutate(log_ingestion_C_g_day = log(ingestion_C_g_day + 1)) |>
   dplyr::select(set_id, reef_id, maxn, ingestion_C_g_day,reef_maxn, reef_ingestion_C_g_day, log_maxn,log_ingestion_C_g_day )|>
@@ -107,11 +107,12 @@ heatmap_dat <- heatmap_dat |>
 
 # summary n sets and reefs co-benefits
 dat_summary<- dat|>
-  mutate(highlight = ifelse(maxn > x_quartile_85 & ingestion_ > y_quartile_85, "Above 0.85", "Below 0.85"))|>
+  mutate(highlight = ifelse(maxn > x_quartile_85 & ingestion_C_g_day > y_quartile_85, "Above 0.85", "Below 0.85"))|>
   select(set_id, reef_id, highlight)|>
   unique()
 table(dat_summary$highlight)
 length(unique(dat_summary$reef_id[dat_summary$highlight == "Above 0.85"]))
+
 # Load PNG images ----
 
 maxn_icon <- grid::rasterGrob(readPNG("images/Socioeconomic icon 1.png"), interpolate = TRUE)
@@ -131,8 +132,8 @@ PlotA_set <- ggplot(heatmap_dat, aes(x = maxn, y = ingestion_C_g_day)) +
   labs(
     x = "Shark tourism/fisheries\npotential (MaxN)",
     y = "Predation potential (gC per day)") +
-  annotation_custom(cobenefit_icon, xmin = 20, xmax =29, 
-                    ymin = 4300, ymax = 9300)+  # Adjust coordinates
+  #annotation_custom(cobenefit_icon, xmin = 20, xmax =29, 
+   #                 ymin = 4300, ymax = 9300)+  # Adjust coordinates
   publication_theme()+
   theme(legend.position = "none"); PlotA_set
 
@@ -142,7 +143,7 @@ dens1_set <- ggplot(heatmap_dat, aes(x = maxn, fill=highlight)) +
     values = c("Above 0.85" = "#AF4B91", "Below 0.85" = "grey80"),  # Custom colors
     name = "Point Category"  # Legend title
   ) +
-  annotation_custom(maxn_icon, xmin = -30, xmax = 50, ymin = 0, ymax = 9000) +  # Adjust coordinates
+  #annotation_custom(maxn_icon, xmin = -30, xmax = 50, ymin = 0, ymax = 9000) +  # Adjust coordinates
   theme_void() + 
   theme(legend.position = "none");dens1_set
 
@@ -152,7 +153,7 @@ dens2_set <- ggplot(heatmap_dat, aes(x = ingestion_C_g_day, fill=highlight)) +
     values = c("Above 0.85" = "#466EB4", "Below 0.85" = "grey80"), # Custom colors
     name = "Point Category"  # Legend title
   ) +
-  annotation_custom(ingestion_icon , xmin = 6000, xmax = 1700, ymin = 100, ymax = 8000) +  # Adjust coordinates
+  #annotation_custom(ingestion_icon , xmin = 6000, xmax = 1700, ymin = 100, ymax = 8000) +  # Adjust coordinates
   theme_void() + 
   theme(legend.position = "none") + 
   coord_flip(); dens2_set
@@ -165,9 +166,15 @@ PlotA_scatter_set_gg <- ggplotify::as.ggplot(PlotA_scatter_set)
 
 # maxn model 
 # quick look at beta coefs and interaction
-mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
-plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
+mcmc_plot(fit_hu_lognormal_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
+plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
+)[[1]] + theme_classic() + 
+  ylab('MaxN') +
+  xlab('Human Gravity (log + min transformed)') +
+  theme(legend.position = 'left', legend.title = element_blank())
+plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, dpar = 'hu', categorical = F, prob = c(0.95)), plot = FALSE, 
+     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
   ylab('MaxN') +
   xlab('Human Gravity (log + min transformed)') +
@@ -175,13 +182,18 @@ plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_St
 
 # pull out betas from each model
 betas_zinb <- fit_zinb_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, 
+               `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`,
+               b_zi_Shark_Sanctuary1, b_zi_HDI, b_zi_mpa_present1, b_zi_mpa_compliance1, b_zi_Government_Effectiveness, b_zi_Grav_Total, 
+               `b_zi_Grav_Total:Shark_Protection_StatusClosed`, `b_zi_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Shark abundance')
 
 betas_ingestion <- fit_hu_lognormal_int |> 
   gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
-               `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
+               `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`,
+               b_hu_Shark_Sanctuary1, b_hu_HDI, b_hu_mpa_present1, b_hu_mpa_compliance1, b_hu_Government_Effectiveness, b_hu_Grav_Total, 
+               `b_hu_Grav_Total:Shark_Protection_StatusClosed`, `b_hu_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Predation potential')
 
@@ -192,8 +204,12 @@ betas_mult_outcomes <- fit_prob_mult_int |>
   mutate(Outcome = 'Probability of co-benefits')
 
 # bind together
-betas <- #bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |> 
-  betas_zinb |> 
+betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |> 
+  mutate(coef_cat = case_when(.variable %in% c('b_zi_Shark_Sanctuary1', 'b_zi_HDI', 'b_zi_mpa_present1', 'b_zi_mpa_compliance1', 'b_zi_Government_Effectiveness', 'b_zi_Grav_Total', 
+                                           'b_zi_Grav_Total:Shark_Protection_StatusClosed', 'b_zi_Grav_Total:Shark_Protection_StatusRestricted') ~ 'Probability of excess \n zeros in Shark abundance',
+                              .variable %in% c('b_hu_Shark_Sanctuary1', 'b_hu_HDI', 'b_hu_mpa_present1', 'b_hu_mpa_compliance1', 'b_hu_Government_Effectiveness', 'b_hu_Grav_Total', 
+                                                         'b_hu_Grav_Total:Shark_Protection_StatusClosed', 'b_hu_Grav_Total:Shark_Protection_StatusRestricted') ~ 'Probability of Predation \n potential being 0',
+                                        .default = 'Outcome')) |> 
   mutate(.variable = recode(.variable, 
                             b_Grav_Total = 'Human gravity',
                             `b_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
@@ -202,9 +218,25 @@ betas <- #bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                             b_Government_Effectiveness = 'Governance effectiveness',
                             b_HDI = 'Human development index (HDI)',
                             b_mpa_compliance1 = 'MPA compliance',
-                            b_mpa_present1 = 'MPA present')) |> 
+                            b_mpa_present1 = 'MPA present',
+                            b_zi_Grav_Total = 'Human gravity',
+                            `b_zi_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
+                            `b_zi_Grav_Total:Shark_Protection_StatusRestricted` = 'Human gravity X \n Restricted shark fishing',
+                            b_zi_Shark_Sanctuary1 = 'Shark sanctuary',
+                            b_zi_Government_Effectiveness = 'Governance effectiveness',
+                            b_zi_HDI = 'Human development index (HDI)',
+                            b_zi_mpa_compliance1 = 'MPA compliance',
+                            b_zi_mpa_present1 = 'MPA present',
+                            b_hu_Grav_Total = 'Human gravity',
+                            `b_hu_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
+                            `b_hu_Grav_Total:Shark_Protection_StatusRestricted` = 'Human gravity X \n Restricted shark fishing',
+                            b_hu_Shark_Sanctuary1 = 'Shark sanctuary',
+                            b_hu_Government_Effectiveness = 'Governance effectiveness',
+                            b_hu_HDI = 'Human development index (HDI)',
+                            b_hu_mpa_compliance1 = 'MPA compliance',
+                            b_hu_mpa_present1 = 'MPA present')) |> 
   mutate(category = case_when(.variable %in% c('Human gravity X \n Closed shark fishing', 'Human gravity X \n Restricted shark fishing') ~ 'Focal management variables',
-                              .variable %in% c('Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)', 'Human development index (HDI)^2',
+                              .variable %in% c('Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)',
                                                'MPA compliance', 'MPA present') ~ 'Confounders adjusted for')) |> 
   mutate(category = factor(category, levels = c('Focal management variables', 'Confounders adjusted for')),
          `Evidence for effect` = case_when(.width == 0.5 & .lower > 0 ~ '> 50%',
@@ -214,7 +246,7 @@ betas <- #bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                                            .default = 'None')) |> 
   mutate(.variable = factor(.variable, levels = c('Human gravity X \n Closed shark fishing', 
                                                   'Human gravity X \n Restricted shark fishing',
-                                                  'Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)', 'Human development index (HDI)^2',
+                                                  'Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)',
                                                   'MPA compliance', 'MPA present')))
 
 # plot 
@@ -235,32 +267,29 @@ fig2b <- ggplot() +
                  shape = `Evidence for effect`), 
              size = 3,
              position=position_dodge(width=0.5)) +
-  #scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
-  #scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence\nfor effect") +
-  #scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', bquote(HDI^2), 'HDI','Governance effectiveness','Gravity',
-                            #           'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10))+
+  scale_color_manual(values = c('Shark abundance' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
+  scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence\nfor effect") +
+  scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', 'HDI','Governance effectiveness','Gravity',
+                                       'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10)) +
+  facet_wrap(~coef_cat, nrow = 1) +
   xlab('Standardized effect size\n ') +
   ylab('') +
   publication_theme()+
-  theme(legend.position = 'none', axis.text.y = element_text(vjust = 0.5));fig2b
+  theme(legend.title = element_blank(), axis.text.y = element_text(vjust = 0.5));fig2b
 
 # combining fig2 plots ---------------------------
 prow<- plot_grid(PlotA_scatter_set_gg,fig2b +
-                   theme(legend.position = c(0.85, 0.15))+
-                   guides(color = "none"),
+                   theme(legend.position = c(0.7, 0.15))+
+                   guides(color = "none"), rel_widths = c(1, 1.5),
                  labels = c("A", "B"))
 
 legend <- get_plot_component(fig2b + guides(shape = "none"), 'guide-box-bottom', return_all =T)
 legend<- get_legend(fig2b + guides(shape = "none")+ theme(legend.direction = "horizontal"))
 
-
-
 plot_grid(legend, prow, ncol = 1, rel_heights = c(0.1, 1))+
   theme(plot.background = element_rect(fill = "white"))
 
-
-ggsave('outputs/figures/fig2.png', height = 5.5, width = 10)
-
+ggsave('outputs/figures/fig2.png', height = 5, width = 13)
 
 # plot counterfactual predictions ------------------------------
 
@@ -401,8 +430,8 @@ g <- gains_dat |>
   publication_theme()+
   theme(legend.position = 'none')+
   theme(axis.title.x = element_blank())+
-  ylab('Gains shark\nabundance')+
-  annotation_custom(maxn_icon, xmin = 2.2, xmax = 3.1, ymin = 0.18, ymax= 0.34);g
+  ylab('Gains shark\nabundance')#+
+  #annotation_custom(maxn_icon, xmin = 2.2, xmax = 3.1, ymin = 0.18, ymax= 0.34);g
 
 # ingestion
 xlim_b <- gains_dat |> 
@@ -421,8 +450,8 @@ h <- gains_dat |>
   publication_theme() +
   theme(legend.position = 'none')+
   theme(axis.title.x = element_blank())+
-  ylab('Gains predation\npotential')+
-  annotation_custom(ingestion_icon, xmin = 2.2, xmax = 3.1, ymin = 80, ymax= 155);h
+  ylab('Gains predation\npotential')#+
+  #annotation_custom(ingestion_icon, xmin = 2.2, xmax = 3.1, ymin = 80, ymax= 155);h
 
 
 # multi outcomes
@@ -443,8 +472,8 @@ i <- gains_dat |>
   publication_theme() +
   theme(legend.position = 'none')+
   theme(axis.title.x = element_blank())+
-  ylab('Gains probability\nof co-benefits')+
-  annotation_custom(cobenefit_icon, xmin = 2, xmax = 3.1, ymin = 0.0218, ymax= 0.052);i
+  ylab('Gains probability\nof co-benefits')#+
+  #annotation_custom(cobenefit_icon, xmin = 2, xmax = 3.1, ymin = 0.0218, ymax= 0.052);i
 
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
@@ -471,11 +500,11 @@ pp_gains2 <- ggplot(global_gravity2) +
   scale_fill_manual(values = c('lightgrey', "transparent"), name = '') +
   scale_linetype_manual(values = c('solid', 'dashed'), guide = 'none') +
   geom_vline(xintercept = 0.306, color = "#41AFAA", size = 0.7)+
-  geom_vline(xintercept = 1.11, color = "#AF4B91", size = 0.7)+
-  geom_vline(xintercept = 2.07, color = "#466EB4", size = 0.7)+
+  geom_vline(xintercept = 0.721, color = "#AF4B91", size = 0.7)+
+  geom_vline(xintercept = 0.843, color = "#466EB4", size = 0.7)+
   geom_vline(xintercept = 0.257, color = "#41AFAA", size = 0.7, linetype = "dashed")+
-  geom_vline(xintercept = 0.648, color = "#AF4B91", size = 0.7, linetype = "dashed")+
-  geom_vline(xintercept = 2.40, color = "#466EB4", size = 0.7, linetype = "dashed")+
+  geom_vline(xintercept = 0.599, color = "#AF4B91", size = 0.7, linetype = "dashed")+
+  geom_vline(xintercept = 0.575, color = "#466EB4", size = 0.7, linetype = "dashed")+
   xlab('Human Gravity\n(log + min transformed)') +
   ylab('Frequency') +
   publication_theme() + 

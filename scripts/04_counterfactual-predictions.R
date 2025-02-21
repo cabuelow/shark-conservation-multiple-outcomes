@@ -55,6 +55,7 @@ pred_zinb <- base_preds_zinb |>
          Gains_cumulative_percent_status_quo = Gains_cumulative/max(`Prediction_status_quo_cumulative`)*100,
          upp_50_cumulative_percent_status_quo = upp_50_cumulative/max(`upp_50_status_quo_cumulative`)*100,
          low_50_cumulative_percent_status_quo = low_50_cumulative/max(`low_50_status_quo_cumulative`)*100)
+write.csv(pred_zinb, 'outputs/models/scenario-predictions_zinb.csv', row.names = F)
 
 # ingestion ------------------------------
 
@@ -100,6 +101,7 @@ pred_hu_lognormal <- base_preds_hu_lognormal |>
          Gains_cumulative_percent_status_quo = Gains_cumulative/max(`Prediction_status_quo_cumulative`)*100,
          upp_50_cumulative_percent_status_quo = upp_50_cumulative/max(`upp_50_status_quo_cumulative`)*100,
          low_50_cumulative_percent_status_quo = low_50_cumulative/max(`low_50_status_quo_cumulative`)*100)
+write.csv(pred_hu_lognormal, 'outputs/models/scenario-predictions_lognormal.csv', row.names = F)
 
 # probability of multiple outcomes ------------------------------
 
@@ -145,9 +147,12 @@ pred_prob_mult <- base_preds_prob_mult |>
          Gains_cumulative_percent_status_quo = Gains_cumulative/max(`Prediction_status_quo_cumulative`)*100,
          upp_50_cumulative_percent_status_quo = upp_50_cumulative/max(`upp_50_status_quo_cumulative`)*100,
          low_50_cumulative_percent_status_quo = low_50_cumulative/max(`low_50_status_quo_cumulative`)*100)
+write.csv(pred_prob_mult, 'outputs/models/scenario-predictions_prob_mult.csv', row.names = F)
 
 # bind all predictions together and save
-preds <- bind_rows(pred_zinb, pred_hu_lognormal, pred_prob_mult)
+preds <- bind_rows(read.csv('outputs/models/scenario-predictions_zinb.csv'), 
+                   read.csv('outputs/models/scenario-predictions_lognormal.csv'), 
+                   read.csv('outputs/models/scenario-predictions_prob_mult.csv'))
 write.csv(preds, 'outputs/models/scenario-predictions.csv', row.names = F)
 
 # plot
