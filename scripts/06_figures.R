@@ -359,16 +359,14 @@ ggsave('outputs/figures/counterfactual_predictions.png', width = 5.5, height = 3
 
 # conservation gains along human gravity gradient ------------------------------
 
-# do the same as above, but calculate gains from closing or restricting shark fisheries
+# calculate gains from closing or restricting shark fisheries
 gains_dat <- bind_rows(nd_zinb |> 
                          add_epred_draws(fit_zinb_int, re_formula = NA) |> 
                          ungroup() |> 
                          select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |>
                          mutate(gains_Closed = Closed - Open,
-                                #percent_gains_Closed = (gains_Closed/max(Open))*100,
                                 gains_Restricted = Restricted - Open) |> 
-                                #percent_gains_Restricted = (gains_Restricted/max(Open))*100) |> 
                          mutate(outcome = 'Shark abundance'),
                        nd_hu_lognormal |> 
                          add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
@@ -376,9 +374,7 @@ gains_dat <- bind_rows(nd_zinb |>
                          select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
                          mutate(gains_Closed = Closed - Open,
-                                #percent_gains_Closed = (gains_Closed/max(Open))*100,
                                 gains_Restricted = Restricted - Open) |> 
-                                #percent_gains_Restricted = (gains_Restricted/max(Open))*100) |>
                          mutate(outcome = 'Shark ingestion rate'),
                        nd_mult_out |> 
                          add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
@@ -386,9 +382,7 @@ gains_dat <- bind_rows(nd_zinb |>
                          select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
                          mutate(gains_Closed = Closed - Open,
-                                #percent_gains_Closed = (gains_Closed/max(Open))*100,
                                 gains_Restricted = Restricted - Open) |> 
-                                #percent_gains_Restricted = (gains_Restricted/max(Open))*100) |>
                          mutate(outcome = 'Probability of co-benefits')) |> 
   pivot_longer(cols = c(gains_Closed, gains_Restricted), names_to = 'Gains', values_to = 'value')
 
@@ -411,7 +405,8 @@ g <- gains_dat |>
   ylim(c(0, max(xlim_a$Closed))) +
   publication_theme()+
   theme(legend.position = 'none')+
-  theme(axis.title.x = element_blank())+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank())+
   ylab('Gains shark\nabundance')#+
   #annotation_custom(maxn_icon, xmin = 2.2, xmax = 3.1, ymin = 0.18, ymax= 0.34);g
 
@@ -431,7 +426,8 @@ h <- gains_dat |>
   ylim(c(0, max(xlim_b$Closed))) +
   publication_theme() +
   theme(legend.position = 'none')+
-  theme(axis.title.x = element_blank())+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank())+
   ylab('Gains predation\npotential')#+
   #annotation_custom(ingestion_icon, xmin = 2.2, xmax = 3.1, ymin = 80, ymax= 155);h
 
@@ -453,18 +449,14 @@ i <- gains_dat |>
   ylim(c(0, max(xlim_c$Closed))) +
   publication_theme() +
   theme(legend.position = 'none')+
-  theme(axis.title.x = element_blank())+
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank())+
   ylab('Gains probability\nof co-benefits')#+
   #annotation_custom(cobenefit_icon, xmin = 2, xmax = 3.1, ymin = 0.0218, ymax= 0.052);i
 
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
-global_gravity1 <- dat |> 
-  select(Grav_Total) |> 
-  rename('Grav_tot' = Grav_Total) |> 
-  mutate(type = 'Study') |> 
-  bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) |> 
-  mutate(cat = "Gravity distribution")
+
 # averaged across reefs
 global_gravity2 <- dat |> 
   group_by(reef_id) |> 
@@ -491,7 +483,7 @@ pp_gains2 <- ggplot(global_gravity2) +
   ylab('Frequency') +
   publication_theme() + 
   theme(legend.key = element_rect(fill = "white", color = NA),
-        legend.position = "top", legend.direction = "horizontal");pp_gains2
+        legend.position = "bottom", legend.direction = "horizontal");pp_gains2
 
 # patch together with global gravity distribution
 
