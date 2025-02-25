@@ -179,7 +179,7 @@ new_dat <- bind_rows(nd_zinb |>
                        add_epred_draws(fit_zinb_int, re_formula = NA) |> 
                        ungroup() |> 
                        select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-                       mutate(outcome = 'Relative shark abundance (MaxN)'),
+                       mutate(outcome = 'Relative shark \n abundance (MaxN)'),
                      nd_hu_lognormal |> 
                        add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
                        ungroup() |> 
@@ -194,7 +194,7 @@ new_dat <- bind_rows(nd_zinb |>
 # plot the conditional effect of the 
 # interaction between human gravity and shark protection status for each model
 p <- new_dat |> 
-  mutate(outcome = factor(outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of co-benefits'))) |> 
+  mutate(outcome = factor(outcome, levels = c('Relative shark \n abundance (MaxN)', 'Predation potential', 'Probability of co-benefits'))) |> 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
   stat_lineribbon(aes(y = .epred), .width = c(.95, .80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
@@ -207,10 +207,10 @@ p <- new_dat |>
 p
 
 layout <- '
-AAAAABB
+AAAABB
 '
 PlotA_scatter_set_gg + p + plot_layout(design = layout) + plot_annotation(tag_levels = 'A')
-ggsave('outputs/figures/interaction-plots.png', width = 12, height = 5)
+ggsave('outputs/figures/interaction-plots.png', width = 10, height = 5)
 
 # standardised effect sizes ------------------------------
 
