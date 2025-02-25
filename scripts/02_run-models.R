@@ -73,11 +73,11 @@ save(fit_zinb_int, file = "outputs/models/global_models_zinb.rda")
 fit_zinb_int_s <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
                       mpa_compliance + Government_Effectiveness + Grav_Total + 
                       Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id) + 
-                      s(set_long2, set_lat2, k = 50),
+                      s(set_long2, set_lat2, k = 80),
                       zi ~ Shark_Sanctuary + HDI + mpa_present + 
                         mpa_compliance + Government_Effectiveness + Grav_Total + 
                         Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id) + 
-                        s(set_long2, set_lat2, k = 50)),
+                        s(set_long2, set_lat2, k = 80)),
                       prior = c(prior(normal(0, 2), class = b),
                                 prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
