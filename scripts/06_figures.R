@@ -367,7 +367,8 @@ cc <- new_dat |>
   theme(legend.position = 'bottom', legend.box = "vertical") +
   #guides(fill=guide_legend(ncol=2)) +
   #facet_wrap(~outcome, scales = 'free_y', ncol = 1) + 
-  publication_theme()
+  publication_theme() + 
+  guides(color=guide_legend(override.aes=list(fill=NA)))
 cc
 
 int_plot <- aa/bb/cc
@@ -472,6 +473,7 @@ derivatives_df <-
   drop_na()
 # save this
 write.csv(derivatives_df, 'outputs/models/conservation-gains-derivatives.csv', row.names = FALSE)
+derivatives_df <- read.csv('outputs/models/conservation-gains-derivatives.csv')
 
 # What's the median gravity value where the inflection occurs
 # We originally tried to include the 50% credible interval in this calculation
@@ -608,12 +610,12 @@ global_gravity2 <- dat |>
   mutate(cat = "Gravity distribution")
 
 pp_gains2 <- ggplot(global_gravity2) +
-  geom_density(aes(x = Grav_tot, fill = type), color = NA) +
-  geom_density(aes(x = Grav_tot, linetype = type)) +
+  geom_density(aes(x = Grav_tot, fill = type, linetype = type)) +
+  #geom_density(aes(x = Grav_tot, linetype = type)) +
   #geom_vline(data = manual_peaks, aes(xintercept = Grav_Total, color = outcome), linetype = "dashed", size = 1) +
   scale_color_manual(values = c("#41AFAA", "#AF4B91", "#466EB4"), name = 'Outcome') +
-  scale_fill_manual(values = c('lightgrey', "transparent"), name = '') +
-  scale_linetype_manual(values = c('solid', 'dashed'), guide = 'none') +
+  scale_fill_manual(values = c('lightgrey', "transparent"), breaks = c("Global", "Study"), name = '') +
+  scale_linetype_manual(values = c('solid', 'dashed'), breaks = c("Global", "Study"), name = '') +
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Probability of co-benefits')$median_gravity, color = "#41AFAA", size = 0.7)+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Shark abundance')$median_gravity, color = "#AF4B91", size = 0.7)+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Shark ingestion rate')$median_gravity, color = "#466EB4", size = 0.7)+
@@ -625,10 +627,6 @@ pp_gains2 <- ggplot(global_gravity2) +
   publication_theme() + 
   theme(legend.key = element_rect(fill = "white", color = NA),
         legend.position = c(-0.9,0.4), legend.direction = "horizontal");pp_gains2
-
-# TODO: patch together with interaction plots
-# TODO: Get dashed line around study (look at iain's code)
-# patch together with global gravity distribution
 
 layout <- '
 AB

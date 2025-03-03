@@ -59,7 +59,7 @@ write.csv(pred_zinb, 'outputs/models/scenario-predictions_zinb.csv', row.names =
 
 # ingestion ------------------------------
 
-# make predictions from the posterior and summarise outcomes at each site
+# make predictions from the posterior and summarise outcomes at the reef level
 # then get the median value for each site and use to arrange sites from highest to lowest
 base_preds_hu_lognormal <- dat |> 
   add_epred_draws(fit_hu_lognormal_int) |> 
@@ -105,7 +105,7 @@ write.csv(pred_hu_lognormal, 'outputs/models/scenario-predictions_lognormal.csv'
 
 # probability of multiple outcomes ------------------------------
 
-# make predictions from the posterior and summarise outcomes at each site
+# make predictions from the posterior and summarise outcomes at the reef level
 # then get the median value for each site and use to arrange sites from highest to lowest
 base_preds_prob_mult <- dat |> 
   add_epred_draws(fit_prob_mult_int) |> 
