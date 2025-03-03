@@ -111,3 +111,35 @@ qtm(dat.sf, dots.col = 'mult_outcomes')
 
 # save wrangled data
 write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)
+
+# read in unwrangled shark species data to make column for shark spp category
+shark_species_dat <-  read.csv('data/FinPrintData2022/maxn_elasmobranch_observations.csv') |>
+  mutate(genus_species=paste0(genus, " ", species)) |>
+  dplyr::select(set_id, genus_species) |>
+  mutate(shark_trophic_group = 
+           ifelse(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
+                                       "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo"), "apex", 
+                  ifelse(genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
+                                              "Ginglymostoma cirratum", "Heterodontus portusjacksoni","Loxodon macrorhinus", "Rhizoprionodon acutus"), "lower order", 
+                         "no ingestion rate"))) |>
+  filter(!shark_trophic_group == "no ingestion rate")|>
+  mutate(shark_trophic_numeric = 
+           ifelse(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
+                                       "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo"), "2", 
+                  ifelse(genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
+                                              "Ginglymostoma cirratum", "Heterodontus portusjacksoni","Loxodon macrorhinus", "Rhizoprionodon acutus"), "1", 
+                         "0"))) |>
+  dplyr::select(set_id, shark_trophic_group, shark_trophic_numeric)|>
+  distinct()|>
+  mutate(shark_trophic_numeric = as.numeric(shark_trophic_numeric))|>
+  group_by(set_id)|>
+  mutate(sum_shark_trophic = sum(shark_trophic_numeric))|>
+  mutate(set_composition = 
+           ifelse(sum_shark_trophic ==2, "apex", 
+                  ifelse(sum_shark_trophic == 1, "lower", 
+                         ifelse(sum_shark_trophic == 3, "apex",NA)))) |>
+  mutate(set_id = as.character(set_id))|>
+  glimpse()
+
+# save
+write.csv(shark_species_dat, 'data/shark_species_data.csv', row.names = F)
