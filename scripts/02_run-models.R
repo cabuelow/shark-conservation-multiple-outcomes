@@ -12,7 +12,7 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 set.seed(123)
 
-dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |> 
          mutate(across(c(set_id:Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 # add small jitter to sets with the same coordinates
@@ -43,10 +43,10 @@ fit_prior_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                           data = dat, family = zero_inflated_negbinomial(), 
                           control = list(max_treedepth = 15, adapt_delta = 0.99),
                           sample_prior = "only")
-pp_check(fit_prior_zinb_int, type = 'bars', ndraws = 100) #+ xlim(c(-1,30))
+pp_check(fit_prior_zinb_int, type = 'bars', ndraws = 100)
 
 # now estimate parameters
-# interaction with main and 
+# interaction with main effects
 fit_zinb_int_main <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
                      mpa_compliance + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                      Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -60,7 +60,7 @@ fit_zinb_int_main <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
 save(fit_zinb_int_main, file = "outputs/models/global_models_zinb_int_main.rda")
 
-# interaction
+# interaction without main effects
 fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
                       mpa_compliance + Government_Effectiveness + Grav_Total + 
                       Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -138,7 +138,7 @@ fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI +
 pp_check(fit_prior_hu_lognormal_int, ndraws = 1000)
 
 # now estimate parameters
-# no interaction
+# interaction with main effects
 fit_hu_lognormal_int_main <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
                              mpa_compliance + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                              Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -153,7 +153,7 @@ fit_hu_lognormal_int_main <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + 
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
 save(fit_hu_lognormal_int_main, file = "outputs/models/global_models_lognormal_int_main.rda")
 
-# interaction
+# interaction without main effects
 fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
                                  mpa_compliance + Government_Effectiveness + Grav_Total + 
                                  Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -183,7 +183,7 @@ fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_prese
 pp_check(fit_prior_prob_mult_int, ndraws = 1000, type = 'bars')
 
 # now estimate parameters
-# main effects
+# interaction with main effects
 fit_prob_mult_int_main <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
                            mpa_compliance + Government_Effectiveness + Grav_Total + 
                            Shark_Protection_Status + Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -194,7 +194,7 @@ fit_prob_mult_int_main <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_presen
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
 save(fit_prob_mult_int_main, file = "outputs/models/global_models_mult_outcome_int_main.rda")
 
-# interaction
+# interaction without main effects
 fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
                            mpa_compliance + Government_Effectiveness + Grav_Total + 
                            Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
