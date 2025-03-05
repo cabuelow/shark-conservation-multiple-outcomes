@@ -2,12 +2,11 @@
 # 2025-02-03
 
 library(tidyverse)
-library(GGally)
 library(sf)
 library(tmap)
 tmap_options(check.and.fix = TRUE)
 tmap_mode('view')
-sf_use_s2(FALSE)
+sf_use_s2(FALSE) # to avoid geometry issues with s2
 
 # functions for wrangling
 scale_2SD <- function(x) (x/(2*sd(x, na.rm = T))) # function to scale continuous predictors (note dividing by 2 standard deviations (as recommended by Gelman))
@@ -30,7 +29,7 @@ fils <- list.files('data/FinPrintData2022/', full.names = T)
 alldat <- lapply(fils, read.csv)
 fdat_MacNeil <- read.csv('data/FinPrint_Set_Data_MacNeil_2020.csv')
 
-# join to create master datafile with maxn and covariates
+# join to create master datafile with multiple response variables and covariates
 dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_long, reef_id, set_id, genus, species, maxn) |> 
   left_join(select(alldat[[5]], region_name, location_name, location_id, protection_status:fishing_restrictions, region_id:reef_id)) |> 
   # fix some of the location names for joining
@@ -52,6 +51,12 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   filter(genus_species %in% c(" ", spp)) |> 
   # NAs are 0s
   mutate(maxn = ifelse(is.na(maxn), 0, maxn)) |> 
+  # assign sharks to trophic groups
+  mutate(shark_trophic_numeric = as.numeric(case_when(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
+                                                                           "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo") ~ 2, 
+                                                      genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
+                                                                           "Ginglymostoma cirratum", "Heterodontus portusjacksoni","Loxodon macrorhinus", "Rhizoprionodon acutus") ~ 1,
+                                                      .default = 0))) |>
   # join flux data
   left_join(flux, by = c('genus_species' = 'Species')) |>
   # estimate total ingestion rate given number of individuals of each species observed  
@@ -62,7 +67,11 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
            mpa_name, mpa_compliance, mpa_year_founded, Shark_fishing_restrictions, Shark_Protection_Status,
            Shark_Sanctuary, HDI, Government_Effectiveness, Population, Grav_Total) |> 
   summarise(maxn = sum(maxn),
-            ingestion_C_g_day = sum(ingestion_C_g_day)) |> 
+            ingestion_C_g_day = sum(ingestion_C_g_day),
+            sum_shark_trophic = sum(shark_trophic_numeric))|>
+  mutate(set_composition = case_when(sum_shark_trophic == 2 ~ "apex", 
+                                     sum_shark_trophic == 1 ~ "lower",
+                                     sum_shark_trophic == 3 ~ "apex")) |> 
   ungroup() |> 
   # filter out sets with no information on shark protection status or fishing restrictions
   filter(!is.na(Shark_Protection_Status) & !is.na(Shark_fishing_restrictions) & Shark_Protection_Status != '') |> 
@@ -111,35 +120,3 @@ qtm(dat.sf, dots.col = 'mult_outcomes')
 
 # save wrangled data
 write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)
-
-# read in unwrangled shark species data to make column for shark spp category
-shark_species_dat <-  read.csv('data/FinPrintData2022/maxn_elasmobranch_observations.csv') |>
-  mutate(genus_species=paste0(genus, " ", species)) |>
-  dplyr::select(set_id, genus_species) |>
-  mutate(shark_trophic_group = 
-           ifelse(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
-                                       "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo"), "apex", 
-                  ifelse(genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
-                                              "Ginglymostoma cirratum", "Heterodontus portusjacksoni","Loxodon macrorhinus", "Rhizoprionodon acutus"), "lower order", 
-                         "no ingestion rate"))) |>
-  filter(!shark_trophic_group == "no ingestion rate")|>
-  mutate(shark_trophic_numeric = 
-           ifelse(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
-                                       "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo"), "2", 
-                  ifelse(genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
-                                              "Ginglymostoma cirratum", "Heterodontus portusjacksoni","Loxodon macrorhinus", "Rhizoprionodon acutus"), "1", 
-                         "0"))) |>
-  dplyr::select(set_id, shark_trophic_group, shark_trophic_numeric)|>
-  distinct()|>
-  mutate(shark_trophic_numeric = as.numeric(shark_trophic_numeric))|>
-  group_by(set_id)|>
-  mutate(sum_shark_trophic = sum(shark_trophic_numeric))|>
-  mutate(set_composition = 
-           ifelse(sum_shark_trophic ==2, "apex", 
-                  ifelse(sum_shark_trophic == 1, "lower", 
-                         ifelse(sum_shark_trophic == 3, "apex",NA)))) |>
-  mutate(set_id = as.character(set_id))|>
-  glimpse()
-
-# save
-write.csv(shark_species_dat, 'data/shark_species_data.csv', row.names = F)
