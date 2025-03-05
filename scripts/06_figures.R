@@ -5,6 +5,7 @@ library(tidybayes)
 library(patchwork)
 library(modelr)
 library(sf)
+library(tmap)
 library(scales)
 library(grid)
 library(png)
@@ -638,6 +639,38 @@ aa+g +
   bb+h  +
   cc+i+ pp_gains2 + plot_layout(design = layout) + plot_annotation(tag_levels = 'A')
 ggsave('outputs/figures/Figure3_newcolours_v2_reef_all.png', width = 8, height = 10)
+
+# map co-benefits ------------------------------
+sf_use_s2(F)
+data(World)
+dat.sf <- dat |> 
+  group_by(reef_id) |> 
+  summarise(percent_cobenefit = (sum(mult_outcomes)/n())*100,
+            long = mean(set_long),
+            lat = mean(set_lat)) |> 
+  mutate(cat = ifelse(percent_cobenefit <= 25, '<= 25%', '> 25%'),
+         cat = ifelse(percent_cobenefit == 0, 'No sets with co-benefits', cat)) |> 
+  mutate(percent_cobenefit = factor(percent_cobenefit, levels = c('No sets with co-benefits', '<= 25%', '> 25%'))) |> 
+  mutate(long = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_long, long),
+         lat = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_lat, lat),
+         long = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_long, long),
+         lat = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_lat, lat)) |> 
+  st_as_sf(coords = c('long', 'lat'), crs = 4326)
+world <- World |> st_crop(st_bbox(dat.sf)) # crop
+
+# make map and save
+set.seed(123)
+map <- tm_shape(world) +
+  tm_fill(col = 'cornsilk3', alpha =0.5) +
+  tm_shape(dat.sf) +
+  tm_layout(legend.outside = TRUE, legend.outside.position = c('bottom'), legend.position = c(0.15, 0.5)) +
+  tm_dots(col = 'cat', palette = c("grey50","black", 'lightgrey'), alpha = 0.5, jitter = 0.15, size = 0.07, legend.show = F) +
+  tm_add_legend('symbol', shape = 19, col = c("black","grey50", 'lightgrey'), labels = c('> 25% of sets have co-benefits', '<= 25% of sets have co-benefits','No sets with co-benefits'),
+                is.portrait = F, size = 0.5)
+map
+tmap_save(map, 'outputs/figures/map_co-benefits.png', width = 7, height = 2, dpi = 300)
+
+#TODO: add a histogram of distribution of percent of sets with co-benefits
 
 ### End here
 

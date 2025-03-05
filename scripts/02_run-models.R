@@ -46,19 +46,19 @@ fit_prior_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
 pp_check(fit_prior_zinb_int, type = 'bars', ndraws = 100) #+ xlim(c(-1,30))
 
 # now estimate parameters
-# no interaction
-fit_zinb <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
-                     mpa_compliance + Government_Effectiveness + Grav_Total + 
+# interaction with main and 
+fit_zinb_int_main <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
+                     mpa_compliance + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                      Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                    zi ~ Shark_Sanctuary + HDI + mpa_present + 
-                     mpa_compliance + Government_Effectiveness + Grav_Total + 
+                     mpa_compliance + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                      Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
                     prior = c(prior(normal(0, 2), class = b),
                               prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb, file = "outputs/models/global_models_zinb_noint.rda")
+save(fit_zinb_int_main, file = "outputs/models/global_models_zinb_int_main.rda")
 
 # interaction
 fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -139,19 +139,19 @@ pp_check(fit_prior_hu_lognormal_int, ndraws = 1000)
 
 # now estimate parameters
 # no interaction
-fit_hu_lognormal <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
-                             mpa_compliance + Government_Effectiveness + Grav_Total + 
-                             Shark_Protection_Status + (1|region_id/location_id/reef_id),
+fit_hu_lognormal_int_main <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
+                             mpa_compliance + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                             Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                            hu ~ Shark_Sanctuary + HDI + mpa_present + 
-                             mpa_compliance + Government_Effectiveness + Grav_Total + 
-                             Shark_Protection_Status + (1|region_id/location_id/reef_id)),
+                             mpa_compliance + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                             Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
                         prior = c(prior(normal(0, 2), class = b),
                                   prior(normal(0, 2), class = b, dpar = 'hu')), # leaving intercept and sd as default priors
                             iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal, file = "outputs/models/global_models_lognormal_noint.rda")
+save(fit_hu_lognormal_int_main, file = "outputs/models/global_models_lognormal_int_main.rda")
 
 # interaction
 fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -183,16 +183,16 @@ fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_prese
 pp_check(fit_prior_prob_mult_int, ndraws = 1000, type = 'bars')
 
 # now estimate parameters
-# no interaction
-fit_prob_mult <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
+# main effects
+fit_prob_mult_int_main <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
                            mpa_compliance + Government_Effectiveness + Grav_Total + 
-                           Shark_Protection_Status + (1|region_id/location_id/reef_id),
+                           Shark_Protection_Status + Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                          prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
                          iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult, file = "outputs/models/global_models_mult_outcome_noint.rda")
+save(fit_prob_mult_int_main, file = "outputs/models/global_models_mult_outcome_int_main.rda")
 
 # interaction
 fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 

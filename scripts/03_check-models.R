@@ -12,6 +12,7 @@ load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_zinb_s.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_mult_outcome.rda")
+load("outputs/models/global_models_zinb_re.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -33,7 +34,7 @@ dat <- add_utm_columns(dat, c("set_long2", "set_lat2"),
 # maxn model
 summary(fit_zinb_int)
 plot(fit_zinb_int)
-pp_check(fit_zinb_int, type = 'bars', ndraws = 100)
+pp_check(fit_zinb_int_re, type = 'bars', ndraws = 100)
 #summary(fit_zinb_int_s)
 #plot(fit_zinb_int_s)
 #pp_check(fit_zinb_int_s, type = 'bars', ndraws = 100)
@@ -60,12 +61,12 @@ qresids_int <- createDHARMa(
   fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int)
-qresids_int_s <- createDHARMa(
-  simulatedResponse = t(posterior_predict(fit_zinb_int_s)),
-  observedResponse = fit_zinb_int_s$data$maxn,
-  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_s)), 1, mean),
+qresids_int_re <- createDHARMa(
+  simulatedResponse = t(posterior_predict(fit_zinb_int_re)),
+  observedResponse = fit_zinb_int_re$data$maxn,
+  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_re)), 1, mean),
   integerResponse = TRUE)
-plot(qresids_int_s)
+plot(qresids_int_re)
 
 # ingestion model
 qresids_hu_lognormal_int <- createDHARMa(
@@ -93,8 +94,8 @@ par(mfrow = c(1,2))
 plotResiduals(qresids_int$scaledResiduals, form = dat$set_long)
 plotResiduals(qresids_int$scaledResiduals, form = dat$set_lat)
 par(mfrow = c(1,2))
-plotResiduals(qresids_int_s$scaledResiduals, form = dat$set_long)
-plotResiduals(qresids_int_s$scaledResiduals, form = dat$set_lat)
+plotResiduals(qresids_int_re$scaledResiduals, form = dat$set_long)
+plotResiduals(qresids_int_re$scaledResiduals, form = dat$set_lat)
 
 par(mfrow = c(1,2))
 plotResiduals(qresids_hu_lognormal_int$scaledResiduals, form = dat$set_long)
@@ -108,7 +109,7 @@ plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_lat)
 
 # set level
 testSpatialAutocorrelation(qresids_int, x = dat$X, y = dat$Y)
-testSpatialAutocorrelation(qresids_int_s, x = dat$X, y = dat$Y)
+testSpatialAutocorrelation(qresids_int_re, x = dat$X, y = dat$Y)
 
 # reef level
 # get coordinates for reefs
@@ -138,13 +139,13 @@ qtm(dat.sf) + qtm(reef.sf, dots.col = 'red')
 
 # recalculate residuals at reef level
 qresids_int_sp <- recalculateResiduals(qresids_int, group = dat$reef_id)
-qresids_int_s_sp <- recalculateResiduals(qresids_int_s, group = dat$reef_id)
+qresids_int_re_sp <- recalculateResiduals(qresids_int_re, group = dat$reef_id)
 qresids_hu_lognormal_int_sp <- recalculateResiduals(qresids_hu_lognormal_int, group = dat$reef_id)
 qresids_prob_mult_int_sp <- recalculateResiduals(qresids_prob_mult_int, group = dat$reef_id)
 
 # test
 testSpatialAutocorrelation(qresids_int_sp, x = reef_coords$long, y = reef_coords$lat)
-testSpatialAutocorrelation(qresids_int_s_sp, x = reef_coords$long, y = reef_coords$lat)
+testSpatialAutocorrelation(qresids_int_re_sp, x = reef_coords$long, y = reef_coords$lat)
 testSpatialAutocorrelation(qresids_hu_lognormal_int_sp, x = reef_coords$long, y = reef_coords$lat)
 testSpatialAutocorrelation(qresids_prob_mult_int_sp, x = reef_coords$long, y = reef_coords$lat)
 
@@ -153,8 +154,8 @@ testSpatialAutocorrelation(qresids_prob_mult_int_sp, x = reef_coords$long, y = r
 par(mfrow = c(1,2))
 plotResiduals(qresids_int_sp$scaledResiduals, form = reef_coords$long)
 plotResiduals(qresids_int_sp$scaledResiduals, form = reef_coords$lat)
-plotResiduals(qresids_int_s_sp$scaledResiduals, form = reef_coords$long)
-plotResiduals(qresids_int_s_sp$scaledResiduals, form = reef_coords$lat)
+plotResiduals(qresids_int_re_sp$scaledResiduals, form = reef_coords$long)
+plotResiduals(qresids_int_re_sp$scaledResiduals, form = reef_coords$lat)
 
 par(mfrow = c(1,2))
 plotResiduals(qresids_hu_lognormal_int_sp$scaledResiduals, form = reef_coords$long)
