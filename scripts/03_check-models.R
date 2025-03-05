@@ -9,11 +9,9 @@ library(sdmTMB)
 set.seed(123)
 
 load("outputs/models/global_models_zinb.rda")
-load("outputs/models/global_models_zinb_s.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_mult_outcome.rda")
-load("outputs/models/global_models_zinb_re.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
+dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 # add small jitter to sets with the same coordinates
@@ -35,17 +33,11 @@ dat <- add_utm_columns(dat, c("set_long2", "set_lat2"),
 summary(fit_zinb_int)
 plot(fit_zinb_int)
 pp_check(fit_zinb_int_re, type = 'bars', ndraws = 100)
-#summary(fit_zinb_int_s)
-#plot(fit_zinb_int_s)
-#pp_check(fit_zinb_int_s, type = 'bars', ndraws = 100)
 
 # ingestion model
 summary(fit_hu_lognormal_int)
 plot(fit_hu_lognormal_int)
-pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100) #+ xlim(c(-1,10000))
-#summary(fit_hu_lognormal_int_s)
-#plot(fit_hu_lognormal_int_s)
-#pp_check(fit_hu_lognormal_int_s, 'dens_overlay', ndraws = 100)
+pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100)
 
 # prob mult outcomes model
 summary(fit_prob_mult_int)
@@ -61,12 +53,6 @@ qresids_int <- createDHARMa(
   fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
   integerResponse = TRUE)
 plot(qresids_int)
-qresids_int_re <- createDHARMa(
-  simulatedResponse = t(posterior_predict(fit_zinb_int_re)),
-  observedResponse = fit_zinb_int_re$data$maxn,
-  fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int_re)), 1, mean),
-  integerResponse = TRUE)
-plot(qresids_int_re)
 
 # ingestion model
 qresids_hu_lognormal_int <- createDHARMa(
@@ -74,11 +60,6 @@ qresids_hu_lognormal_int <- createDHARMa(
   observedResponse = fit_hu_lognormal_int$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int)), 1, mean))
 plot(qresids_hu_lognormal_int)
-#qresids_hu_lognormal_int_s <- createDHARMa(
- # simulatedResponse = t(posterior_predict(fit_hu_lognormal_int_s)),
-  #observedResponse = fit_hu_lognormal_int_s$data$ingestion_C_g_day,
-  #fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int_s)), 1, mean))
-#plot(qresids_hu_lognormal_int_s_10)
 
 # prob mult outcomes model
 qresids_prob_mult_int <- createDHARMa(
@@ -93,9 +74,6 @@ plot(qresids_prob_mult_int)
 par(mfrow = c(1,2))
 plotResiduals(qresids_int$scaledResiduals, form = dat$set_long)
 plotResiduals(qresids_int$scaledResiduals, form = dat$set_lat)
-par(mfrow = c(1,2))
-plotResiduals(qresids_int_re$scaledResiduals, form = dat$set_long)
-plotResiduals(qresids_int_re$scaledResiduals, form = dat$set_lat)
 
 par(mfrow = c(1,2))
 plotResiduals(qresids_hu_lognormal_int$scaledResiduals, form = dat$set_long)
@@ -109,7 +87,8 @@ plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_lat)
 
 # set level
 testSpatialAutocorrelation(qresids_int, x = dat$X, y = dat$Y)
-testSpatialAutocorrelation(qresids_int_re, x = dat$X, y = dat$Y)
+testSpatialAutocorrelation(qresids_hu_lognormal_int, x = dat$X, y = dat$Y)
+testSpatialAutocorrelation(qresids_prob_mult_int, x = dat$X, y = dat$Y)
 
 # reef level
 # get coordinates for reefs
@@ -139,13 +118,11 @@ qtm(dat.sf) + qtm(reef.sf, dots.col = 'red')
 
 # recalculate residuals at reef level
 qresids_int_sp <- recalculateResiduals(qresids_int, group = dat$reef_id)
-qresids_int_re_sp <- recalculateResiduals(qresids_int_re, group = dat$reef_id)
 qresids_hu_lognormal_int_sp <- recalculateResiduals(qresids_hu_lognormal_int, group = dat$reef_id)
 qresids_prob_mult_int_sp <- recalculateResiduals(qresids_prob_mult_int, group = dat$reef_id)
 
 # test
 testSpatialAutocorrelation(qresids_int_sp, x = reef_coords$long, y = reef_coords$lat)
-testSpatialAutocorrelation(qresids_int_re_sp, x = reef_coords$long, y = reef_coords$lat)
 testSpatialAutocorrelation(qresids_hu_lognormal_int_sp, x = reef_coords$long, y = reef_coords$lat)
 testSpatialAutocorrelation(qresids_prob_mult_int_sp, x = reef_coords$long, y = reef_coords$lat)
 
@@ -154,8 +131,6 @@ testSpatialAutocorrelation(qresids_prob_mult_int_sp, x = reef_coords$long, y = r
 par(mfrow = c(1,2))
 plotResiduals(qresids_int_sp$scaledResiduals, form = reef_coords$long)
 plotResiduals(qresids_int_sp$scaledResiduals, form = reef_coords$lat)
-plotResiduals(qresids_int_re_sp$scaledResiduals, form = reef_coords$long)
-plotResiduals(qresids_int_re_sp$scaledResiduals, form = reef_coords$lat)
 
 par(mfrow = c(1,2))
 plotResiduals(qresids_hu_lognormal_int_sp$scaledResiduals, form = reef_coords$long)
