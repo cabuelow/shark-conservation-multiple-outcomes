@@ -1,6 +1,6 @@
-### Modelling multiple conservation outcomes for reef sharks
+### Modelling multiple goals for reef shark conservation
 
-This repository contains code estimate the socioeconomic and ecological causes of reef shark abundance globally and predict outcomes under management scenarios.
+This repository contains code estimate the effect of management on reef shark abundance globally and predict outcomes under counterfactual scenarios.
 
 #### Scripts
 
@@ -9,11 +9,14 @@ To reproduce the analysis, run scripts in the following order:
 1. 01_prep-data.R: Clean and prep data for analysis.
 2. 02_run-models.R: Run models to estimate the effects of management on reef shark conservation outcomes.
 3. 03_check-models.R: Check MCMC convergence and structural model assumptions.
-4. 04_counterfactual-predictions.R: Make predictions from models under management scenarios.
+4. 04_counterfactual-predictions.R: Make predictions from models under counterfactual management scenarios.
 5. 05_sensitivity-analyses.R: Run sensitivity analyses.
 6. 06_figures.R: Make figures for manuscript.
 
-#### TODO
+helper-functions.R: create plotting theme function
 
-- sensitivity analysis to proportion open vs. closed. vs. restricted
-- continue working on spatial autocorrelation with approximate GP or spatial smooth
+#### R session info:
+
+R version 4.4.2 (2024-10-31)
+Platform: aarch64-apple-darwin20
+Running under: macOS Ventura 13.7.4
