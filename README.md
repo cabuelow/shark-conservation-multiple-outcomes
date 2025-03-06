@@ -11,7 +11,8 @@ To reproduce the analysis, run scripts in the following order:
 3. 03_check-models.R: Check MCMC convergence and structural model assumptions.
 4. 04_counterfactual-predictions.R: Make predictions from models under counterfactual management scenarios.
 5. 05_sensitivity-analyses.R: Run sensitivity analyses.
-6. 06_figures.R: Make figures for manuscript.
+6. 06_figures.R: Make figures 2-4 and for manuscript and the supplementary figures.
+6. 006_figures.R: Make figure 1.
 
 helper-functions.R: create plotting theme function
 
