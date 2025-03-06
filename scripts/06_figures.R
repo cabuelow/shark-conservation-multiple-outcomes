@@ -107,7 +107,7 @@ dens1_set <- ggplot(biplot_dat, aes(x = maxn, fill=highlight)) +
   scale_fill_manual(
     values = c("Above 0.85" = "#41AFAA", "Below 0.85" = "#AF4B91"),  # Custom colors
     name = "Point Category"    ) +# Legend title
-  annotation_custom(maxn_icon, xmin = 5, xmax = 27, ymin = 250, ymax = 3650) +  # Adjust coordinates
+  annotation_custom(maxn_icon, xmin = 5, xmax = 20, ymin = 250, ymax = 10650) +  # Adjust coordinates
   theme_void() + 
   theme(legend.position = "none")
 dens1_set
@@ -117,7 +117,7 @@ dens2_set <- ggplot(biplot_dat, aes(x = ingestion_C_g_day, fill=highlight)) +
   scale_fill_manual(
     values = c("Above 0.85" = "#41AFAA", "Below 0.85" = "#466EB4"), # Custom colors
     name = "Point Category"  ) +  # Legend title
-  annotation_custom(ingestion_icon , xmin = 6000, xmax = 3000, ymin = 100, ymax = 1780) +  # Adjust coordinates
+  annotation_custom(ingestion_icon , xmin = 10000, xmax = 3000, ymin = 0, ymax = 7780) +  # Adjust coordinates
   theme_void() + 
   theme(legend.position = "none") + 
   coord_flip()
