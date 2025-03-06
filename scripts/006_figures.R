@@ -7,7 +7,7 @@
 # Load required packages ----
 
 # Not these are not all necessary now - tidy this up
-library(viridis) 
+library(viridis)
 library(ggmap)
 library(ggplot2)
 library(dplyr)
@@ -115,6 +115,10 @@ dat <- dat %>%
   group_by(region_id, location_id, reef_id)%>%
   mutate(reef_lat= mean(set_lat))%>%
   mutate(reef_long=mean(set_long))%>%
+  mutate(reef_long = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_long, reef_long),
+         reef_lat = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_lat, reef_lat),
+         reef_long = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_long, reef_long),
+         reef_lat = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_lat, reef_lat)) |> 
   ungroup() %>%
  # dplyr::select(reef_id, shark_protection_status, reef_lat, reef_long)%>%
  # unique()%>%
@@ -249,31 +253,6 @@ PlotC <- ggplot() +
 
 PlotC
 
-# Save plots seperately
-
-ggsave(PlotB, file = "Figure1_donut.png", dpi=300, width=15, height=15)
-ggsave(PlotC, file = "Figure1_map.png", dpi=300, width=20, height=15)
-
-
-# combine plots ----
-PlotA_scatter_set_gg
-PlotB
-PlotC
-
-PlotA_scatter_set_gg <- ggplotify::as.ggplot(PlotA_scatter_set)
-PlotA_scatter_set_grob <- ggplotGrob(PlotA_scatter_set)
-
-combined_plots <- ggarrange(
-  ggarrange(PlotA_scatter_set_gg, PlotB, ncol = 2, labels = c("A", "B"),
-            font.label = list(size = 28, color = "black", face = "bold")),
-  ggarrange(PlotC, ncol = 1, labels = "C",
-            font.label = list(size = 28, color = "black", face = "bold")),
-  nrow = 2
-)
-
-combined_plots
-
-
-# Save in high res ----
-
-ggsave(combined_plots, file = "figures/Figure1_newcolours.png", dpi=300, width=20, height=15)
+# Save plots 
+ggsave(PlotB, file = "outputs/figures/Figure1_donut.png", dpi=300, width=15, height=15)
+ggsave(PlotC, file = "outputs/figures/Figure1_map.png", dpi=300, width=20, height=15)
