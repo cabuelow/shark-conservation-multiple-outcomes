@@ -55,7 +55,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   mutate(shark_trophic_numeric = as.numeric(case_when(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
                                                                            "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo") ~ 2, 
                                                       genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
-                                                                           "Ginglymostoma cirratum", "Heterodontus portusjacksoni","Loxodon macrorhinus", "Rhizoprionodon acutus") ~ 1,
+                                                                           "Ginglymostoma cirratum","Loxodon macrorhinus", "Rhizoprionodon acutus", "Carcharhinus perezi", "Triaenodon obesus") ~ 1,
                                                       .default = 0))) |>
   # join flux data
   left_join(flux, by = c('genus_species' = 'Species')) |>
@@ -68,7 +68,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
            Shark_Sanctuary, HDI, Government_Effectiveness, Population, Grav_Total) |> 
   summarise(maxn = sum(maxn),
             ingestion_C_g_day = sum(ingestion_C_g_day),
-            sum_shark_trophic = sum(shark_trophic_numeric))|>
+            sum_shark_trophic = sum(unique(shark_trophic_numeric))) |>
   mutate(set_composition = case_when(sum_shark_trophic == 2 ~ "apex", 
                                      sum_shark_trophic == 1 ~ "lower",
                                      sum_shark_trophic == 3 ~ "apex")) |> 
