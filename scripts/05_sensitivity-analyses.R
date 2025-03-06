@@ -1,6 +1,6 @@
 # check the sensitivity of counterfactual predictions to the proportion of sites that are open vs. closed
-# create new data sets where the proportion of closed sites is 30, 20, 10, and 5%, and proportion restricted remains at 43%
-# calculate N for sub-samples given number of surveyed sets in class with lowest number of observations (i.e., 'open')
+# create new data sets (n = 50) where the proportion of closed sites is 30, 20, 10, and 5%, and proportion restricted remains at 43%
+# calculate sample size (n) for sub-samples given number of surveyed sets in class with lowest number of observations (i.e., 'open')
 # make counter-factual predictions on sub-sampled dataframes using model based on full dataset
 
 library(tidyverse)
@@ -10,7 +10,7 @@ library(tidybayes)
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_mult_outcome.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-02-10.csv') |>
+dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |>
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
@@ -227,4 +227,4 @@ preds_sub |>
   theme_classic() +
   theme(legend.key.size = unit(0.5, 'cm'))
 
-ggsave('outputs/sensitivity-counterfactual-predictions.png', width = 8, height = 3)
+ggsave('outputs/figures/sensitivity-counterfactual-predictions.png', width = 8, height = 3)
