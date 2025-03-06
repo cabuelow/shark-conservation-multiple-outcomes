@@ -3,6 +3,7 @@
 library(tidyverse)
 library(brms)
 library(tidybayes)
+set.seed(123)
 
 load("outputs/models/global_models_zinb.rda")
 load("outputs/models/global_models_lognormal.rda")
@@ -154,3 +155,4 @@ preds <- bind_rows(read.csv('outputs/models/scenario-predictions_zinb.csv'),
                    read.csv('outputs/models/scenario-predictions_lognormal.csv'), 
                    read.csv('outputs/models/scenario-predictions_prob_mult.csv'))
 write.csv(preds, 'outputs/models/scenario-predictions.csv', row.names = F)
+
