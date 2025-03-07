@@ -94,7 +94,7 @@ PlotA_set <- dat |>
   geom_vline(xintercept = quantile(dat$maxn, 0.85), linetype = "dashed", color = "grey30", size=0.8) + # Dashed line for x-axis quartile
   geom_hline(yintercept = quantile(dat$ingestion_C_g_day, 0.85), linetype = "dashed", color = "grey30", size=0.8) + # Dashed line for y-axis quartile
   labs(x = "Relative shark abundance (MaxN)",
-       y = "Carbon ingestion rate (gC per day)") +
+       y = "Predation potential (gC per day)") +
   #  annotation_custom(cobenefit_icon, xmin = 20, xmax =29, 
   #                    ymin = 4300, ymax = 9300)+  # Adjust coordinates
   publication_theme()+
@@ -255,8 +255,9 @@ ggsave('outputs/figures/coefficient-plot.png', width = 12, height = 4.5)
 
 aaa <- preds |>   
   filter(Scenario == 'No management') |>
-  mutate(Variable = ifelse(Variable == 'Shark abundance', 'Relative shark abundance (MaxN)', Variable)) |> 
-  mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of co-benefits'))) |> 
+  mutate(Variable = ifelse(Variable == 'Shark abundance', 'Relative shark abundance (MaxN)', Variable),
+         Variable = ifelse(Variable == 'Predation potential', 'Predation potential (gC per day)', Variable)) |> 
+  mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential (gC per day)', 'Probability of co-benefits'))) |> 
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent_status_quo, ymax = upp_50_cumulative_percent_status_quo, fill = Variable), alpha = 0.4) +
   geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo, col = Variable)) +
