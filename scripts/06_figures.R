@@ -94,7 +94,7 @@ PlotA_set <- dat |>
   geom_vline(xintercept = quantile(dat$maxn, 0.85), linetype = "dashed", color = "grey30", size=0.8) + # Dashed line for x-axis quartile
   geom_hline(yintercept = quantile(dat$ingestion_C_g_day, 0.85), linetype = "dashed", color = "grey30", size=0.8) + # Dashed line for y-axis quartile
   labs(x = "Relative shark abundance (MaxN)",
-       y = "Predation potential (gC per day)") +
+       y = "Carbon ingestion rate (gC per day)") +
   #  annotation_custom(cobenefit_icon, xmin = 20, xmax =29, 
   #                    ymin = 4300, ymax = 9300)+  # Adjust coordinates
   publication_theme()+
@@ -320,7 +320,7 @@ bb <- new_dat |>
   stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
   scale_color_manual(values = c("Closed" = "#D55E00", "Restricted" = "#E69F00", "Open" = "#0072B2"), name = 'Shark Protection Status') +
-  ylab('Predation potential \n (g/C/day)') +
+  ylab('Predation potential \n (gC per day)') +
   xlab('') +
   xlim(c(0, max(global_gravity$Grav_tot))) +
   theme(legend.position = 'none') +
@@ -590,15 +590,14 @@ pp_gains2 <- ggplot(global_gravity2) +
   theme(legend.key = element_rect(fill = "white", color = NA),
         legend.position = c(-0.9,0.4), legend.direction = "horizontal");pp_gains2
 
+# patch plots together and save
 layout <- '
 AB
 CD
 EF
 #G
 '
-aa+g +
-  bb+h  +
-  cc+i+ pp_gains2 + plot_layout(design = layout) + plot_annotation(tag_levels = 'A')
+aa+g +bb+h+cc+i+ pp_gains2 + plot_layout(design = layout) + plot_annotation(tag_levels = list(c("A", "D", "B", "E", "C", "F", "G")))
 ggsave('outputs/figures/Figure3_newcolours_v2_reef_all.png', width = 8, height = 10)
 
 # supplementary figure - map co-benefits ------------------------------
