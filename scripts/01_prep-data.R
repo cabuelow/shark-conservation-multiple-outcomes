@@ -1,5 +1,6 @@
 # prep data for analysis
-# 2025-02-03
+#TODO replace with new flux rates from Sophie
+# 2025-07-29
 
 library(tidyverse)
 library(sf)
@@ -20,6 +21,7 @@ spp <- c("Carcharhinus amblyrhynchos", "Carcharhinus perezi", "Triaenodon obesus
         "Sphyrna lewini", "Sphyrna tiburo")
 
 # flux estimates (g/day) for sharks
+#TODO replace with new flux rates from Sophie
 flux <- read.csv('data/flux-rate-estimates_01-11-2024.csv') |> 
   select(Species, common_name, ingestion_C_g_day) |> 
   filter(Species %in% spp)
