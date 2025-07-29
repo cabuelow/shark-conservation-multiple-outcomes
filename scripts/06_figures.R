@@ -132,7 +132,7 @@ ggsave(PlotA_scatter_set, file = "outputs/figures/biplot.png", dpi=300, height=6
 
 # maxn model 
 # quick look at beta coefs and interaction
-mcmc_plot(fit_hu_lognormal_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
+mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
 plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
@@ -148,9 +148,9 @@ plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Prote
 
 # pull out betas from each model
 betas_zinb <- fit_zinb_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, 
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`,
-               b_zi_Shark_Sanctuary1, b_zi_HDI, b_zi_mpa_present1, b_zi_mpa_compliance1, b_zi_Government_Effectiveness, b_zi_Grav_Total, 
+               b_zi_Shark_Sanctuary1, b_zi_HDI, b_zi_mpa_present1, b_zi_mpa_compliance1, b_zi_Government_Effectiveness, b_zi_Grav_Total,
                `b_zi_Grav_Total:Shark_Protection_StatusClosed`, `b_zi_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Shark abundance')
@@ -158,13 +158,13 @@ betas_zinb <- fit_zinb_int |>
 betas_ingestion <- fit_hu_lognormal_int |> 
   gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`,
-               b_hu_Shark_Sanctuary1, b_hu_HDI, b_hu_mpa_present1, b_hu_mpa_compliance1, b_hu_Government_Effectiveness, b_hu_Grav_Total, 
+               b_hu_Shark_Sanctuary1, b_hu_HDI, b_hu_mpa_present1, b_hu_mpa_compliance1, b_hu_Government_Effectiveness, b_hu_Grav_Total,
                `b_hu_Grav_Total:Shark_Protection_StatusClosed`, `b_hu_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Predation potential')
 
 betas_mult_outcomes <- fit_prob_mult_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total, 
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
   median_qi(.width = c(.95, .8, .5)) |> 
   mutate(Outcome = 'Probability of co-benefits')
@@ -254,7 +254,7 @@ ggsave('outputs/figures/coefficient-plot.png', width = 12, height = 4.5)
 # figure 3 - plot counterfactual predictions ------------------------------
 
 aaa <- preds |>   
-  filter(Scenario == 'No management') |>
+  filter(Scenario == 'No management' & Variable %in% c('Shark abundance', 'Predation potential')) |>
   mutate(Variable = ifelse(Variable == 'Shark abundance', 'Relative shark abundance (MaxN)', Variable),
          Variable = ifelse(Variable == 'Predation potential', 'Predation potential (gC per day)', Variable)) |> 
   mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential (gC per day)', 'Probability of co-benefits'))) |> 
@@ -270,7 +270,7 @@ aaa <- preds |>
   theme_classic() +
   theme(legend.key.size = unit(0.5, 'cm'))
 aaa
-ggsave('outputs/figures/counterfactual_predictions.png', width = 5.5, height = 3)
+ggsave('outputs/figures/counterfactual_predictions_shark_abundance_predation_potential.png', width = 5.5, height = 3)
 
 # figure 4 - predict conditional effects of shark protection status along human gravity gradient ------------------------------
 # here all non-focal continuous covariates are set to their mean value and 
