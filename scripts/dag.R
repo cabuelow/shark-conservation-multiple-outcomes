@@ -1,203 +1,126 @@
 # dags
+# TODO add in the red arrows, and update the unobserved variables)
+# then check for adjustment sets
 
 dag <- 'dag {
-  "Solar input" -> "SST"
-  "Solar input" -> "Primary productivity"
-  "Solar input" -> "Season"
-  "SST" -> "Primary productivity"
-  "SST" -> "Macroalgae cover"
-  "Primary productivity" -> "Macroalgae cover"
-  "Primary productivity" -> "Reef fish biomass"
-  "Reef area" -> "Primary productivity"
-  "Reef area" -> "Reef fish biomass"
-  "Coast length" -> "Reef area"
-  "Geomorphic type" -> "Primary productivity"
-  "Geomorphic type" -> "Reef isolation"
-  "Reef isolation" -> "Shark fishing pressure"
-  "Reef isolation" -> "Reef fish fishing pressure"
-  "Reef isolation" -> "Reef shark abundance"
-  "Reef isolation" -> "Reef fish biomass"
-  "Season" -> "Reef shark abundance"
-  "Macroalgae cover" -> "Reef fish biomass"
-  "Macroalgae cover" -> "Hard coral"
-  "Depth" -> "Macroalgae cover"
-  "Depth" -> "Wave exposure"
-  "Depth" -> "Reef type"
-  "Reef type" -> "Macroalgae cover"
-  "Reef type" -> "Wave exposure"
-  "Reef type" -> "Rugosity"
-  "Reef type" -> "Hard coral"
-  "Wave exposure" -> "Rugosity"
-  "Rugosity" -> "Reef fish biomass"
-  "Rugosity" -> "Reef shark abundance"
-  "Hard coral" -> "Reef fish biomass"
-  "Hard coral" -> "Reef shark abundance"
-  "Hard coral" -> "Rugosity"
-  "Pollution" -> "Primary productivity"
-  "Pollution" -> "Macroalgae cover"
-  "Pollution" -> "Hard coral"
-  "Reef fish biomass" -> "Reef shark abundance"
-  "Reef fish fishing pressure" -> "Reef fish biomass"
-  "Population size" -> "Pollution"
-  "Population size" -> "Human gravity"
-  "Human gravity" -> "Pollution"
-  "Human gravity" -> "Reef fish fishing pressure"
-  "Human gravity" -> "Shark fishing pressure"
-  "Human gravity" -> "MPA"
-  "Human gravity" -> "MPA compliance"
-  "HDI" -> "Voice"
-  "HDI" -> "Pollution"
-  "HDI" -> "Shark fishing restrictions"
-  "HDI" -> "MPA"
-  "HDI" -> "MPA compliance"
-  "HDI" -> "MPA size"
-  "HDI" -> "Reef fish fishing pressure"
-  "HDI" -> "Shark fishing pressure"
-  "HDI" -> "Human gravity"
-  "Government effectiveness" -> "MPA"
-  "Government effectiveness" -> "MPA compliance"
-  "Government effectiveness" -> "Reef fish fishing pressure"
-  "Government effectiveness" -> "Shark fishing pressure"
-  "Government effectiveness" -> "Voice"
-  "Government effectiveness" -> "Shark fishing restrictions"
-  "Government effectiveness" -> "HDI"
-  "Government effectiveness" -> "Shark sanctuary"
-  "Voice" -> "MPA"
-  "Voice" -> "MPA compliance"
-  "Voice" -> "Shark fishing restrictions"
-  "MPA" -> "Shark fishing pressure"
-  "MPA" -> "Reef fish fishing pressure"
-  "MPA" -> "Shark fishing restrictions"
-  "MPA" -> "MPA age"
-  "MPA" -> "MPA compliance"
-  "MPA" -> "MPA size"
-  "MPA size" -> "Reef fish fishing pressure"
-  "MPA size" -> "Shark fishing pressure"
-  "MPA compliance" -> "Reef fish fishing pressure"
-  "MPA compliance" -> "Shark fishing pressure"
-  "MPA age" -> "Reef fish biomass"
-  "Shark sanctuary" -> "Shark fishing pressure"
-  "Shark sanctuary" -> "Shark fishing restrictions"
-  "Shark fishing restrictions" -> "Shark fishing pressure"
-  "Shark fishing restrictions" -> "Temporal limits"
-  "Shark fishing restrictions" -> "Species limits"
-  "Shark fishing restrictions" -> "Gear limits"
-  "Shark fishing restrictions" -> "Catch limits"
-  "Shark fishing restrictions" -> "Effort limits"
-  "Shark fishing restrictions" -> "Size limits"
-  "Temporal limits" -> "Shark fishing pressure"
-  "Species limits" -> "Shark fishing pressure"
-  "Gear limits" -> "Shark fishing pressure"
-  "Effort limits" -> "Shark fishing pressure"
-  "Size limits" -> "Shark fishing pressure"
-  "Catch limits" -> "Shark fishing pressure"
-  "Shark fishing pressure" -> "Reef shark abundance"
-  "Shark fishing restrictions"[exposure]
-  "Reef shark abundance"[outcome]
-}
-'
-
-dag_revised <- 'dag {
-  "Solar input" -> "SST"
-  "Solar input" -> "Primary productivity"
-  "Solar input" -> "Season"
-  "SST" -> "Primary productivity"
-  "SST" -> "Macroalgae cover"
-  "Primary productivity" -> "Macroalgae cover"
-  "Primary productivity" -> "Reef fish biomass"
-  "Reef area" -> "Primary productivity"
-  "Reef area" -> "Reef fish biomass"
-  "Coast length" -> "Reef area"
-  "Coast length" -> "Population size"
-  "Geomorphic type" -> "Primary productivity"
-  "Geomorphic type" -> "Reef isolation"
-  "Reef isolation" -> "Shark fishing pressure"
-  "Reef isolation" -> "Reef fish fishing pressure"
-  "Reef isolation" -> "Reef shark abundance"
-  "Reef isolation" -> "Reef fish biomass"
-  "Season" -> "Reef shark abundance"
-  "Macroalgae cover" -> "Reef fish biomass"
-  "Macroalgae cover" -> "Hard coral"
-  "Depth" -> "Macroalgae cover"
-  "Depth" -> "Wave exposure"
-  "Depth" -> "Reef type"
-  "Reef type" -> "Macroalgae cover"
-  "Reef type" -> "Wave exposure"
-  "Reef type" -> "Rugosity"
-  "Reef type" -> "Hard coral"
-  "Wave exposure" -> "Rugosity"
-  "Rugosity" -> "Reef fish biomass"
-  "Rugosity" -> "Reef shark abundance"
-  "Hard coral" -> "Reef fish biomass"
-  "Hard coral" -> "Reef shark abundance"
-  "Hard coral" -> "Rugosity"
-  "Pollution" -> "Primary productivity"
-  "Pollution" -> "Macroalgae cover"
-  "Pollution" -> "Hard coral"
-  "Reef fish biomass" -> "Reef shark abundance"
-  "Reef fish fishing pressure" -> "Reef fish biomass"
-  "Population size" -> "Pollution"
-  "Population size" -> "Human gravity"
-  "Population size" -> "Shark sanctuary"
-  "Human gravity" -> "Pollution"
-  "Human gravity" -> "Reef fish fishing pressure"
-  "Human gravity" -> "Shark fishing pressure"
-  "Human gravity" -> "MPA"
-  "Human gravity" -> "MPA compliance"
-  "HDI" -> "Voice"
-  "HDI" -> "Pollution"
-  "HDI" -> "Shark fishing restrictions"
-  "HDI" -> "MPA"
-  "HDI" -> "MPA compliance"
-  "HDI" -> "MPA size"
-  "HDI" -> "Reef fish fishing pressure"
-  "HDI" -> "Shark fishing pressure"
-  "HDI" -> "Human gravity"
-  "Government effectiveness" -> "MPA"
-  "Government effectiveness" -> "MPA compliance"
-  "Government effectiveness" -> "Reef fish fishing pressure"
-  "Government effectiveness" -> "Shark fishing pressure"
-  "Government effectiveness" -> "Voice"
-  "Government effectiveness" -> "Shark fishing restrictions"
-  "Government effectiveness" -> "HDI"
-  "Government effectiveness" -> "Shark sanctuary"
-  "Voice" -> "MPA"
-  "Voice" -> "MPA compliance"
-  "Voice" -> "Shark fishing restrictions"
-  "MPA" -> "Shark fishing pressure"
-  "MPA" -> "Reef fish fishing pressure"
-  "MPA" -> "Shark fishing restrictions"
-  "MPA" -> "MPA age"
-  "MPA" -> "MPA compliance"
-  "MPA" -> "MPA size"
-  "MPA size" -> "Reef fish fishing pressure"
-  "MPA size" -> "Shark fishing pressure"
-  "MPA compliance" -> "Reef fish fishing pressure"
-  "MPA compliance" -> "Shark fishing pressure"
-  "MPA age" -> "Reef fish biomass"
-  "MPA age" -> "MPA compliance"
-  "Shark sanctuary" -> "Shark fishing pressure"
-  "Shark sanctuary" -> "Shark fishing restrictions"
-  "Shark fishing restrictions" -> "Shark fishing pressure"
-  "Shark fishing restrictions" -> "Temporal limits"
-  "Shark fishing restrictions" -> "Species limits"
-  "Shark fishing restrictions" -> "Gear limits"
-  "Shark fishing restrictions" -> "Catch limits"
-  "Shark fishing restrictions" -> "Effort limits"
-  "Shark fishing restrictions" -> "Size limits"
-  "Temporal limits" -> "Shark fishing pressure"
-  "Species limits" -> "Shark fishing pressure"
-  "Gear limits" -> "Shark fishing pressure"
-  "Effort limits" -> "Shark fishing pressure"
-  "Size limits" -> "Shark fishing pressure"
-  "Catch limits" -> "Shark fishing pressure"
-  "Shark fishing pressure" -> "Reef shark abundance"
-  "Species limits" -> "Gear limits"
-  "Species limits" -> "Effort limits"
-  "Species limits" -> "Size limits"
-  "Size limits" -> "Effort limits"
-  "Temporal limits" -> "Catch limits"
-  "Shark fishing restrictions"[exposure]
-  "Reef shark abundance"[outcome]
+  Solar_input -> SST
+  Solar_input -> Primary_productivity
+  Solar_input -> Season
+  SST -> Primary_productivity
+  SST -> Macroalgae_cover
+  Primary_productivity -> Macroalgae_cover
+  Primary_productivity -> Reef_fish_biomass
+  Reef_area -> Primary_productivity
+  Reef_area -> Reef_fish_biomass
+  Coast_length -> Reef_area
+  Geomorphic_type -> Primary_productivity
+  Geomorphic_type -> Reef_isolation
+  Reef_isolation -> Shark_fishing_pressure
+  Reef_isolation -> Reef_fish_fishing_pressure
+  Reef_isolation -> Reef_shark_abundance
+  Reef_isolation -> Reef_fish_biomass
+  Season -> Reef_shark_abundance
+  Macroalgae_cover -> Reef_fish_biomass
+  Macroalgae_cover -> Hard_coral
+  Depth -> Macroalgae_cover
+  Depth -> Wave_exposure
+  Depth -> Reef_type
+  Reef_type -> Macroalgae_cover
+  Reef_type -> Wave_exposure
+  Reef_type -> Rugosity
+  Reef_type -> Hard_coral
+  Wave_exposure -> Rugosity
+  Rugosity -> Reef_fish_biomass
+  Rugosity -> Reef_shark_abundance
+  Hard_coral -> Reef_fish_biomass
+  Hard_coral -> Reef_shark_abundance
+  Hard_coral -> Rugosity
+  Pollution -> Primary_productivity
+  Pollution -> Macroalgae_cover
+  Pollution -> Hard_coral
+  Reef_fish_biomass -> Reef_shark_abundance
+  Reef_fish_fishing_pressure -> Reef_fish_biomass
+  Population_size -> Pollution
+  Population_size -> Human_gravity
+  Human_gravity -> Pollution
+  Human_gravity -> Reef_fish_fishing_pressure
+  Human_gravity -> Shark_fishing_pressure
+  Human_gravity -> MPA
+  Human_gravity -> MPA_compliance
+  HDI -> Voice
+  HDI -> Pollution
+  HDI -> Shark_fishing_restrictions
+  HDI -> MPA
+  HDI -> MPA_compliance
+  HDI -> MPA_size
+  HDI -> Reef_fish_fishing_pressure
+  HDI -> Shark_fishing_pressure
+  HDI -> Human_gravity
+  Government_effectiveness -> MPA
+  Government_effectiveness -> MPA_compliance
+  Government_effectiveness -> Reef_fish_fishing_pressure
+  Government_effectiveness -> Shark_fishing_pressure
+  Government_effectiveness -> Voice
+  Government_effectiveness -> Shark_fishing_restrictions
+  Government_effectiveness -> HDI
+  Government_effectiveness -> Shark_sanctuary
+  Voice -> MPA
+  Voice -> MPA_compliance
+  Voice -> Shark_fishing_restrictions
+  MPA -> Shark_fishing_pressure
+  MPA -> Reef_fish_fishing_pressure
+  MPA -> Shark_fishing_restrictions
+  MPA -> MPA_age
+  MPA -> MPA_compliance
+  MPA -> MPA_size
+  MPA_size -> Reef_fish_fishing_pressure
+  MPA_size -> Shark_fishing_pressure
+  MPA_compliance -> Reef_fish_fishing_pressure
+  MPA_compliance -> Shark_fishing_pressure
+  MPA_age -> Reef_fish_biomass
+  Shark_sanctuary -> Shark_fishing_pressure
+  Shark_sanctuary -> Shark_fishing_restrictions
+  Shark_fishing_restrictions -> Shark_fishing_pressure
+  Shark_fishing_restrictions -> Temporal_limits
+  Shark_fishing_restrictions -> Species_limits
+  Shark_fishing_restrictions -> Gear_limits
+  Shark_fishing_restrictions -> Catch_limits
+  Shark_fishing_restrictions -> Effort_limits
+  Shark_fishing_restrictions -> Size_limits
+  Temporal_limits -> Shark_fishing_pressure
+  Species_limits -> Shark_fishing_pressure
+  Gear_limits -> Shark_fishing_pressure
+  Effort_limits -> Shark_fishing_pressure
+  Size_limits -> Shark_fishing_pressure
+  Catch_limits -> Shark_fishing_pressure
+  Shark_fishing_pressure -> Reef_shark_abundance
+  Shark_fishing_restrictions[exposure]
+  Reef_shark_abundance[outcome]
+  Shark_fishing_pressure[unobserved]
+  Reef_fish_biomass[unobserved]
+  Reef_fish_fishing_pressure[unobserved]
+  Voice[unobserved]
+  MPA_size[unobserved]
+  Government_effectiveness[unobserved]
+  HDI[unobserved]
+  Human_gravity[unobserved]
+  Pollution[unobserved]
+  Reef_isolation[unobserved]
+  Season[unobserved]
+  Geomorphic_type[unobserved]
+  SST[unobserved]
+  Solar_input[unobserved]
+  Primary_productivity[unobserved]
+  Macroalgae_cover[unobserved]
+  Reef_area[unobserved]
+  Coast_length[unobserved]
+  Reef_isolation[unobserved]
+  Hard_coral[unobserved]
+  Wave_exposure[unobserved]
+  Reef_type[unobserved]
+  Depth[unobserved]
+  Rugosity[unobserved]
+  Coast_length[unobserved]
+  Effort_limits[unobserved]
 }
 '
