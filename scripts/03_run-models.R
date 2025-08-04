@@ -1,8 +1,8 @@
 # run models to estimate effects of shark protection status (open, closed, restricted) on reef shark abundance (maxN) and carbon ingestion rates
 # the minimial sufficient covariate adjustment set was: 
-# HDI, MPA presence, MPA compliance, MPA age, government effectiveness, human gravity, shark sanctuary
+# Government_effectiveness, HDI, Human_gravity, MPA, MPA_age, MPA_compliance, Shark_sanctuary
 # note we do not include main effect of Shark Protection Status to allow only slope to vary
-# 2025-01-15
+# 2025-08-05
 
 library(tidyverse)
 library(brms)
@@ -12,7 +12,7 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 set.seed(123)
 
-dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') |> 
          mutate(across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 # add small jitter to sets with the same coordinates
@@ -32,10 +32,10 @@ dat <- add_utm_columns(dat, c("set_long2", "set_lat2"),
 
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
-                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                                Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                              zi ~ Shark_Sanctuary + HDI + mpa_present + 
-                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                                Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
                           prior = c(prior(normal(0, 2), class = b),
                                     prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
@@ -43,7 +43,8 @@ fit_prior_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                           data = dat, family = zero_inflated_negbinomial(), 
                           control = list(max_treedepth = 15, adapt_delta = 0.99),
                           sample_prior = "only")
-pp_check(fit_prior_zinb_int, type = 'bars', ndraws = 100)
+pp_check <- pp_check(fit_prior_zinb_int, ndraws = 100) + xlim(c(0, 40))
+pp_check
 
 # now estimate parameters
 # interaction with main effects
@@ -58,7 +59,7 @@ fit_zinb_int_main <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int_main, file = "outputs/models/global_models_zinb_int_main_mpa_age.rda")
+save(fit_zinb_int_main, file = "outputs/models/zinb_v2.rda")
 
 # interaction without main effects
 fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -72,21 +73,21 @@ fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int, file = "outputs/models/global_models_zinb.rda")
+save(fit_zinb_int, file = "outputs/models/zinb_nomain_v2.rda")
 
 # try random effect at set level to account for unexplained variation due to spatial autocorrelation
-fit_zinb_int_re <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
-                           mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
-                           Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id/set_id),
-                         zi ~ Shark_Sanctuary + HDI + mpa_present + 
-                           mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
-                           Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id/set_id)),
-                      prior = c(prior(normal(0, 2), class = b),
-                                prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
-                      iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
-                      data = dat, family = zero_inflated_negbinomial(), 
-                      control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int_re, file = "outputs/models/global_models_zinb_re.rda")
+#fit_zinb_int_re <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
+ #                          mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+  #                         Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id/set_id),
+   #                      zi ~ Shark_Sanctuary + HDI + mpa_present + 
+    #                       mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+     #                      Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id/set_id)),
+      #                prior = c(prior(normal(0, 2), class = b),
+       #                         prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
+        #              iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+         #             data = dat, family = zero_inflated_negbinomial(), 
+          #            control = list(max_treedepth = 15, adapt_delta = 0.99))
+#save(fit_zinb_int_re, file = "outputs/models/zinb_nomain_setre.rda")
 
 # try approximate gaussian process to deal with spatial autocorrelation in residuals
 fit_zinb_int_s <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -123,10 +124,10 @@ save(fit_zinb_int_s, file = "outputs/models/global_models_zinb_s.rda")
 
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
-                                    mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                                    mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                                     Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                                     hu ~ Shark_Sanctuary + HDI + mpa_present + 
-                                      mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                                      mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                                       Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
                                prior = c(prior(normal(0, 2), class = b),
                                          prior(normal(0, 2), class = b, dpar = 'hu')), # leaving intercept and sd as default priors
@@ -135,7 +136,7 @@ fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI +
                                family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"), 
                                control = list(max_treedepth = 15, adapt_delta = 0.99),
                                sample_prior = "only")
-pp_check(fit_prior_hu_lognormal_int, ndraws = 1000)
+pp_check(fit_prior_hu_lognormal_int, ndraws = 100)
 
 # now estimate parameters
 # interaction with main effects
@@ -151,7 +152,7 @@ fit_hu_lognormal_int_main <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + 
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int_main, file = "outputs/models/global_models_lognormal_int_main.rda")
+save(fit_hu_lognormal_int_main, file = "outputs/models/lognormal_v2.rda")
 
 # interaction without main effects
 fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -166,13 +167,13 @@ fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_p
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int, file = "outputs/models/global_models_lognormal_mpa_age.rda")
+save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v2.rda")
 
 # probability of being in upper quartile of both outcomes ------------------------------
 
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
-                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
                                  Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                                prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
                                iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
@@ -192,7 +193,7 @@ fit_prob_mult_int_main <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_presen
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult_int_main, file = "outputs/models/global_models_mult_outcome_int_main.rda")
+save(fit_prob_mult_int_main, file = "outputs/models/binomial_v2.rda")
 
 # interaction without main effects
 fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -203,5 +204,5 @@ fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present +
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult_int, file = "outputs/models/global_models_mult_outcome.rda")
+save(fit_prob_mult_int, file = "outputs/models/binomial_nomain_v2.rda")
    

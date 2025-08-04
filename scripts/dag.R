@@ -13,6 +13,7 @@ dag <- 'dag {
   Reef_area -> Primary_productivity
   Reef_area -> Reef_fish_biomass
   Coast_length -> Reef_area
+  Coast_length -> Population_size
   Geomorphic_type -> Primary_productivity
   Geomorphic_type -> Reef_isolation
   Reef_isolation -> Shark_fishing_pressure
@@ -42,6 +43,7 @@ dag <- 'dag {
   Reef_fish_fishing_pressure -> Reef_fish_biomass
   Population_size -> Pollution
   Population_size -> Human_gravity
+  Population_size -> Shark_sanctuary
   Human_gravity -> Pollution
   Human_gravity -> Reef_fish_fishing_pressure
   Human_gravity -> Shark_fishing_pressure
@@ -78,6 +80,7 @@ dag <- 'dag {
   MPA_compliance -> Reef_fish_fishing_pressure
   MPA_compliance -> Shark_fishing_pressure
   MPA_age -> Reef_fish_biomass
+  MPA_age -> MPA_compliance
   Shark_sanctuary -> Shark_fishing_pressure
   Shark_sanctuary -> Shark_fishing_restrictions
   Shark_fishing_restrictions -> Shark_fishing_pressure
@@ -88,10 +91,15 @@ dag <- 'dag {
   Shark_fishing_restrictions -> Effort_limits
   Shark_fishing_restrictions -> Size_limits
   Temporal_limits -> Shark_fishing_pressure
+  Temporal_limits -> Catch_limits
   Species_limits -> Shark_fishing_pressure
+  Species_limits -> Gear_limits
+  Species_limits -> Effort_limits
+  Species_limits -> Size_limits
   Gear_limits -> Shark_fishing_pressure
   Effort_limits -> Shark_fishing_pressure
   Size_limits -> Shark_fishing_pressure
+  Size_limits -> Effort_limits
   Catch_limits -> Shark_fishing_pressure
   Shark_fishing_pressure -> Reef_shark_abundance
   Shark_fishing_restrictions[exposure]
@@ -99,28 +107,9 @@ dag <- 'dag {
   Shark_fishing_pressure[unobserved]
   Reef_fish_biomass[unobserved]
   Reef_fish_fishing_pressure[unobserved]
-  Voice[unobserved]
-  MPA_size[unobserved]
-  Government_effectiveness[unobserved]
-  HDI[unobserved]
-  Human_gravity[unobserved]
-  Pollution[unobserved]
-  Reef_isolation[unobserved]
-  Season[unobserved]
-  Geomorphic_type[unobserved]
-  SST[unobserved]
-  Solar_input[unobserved]
-  Primary_productivity[unobserved]
-  Macroalgae_cover[unobserved]
-  Reef_area[unobserved]
-  Coast_length[unobserved]
-  Reef_isolation[unobserved]
-  Hard_coral[unobserved]
   Wave_exposure[unobserved]
-  Reef_type[unobserved]
-  Depth[unobserved]
-  Rugosity[unobserved]
-  Coast_length[unobserved]
-  Effort_limits[unobserved]
+  Reef_area[unobserved]
+  Reef_isolation[unobserved]
+  Pollution[unobserved]
 }
 '

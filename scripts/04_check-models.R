@@ -8,7 +8,8 @@ library(tmap)
 library(sdmTMB)
 set.seed(123)
 
-load("outputs/models/global_models_zinb.rda")
+load("outputs/models/zinb.rda")
+load("outputs/models/zinb_nomain.rda")
 load("outputs/models/global_models_lognormal.rda")
 load("outputs/models/global_models_mult_outcome.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |>
@@ -32,17 +33,20 @@ dat <- add_utm_columns(dat, c("set_long2", "set_lat2"),
 # maxn model
 summary(fit_zinb_int)
 plot(fit_zinb_int)
-pp_check(fit_zinb_int_re, type = 'bars', ndraws = 100)
+pp_check(fit_zinb_int, ndraws = 100)
+ggsave('outputs/figures/posterior-predictive-check_zinb.png', width = 6, height = 4, bg = 'white')
 
 # ingestion model
 summary(fit_hu_lognormal_int)
 plot(fit_hu_lognormal_int)
-pp_check(fit_hu_lognormal_int, 'dens_overlay', ndraws = 100)
+pp_check(fit_hu_lognormal_int, ndraws = 100)
+ggsave('outputs/figures/posterior-predictive-check_lognormal.png', width = 6, height = 4, bg = 'white')
 
 # prob mult outcomes model
 summary(fit_prob_mult_int)
 plot(fit_prob_mult_int)
 pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)
+ggsave('outputs/figures/posterior-predictive-check_binomial.png', width = 6, height = 4, bg = 'white')
 
 # structural model assumptions ------------------------------
 
@@ -86,9 +90,22 @@ plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_lat)
 # spatial autocorrelation ------------------------------
 
 # set level
-testSpatialAutocorrelation(qresids_int, x = dat$X, y = dat$Y)
+testSpatialAutocorrelation(qresids_int, x = dat$X, y = dat$Y) # observed is 1.1464e-02
 testSpatialAutocorrelation(qresids_hu_lognormal_int, x = dat$X, y = dat$Y)
 testSpatialAutocorrelation(qresids_prob_mult_int, x = dat$X, y = dat$Y)
+
+# Moran's I for a predictor
+
+## Using distance matrix approach 
+# creating distance matrix 
+longlats <- cbind(long = dat$X, lat = dat$Y) %>% as.data.frame()
+dist_matrix <- as.matrix(dist(longlats))
+inv_dist_matrix <- 1/dist_matrix
+diag(inv_dist_matrix) <- 0
+inv_dist_matrix[is.infinite(inv_dist_matrix)] <- 0
+
+# Morans I for distance. 
+ape ::Moran.I(qresids_int$scaledResiduals, inv_dist_matrix)
 
 # reef level
 # get coordinates for reefs

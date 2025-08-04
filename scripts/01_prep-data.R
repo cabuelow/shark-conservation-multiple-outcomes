@@ -93,7 +93,7 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          across(c(Area_limits:Temporal_limits), ~ifelse(is.na(.), 0, .))) |>
   # put continuous covariates on same scale as binary by dividing by 2 standard deviations (as recommended by Gelman)
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits), factor),
-         across(c(Population, Grav_Total, mpa_age), logtrans),
+         across(c(Population, Grav_Total), logtrans),
          across(c(HDI, Government_Effectiveness, Population, Grav_Total, mpa_age), scale_2SD),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open")) |> 
   # remove sets that we aren't sure are closed
