@@ -5,15 +5,17 @@ library(brms)
 library(DHARMa)
 library(sf)
 library(tmap)
-library(sdmTMB)
+#library(sdmTMB)
+library(patchwork)
+library(spdep)
 set.seed(123)
 
-load("outputs/models/zinb.rda")
-load("outputs/models/zinb_nomain.rda")
-load("outputs/models/global_models_lognormal.rda")
-load("outputs/models/global_models_mult_outcome.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |>
-  mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
+load("outputs/models/zinb_nomain_v2.rda")
+load("outputs/models/lognormal_nomain_v2.rda")
+load("outputs/models/binomial_nomain_v2.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') |> 
+  mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
+         across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 # add small jitter to sets with the same coordinates
 dat$set_lat2 <- dat$set_lat
@@ -24,9 +26,9 @@ while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
     mutate(set_lat2 = ifelse(duplicated == TRUE, set_lat2 + runif(1, 0, 0.000000001), set_lat2),
            set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))}
 # add utm coordinates in kilometres
-dat <- add_utm_columns(dat, c("set_long2", "set_lat2"), 
-                       utm_crs = 'EPSG:3035', # Lambert Azimuthal Equal Area projection
-                       units = "km")
+#dat <- add_utm_columns(dat, c("set_long2", "set_lat2"), 
+ #                      utm_crs = 'EPSG:3035', # Lambert Azimuthal Equal Area projection
+  #                     units = "km")
 
 # posterior traces, quantitative diagnostics, posterior predictive check ------------------------------
 
@@ -49,6 +51,8 @@ pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)
 ggsave('outputs/figures/posterior-predictive-check_binomial.png', width = 6, height = 4, bg = 'white')
 
 # structural model assumptions ------------------------------
+# simulate randomised quantile residuals
+options(DHARMaSignalColor = "black")
 
 # maxn model
 qresids_int <- createDHARMa(
@@ -56,14 +60,22 @@ qresids_int <- createDHARMa(
   observedResponse = fit_zinb_int$data$maxn,
   fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
   integerResponse = TRUE)
-plot(qresids_int)
+png('outputs/figures/residual-checks_model-structure_zinb.png', width = 480, height = 280)
+par(mfrow = c(1, 2))
+plotQQunif(qresids_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
+plotResiduals(qresids_int, rank = TRUE, quantreg = FALSE)
+dev.off()
 
 # ingestion model
 qresids_hu_lognormal_int <- createDHARMa(
   simulatedResponse = t(posterior_predict(fit_hu_lognormal_int)),
   observedResponse = fit_hu_lognormal_int$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int)), 1, mean))
-plot(qresids_hu_lognormal_int)
+png('outputs/figures/residual-checks_model-structure_lognormal.png', width = 480, height = 280)
+par(mfrow = c(1, 2))
+plotQQunif(qresids_hu_lognormal_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
+plotResiduals(qresids_hu_lognormal_int, rank = TRUE, quantreg = FALSE)
+dev.off()
 
 # prob mult outcomes model
 qresids_prob_mult_int <- createDHARMa(
@@ -71,8 +83,111 @@ qresids_prob_mult_int <- createDHARMa(
   observedResponse = fit_prob_mult_int$data$mult_outcomes,
   fittedPredictedResponse = apply(t(posterior_epred(fit_prob_mult_int)), 1, mean),
   integerResponse = TRUE)
-plot(qresids_prob_mult_int)
+png('outputs/figures/residual-checks_model-structure_binomial.png', width = 480, height = 280)
+par(mfrow = c(1, 2))
+plotQQunif(qresids_prob_mult_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
+plotResiduals(qresids_prob_mult_int, rank = TRUE, quantreg = FALSE)
+dev.off()
 
+# sensitivity checks for endogeneity ------------------------------
+# i.e., are predictors are correlated with scaled residual error, 
+# indicating some omitted variable bias, simultaneity/reverse causality, and/or measurement error)
+
+# loop through the different models
+models <- list(fit_zinb_int, fit_hu_lognormal_int, fit_prob_mult_int)
+residuals <- list(qresids_int, qresids_hu_lognormal_int, qresids_prob_mult_int)
+names <- c('zinb', 'lognormal', 'binomial')
+
+for(i in seq_along(models)){
+  mdat <- models[[i]]$data
+  mdat$scaledResiduals <- residuals[[i]]$scaledResiduals
+  
+  # plot the correlation between predictors and residuals
+  a <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = Government_Effectiveness)) +
+    geom_point(size = 1, alpha = 0.2) +
+    geom_smooth(se = F, col = 'lightgoldenrod3') +
+    annotate("text", x = 0, y = 0.8,
+             label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Government_Effectiveness), digits = 2)),
+             color = "red", fontface = "bold", size = 5) + 
+      xlab("Government effectiveness") + 
+      ylab("Scaled residual error") +
+      ggthemes::theme_clean()
+  b <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = Shark_Sanctuary)) +
+    geom_jitter(size = 1, alpha = 0.2) +
+    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+    #annotate("text", x = 0, y = 0.8,
+     #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+      #       color = "red", fontface = "bold", size = 10) + 
+    xlab("Shark sanctuary") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  c <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = HDI)) +
+    geom_point(size = 1, alpha = 0.2) +
+    geom_smooth(se = F, col = 'lightgoldenrod3') +
+    annotate("text", x = 2, y = 0.8,
+            label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$HDI), digits = 2)),
+           color = "red", fontface = "bold", size = 5) + 
+    xlab("HDI") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  d <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = mpa_present)) +
+    geom_jitter(size = 1, alpha = 0.2) +
+    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+    #annotate("text", x = 0, y = 0.8,
+    #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+    #       color = "red", fontface = "bold", size = 10) + 
+    xlab("MPA present") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  e <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = mpa_compliance)) +
+    geom_jitter(size = 1, alpha = 0.2) +
+    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+    #annotate("text", x = 0, y = 0.8,
+    #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+    #       color = "red", fontface = "bold", size = 10) + 
+    xlab("MPA compliance") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  f <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = mpa_age)) +
+    geom_point(size = 1, alpha = 0.2) +
+    geom_smooth(se = F, col = 'lightgoldenrod3') +
+    annotate("text", x = 0.3, y = 0.9,
+            label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$mpa_age), digits = 2)),
+           color = "red", fontface = "bold", size = 5) + 
+    xlab("MPA age") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  g <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = Grav_Total)) +
+    geom_point(size = 1, alpha = 0.2) +
+    geom_smooth(se = F, col = 'lightgoldenrod3') +
+    annotate("text", x = 0.6, y = 0.9,
+            label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Grav_Total), digits = 2)),
+           color = "red", fontface = "bold", size = 5) + 
+    xlab("Human gravity") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  h <- mdat %>% 
+    ggplot(aes(y = scaledResiduals, x = Shark_Protection_Status)) +
+    geom_jitter(size = 1, alpha = 0.2) +
+    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+    #annotate("text", x = 0, y = 0.8,
+    #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+    #       color = "red", fontface = "bold", size = 10) + 
+    xlab("Shark protection status") + 
+    ylab("Scaled residual error") +
+    ggthemes::theme_clean()
+  (a+b+c)/(d+e+f)/(g+h+plot_spacer()) + plot_annotation(tag_levels = 'A')
+  ggsave(paste0('outputs/figures/predictor-endogeneity-check_', names[i], '.png'), width = 10, height = 7)
+}
+
+# spatial autocorrelation ------------------------------
 # plot residuals against the x and y
 
 par(mfrow = c(1,2))
@@ -87,25 +202,30 @@ par(mfrow = c(1,2))
 plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_long)
 plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_lat)
 
-# spatial autocorrelation ------------------------------
-
 # set level
-testSpatialAutocorrelation(qresids_int, x = dat$X, y = dat$Y) # observed is 1.1464e-02
-testSpatialAutocorrelation(qresids_hu_lognormal_int, x = dat$X, y = dat$Y)
-testSpatialAutocorrelation(qresids_prob_mult_int, x = dat$X, y = dat$Y)
+zinb_sautocor <- testSpatialAutocorrelation(qresids_int, x = dat$set_long2, y = dat$set_lat2)
+zinb_sautocor$statistic[1] # moran's I is 0.01
+lognormal_sautocor <- testSpatialAutocorrelation(qresids_hu_lognormal_int, x = dat$set_long2, y = dat$set_lat2) 
+lognormal_sautocor$statistic[1] # moran's I is 0.01
+binomial_sautocor <- testSpatialAutocorrelation(qresids_prob_mult_int, x = dat$set_long2, y = dat$set_lat2)
+binomial_sautocor$statistic[1] # moran's I is 0.006
 
-# Moran's I for a predictor
+# for comparison, Moran's I for predictors
+# find nearest neighbours
+longlats <- cbind(long = dat$set_long2, lat = dat$set_lat2) %>% as.data.frame()
+nb_list <- knn2nb(knearneigh(longlats, k=10, longlat = TRUE, use_kd_tree=FALSE))
+nb_weights <- nb2listw(nb_list, style="W")
+hdi_moran <- spdep::moran.test(dat$HDI, nb_weights)
+goveff_moran <- spdep::moran.test(dat$Government_Effectiveness, nb_weights)
+mpage_moran <- spdep::moran.test(dat$mpa_age, nb_weights)
+grav_moran <- spdep::moran.test(dat$Grav_Total, nb_weights)
 
-## Using distance matrix approach 
-# creating distance matrix 
-longlats <- cbind(long = dat$X, lat = dat$Y) %>% as.data.frame()
-dist_matrix <- as.matrix(dist(longlats))
-inv_dist_matrix <- 1/dist_matrix
-diag(inv_dist_matrix) <- 0
-inv_dist_matrix[is.infinite(inv_dist_matrix)] <- 0
+morans <- data.frame(Variable = c('HDI', "Government_effectiveness", 'Mpa_age', 'Total_gravity', 'Residuals_maxn', 'Residuals_carbon', 'Residuals_cooccurence'),
+                     Morans_I = c(hdi_moran$estimate[1], goveff_moran$estimate[1], mpage_moran$estimate[1], grav_moran$estimate[1], zinb_sautocor$statistic[1], lognormal_sautocor$statistic[1], binomial_sautocor$statistic[1]))
+morans
+write.csv(morans, 'outputs/spatial-autocorrelation-statistics.csv', row.names = F)
 
-# Morans I for distance. 
-ape ::Moran.I(qresids_int$scaledResiduals, inv_dist_matrix)
+# End here - below is just playing around
 
 # reef level
 # get coordinates for reefs
