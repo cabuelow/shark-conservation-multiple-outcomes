@@ -21,7 +21,3 @@ helper-functions.R: create plotting theme function
 R version 4.4.2 (2024-10-31)
 Platform: aarch64-apple-darwin20
 Running under: macOS Ventura 13.7.4
-
-#### TODO for revisions
-
-- Make sure in methods we mention that we've dropped sites where we couldn't classify closed or not
