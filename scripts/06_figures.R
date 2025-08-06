@@ -1,6 +1,5 @@
 # create figures and summary statistics
 # Note, to reproduce figure 1, go to script '006_figures.R'
-
 library(tidyverse)
 library(brms)
 library(tidybayes)
@@ -19,15 +18,16 @@ scale_2SD <- function(x) (x/(2*sd(x, na.rm = T)))
 source('scripts/helper-functions.R') # plotting theme
 
 # load models and data
-load("outputs/models/global_models_zinb.rda")
-load("outputs/models/global_models_lognormal.rda")
-load("outputs/models/global_models_mult_outcome.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |>
-  mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
+load("outputs/models/zinb_nomain_v2.rda")
+load("outputs/models/lognormal_nomain_v2.rda")
+load("outputs/models/binomial_nomain_v2.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') %>% 
+  mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
+         across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 preds <- read.csv('outputs/models/scenario-predictions.csv')
-global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1.0.shp') |> 
-  st_drop_geometry() |> 
+global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1.0.shp') %>% 
+  st_drop_geometry() %>% 
   mutate(Grav_tot = scale_2SD(logtrans(Grav_tot)))
 maxn_icon <- rasterGrob(readPNG("images/Socioeconomic icon 1.png"), interpolate = TRUE)
 ingestion_icon <- rasterGrob(readPNG("images/Ingestion icon 1.png"), interpolate = TRUE)
@@ -46,39 +46,39 @@ nrow(filter(dat, maxn == 0))/nrow(dat)
 # sets with more than one shark present where they are present
 nrow(filter(dat, maxn >1))/nrow(filter(dat, maxn > 0))
 # reefs with no sharks present
-dreef <- dat |> 
-  group_by(reef_id) |> 
+dreef <- dat %>% 
+  group_by(reef_id) %>% 
   summarise(maxn = sum(maxn))
 nrow(filter(dreef, maxn == 0))/nrow(dreef)
 nrow(filter(dreef, maxn >1))/nrow(filter(dreef, maxn > 0))
 # percent of sets with co-benefits
 nrow(filter(dat, mult_outcomes == 1))/nrow(dat)
 # percent of reefs with co-benefits
-dreef <- dat |> 
-  group_by(reef_id) |> 
+dreef <- dat %>% 
+  group_by(reef_id) %>% 
   summarise(mult_outcomes = sum(mult_outcomes))
 nrow(filter(dreef, mult_outcomes != 0))/nrow(dreef)
 
 # figure 2 - outcome biplot ------------------------------
-biplot_dat <- dat |> 
-  group_by(reef_id)|>
-  mutate(reef_maxn = mean(maxn))|>
-  mutate(reef_ingestion_C_g_day = mean(ingestion_C_g_day))|>
-  ungroup()|>
-  mutate(log_maxn = log(maxn + 1))|>
-  mutate(log_ingestion_C_g_day = log(ingestion_C_g_day + 1))|>
-  dplyr::select(set_id, reef_id, maxn, ingestion_C_g_day, reef_maxn, reef_ingestion_C_g_day, log_maxn, log_ingestion_C_g_day, set_composition)|>
+biplot_dat <- dat %>% 
+  group_by(reef_id)%>%
+  mutate(reef_maxn = mean(maxn))%>%
+  mutate(reef_ingestion_C_g_day = mean(ingestion_C_g_day))%>%
+  ungroup()%>%
+  mutate(log_maxn = log(maxn + 1))%>%
+  mutate(log_ingestion_C_g_day = log(ingestion_C_g_day + 1))%>%
+  dplyr::select(set_id, reef_id, maxn, ingestion_C_g_day, reef_maxn, reef_ingestion_C_g_day, log_maxn, log_ingestion_C_g_day, set_composition)%>%
   # make new column for different colour > quartiles
   mutate(highlight = ifelse(maxn > quantile(reef_maxn, 0.85) & 
                               ingestion_C_g_day > quantile(reef_ingestion_C_g_day, 0.85), 
                             "Above 0.85", "Below 0.85"))
 
 # plot
-PlotA_set <- dat |> 
+PlotA_set <- dat %>% 
   mutate(highlight = ifelse(maxn > quantile(maxn, 0.85) & 
                               ingestion_C_g_day > quantile(ingestion_C_g_day, 0.85), 
-                            "Above 0.85", "Below 0.85")) |> 
-  filter(maxn > 0) |> # leave of 0s
+                            "Above 0.85", "Below 0.85")) %>% 
+  filter(maxn > 0) %>% # leave of 0s
   ggplot(aes(x = maxn, y = ingestion_C_g_day)) +
   geom_point(aes(colour=highlight, shape = set_composition),alpha = 0.8, size=4) + 
   scale_color_manual(
@@ -133,13 +133,13 @@ ggsave(PlotA_scatter_set, file = "outputs/figures/biplot.png", dpi=300, height=6
 # maxn model 
 # quick look at beta coefs and interaction
 mcmc_plot(fit_zinb_int, variable = "^b_", regex = TRUE) # quick look at effect sizes
-plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
+plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, categorical = F, prob = c(0.95)), plot = FALSE, 
     # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
   ylab('MaxN') +
   xlab('Human Gravity (log + min transformed)') +
   theme(legend.position = 'left', legend.title = element_blank())
-plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, dpar = 'hu', categorical = F, prob = c(0.95)), plot = FALSE, 
+plot(conditional_effects(fit_zinb_int, effects = 'Grav_Total:Shark_Protection_Status', re_formula = NA, dpar = 'zi', categorical = F, prob = c(0.95)), plot = FALSE, 
      # points = TRUE, point_args = list(width = 0.1, size = 0.8, alpha = 0.3)
 )[[1]] + theme_classic() + 
   ylab('MaxN') +
@@ -147,41 +147,41 @@ plot(conditional_effects(fit_hu_lognormal_int, effects = 'Grav_Total:Shark_Prote
   theme(legend.position = 'left', legend.title = element_blank())
 
 # pull out betas from each model
-betas_zinb <- fit_zinb_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
+betas_zinb <- fit_zinb_int %>% 
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_mpa_compliance1, b_mpa_age, b_Government_Effectiveness, b_Grav_Total,
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`,
-               b_zi_Shark_Sanctuary1, b_zi_HDI, b_zi_mpa_present1, b_zi_mpa_compliance1, b_zi_Government_Effectiveness, b_zi_Grav_Total,
-               `b_zi_Grav_Total:Shark_Protection_StatusClosed`, `b_zi_Grav_Total:Shark_Protection_StatusRestricted`) |>
-  median_qi(.width = c(.95, .8, .5)) |> 
+               b_zi_Shark_Sanctuary1, b_zi_HDI, b_zi_mpa_present1, b_zi_mpa_compliance1, b_zi_mpa_age, b_zi_Government_Effectiveness, b_zi_Grav_Total,
+               `b_zi_Grav_Total:Shark_Protection_StatusClosed`, `b_zi_Grav_Total:Shark_Protection_StatusRestricted`) %>%
+  median_qi(.width = c(.95, .8, .5)) %>% 
   mutate(Outcome = 'Shark abundance')
 
-betas_ingestion <- fit_hu_lognormal_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
+betas_ingestion <- fit_hu_lognormal_int %>% 
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_mpa_age, b_Government_Effectiveness, b_Grav_Total,
                `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`,
-               b_hu_Shark_Sanctuary1, b_hu_HDI, b_hu_mpa_present1, b_hu_mpa_compliance1, b_hu_Government_Effectiveness, b_hu_Grav_Total,
-               `b_hu_Grav_Total:Shark_Protection_StatusClosed`, `b_hu_Grav_Total:Shark_Protection_StatusRestricted`) |>
-  median_qi(.width = c(.95, .8, .5)) |> 
+               b_hu_Shark_Sanctuary1, b_hu_HDI, b_hu_mpa_present1, b_hu_mpa_compliance1, b_hu_mpa_age, b_hu_Government_Effectiveness, b_hu_Grav_Total,
+               `b_hu_Grav_Total:Shark_Protection_StatusClosed`, `b_hu_Grav_Total:Shark_Protection_StatusRestricted`) %>%
+  median_qi(.width = c(.95, .8, .5)) %>% 
   mutate(Outcome = 'Predation potential')
 
-betas_mult_outcomes <- fit_prob_mult_int |> 
-  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_Government_Effectiveness, b_Grav_Total,
-               `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) |>
-  median_qi(.width = c(.95, .8, .5)) |> 
+betas_mult_outcomes <- fit_prob_mult_int %>% 
+  gather_draws(b_Shark_Sanctuary1, b_HDI, b_mpa_present1, b_mpa_compliance1, b_mpa_age, b_Government_Effectiveness, b_Grav_Total,
+               `b_Grav_Total:Shark_Protection_StatusClosed`, `b_Grav_Total:Shark_Protection_StatusRestricted`) %>%
+  median_qi(.width = c(.95, .8, .5)) %>% 
   mutate(Outcome = 'Probability of co-benefits')
 
 # bind together
-betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |> 
-  mutate(coef_cat = case_when(.variable %in% c('b_zi_Shark_Sanctuary1', 'b_zi_HDI', 'b_zi_mpa_present1', 'b_zi_mpa_compliance1', 'b_zi_Government_Effectiveness', 'b_zi_Grav_Total', 
+betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) %>% 
+  mutate(coef_cat = case_when(.variable %in% c('b_zi_Shark_Sanctuary1', 'b_zi_HDI', 'b_zi_mpa_present1', 'b_zi_mpa_age', 'b_zi_mpa_compliance1', 'b_zi_Government_Effectiveness', 'b_zi_Grav_Total', 
                                            'b_zi_Grav_Total:Shark_Protection_StatusClosed', 'b_zi_Grav_Total:Shark_Protection_StatusRestricted') ~ 'Probability of excess \n zeros in Shark abundance',
-                              .variable %in% c('b_hu_Shark_Sanctuary1', 'b_hu_HDI', 'b_hu_mpa_present1', 'b_hu_mpa_compliance1', 'b_hu_Government_Effectiveness', 'b_hu_Grav_Total', 
+                              .variable %in% c('b_hu_Shark_Sanctuary1', 'b_hu_HDI', 'b_hu_mpa_present1', 'b_hu_mpa_compliance1', 'b_hu_mpa_age', 'b_hu_Government_Effectiveness', 'b_hu_Grav_Total', 
                                                          'b_hu_Grav_Total:Shark_Protection_StatusClosed', 'b_hu_Grav_Total:Shark_Protection_StatusRestricted') ~ 'Probability of Predation \n potential being 0',
-                              .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_Government_Effectiveness', 'b_Grav_Total', 
+                              .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_mpa_age', 'b_Government_Effectiveness', 'b_Grav_Total', 
                                                'b_Grav_Total:Shark_Protection_StatusClosed', 'b_Grav_Total:Shark_Protection_StatusRestricted') & Outcome == 'Shark abundance' ~ 'Relative shark \n abundance (MaxN)',
-                              .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_Government_Effectiveness', 'b_Grav_Total', 
+                              .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_mpa_age', 'b_Government_Effectiveness', 'b_Grav_Total', 
                                                'b_Grav_Total:Shark_Protection_StatusClosed', 'b_Grav_Total:Shark_Protection_StatusRestricted') & Outcome == 'Predation potential' ~ 'Predation potential',
-                              .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_Government_Effectiveness', 'b_Grav_Total', 
+                              .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_mpa_age', 'b_Government_Effectiveness', 'b_Grav_Total', 
                                                'b_Grav_Total:Shark_Protection_StatusClosed', 'b_Grav_Total:Shark_Protection_StatusRestricted') & Outcome == 'Probability of co-benefits' ~ 'Probability of co-benefits'),
-         Outcome = ifelse(Outcome == 'Shark abundance', 'Relative shark abundance (MaxN)', Outcome)) |> 
+         Outcome = ifelse(Outcome == 'Shark abundance', 'Relative shark abundance (MaxN)', Outcome)) %>% 
   mutate(.variable = recode(.variable, 
                             b_Grav_Total = 'Human gravity',
                             `b_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
@@ -191,6 +191,7 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                             b_HDI = 'Human development index (HDI)',
                             b_mpa_compliance1 = 'MPA compliance',
                             b_mpa_present1 = 'MPA present',
+                            b_mpa_age = 'MPA age', 
                             b_zi_Grav_Total = 'Human gravity',
                             `b_zi_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
                             `b_zi_Grav_Total:Shark_Protection_StatusRestricted` = 'Human gravity X \n Restricted shark fishing',
@@ -199,6 +200,7 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                             b_zi_HDI = 'Human development index (HDI)',
                             b_zi_mpa_compliance1 = 'MPA compliance',
                             b_zi_mpa_present1 = 'MPA present',
+                            b_zi_mpa_age = 'MPA age', 
                             b_hu_Grav_Total = 'Human gravity',
                             `b_hu_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
                             `b_hu_Grav_Total:Shark_Protection_StatusRestricted` = 'Human gravity X \n Restricted shark fishing',
@@ -206,18 +208,19 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) |>
                             b_hu_Government_Effectiveness = 'Governance effectiveness',
                             b_hu_HDI = 'Human development index (HDI)',
                             b_hu_mpa_compliance1 = 'MPA compliance',
-                            b_hu_mpa_present1 = 'MPA present')) |> 
+                            b_hu_mpa_present1 = 'MPA present',
+                            b_hu_mpa_age = 'MPA age')) %>% 
   mutate(category = case_when(.variable %in% c('Human gravity X \n Closed shark fishing', 'Human gravity X \n Restricted shark fishing') ~ 'Focal management variables',
                               .variable %in% c('Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)',
-                                               'MPA compliance', 'MPA present') ~ 'Confounders adjusted for')) |> 
+                                               'MPA compliance', 'MPA present', 'MPA age') ~ 'Confounders adjusted for')) %>% 
   mutate(category = factor(category, levels = c('Focal management variables', 'Confounders adjusted for')),
          `Evidence for effect` = case_when(.width == 0.5 & .lower > 0 ~ '> 50%',
                                            .width == 0.5 & .upper < 0 ~ '> 50%',
-                                           .default = 'None')) |> 
+                                           .default = 'None')) %>% 
   mutate(.variable = factor(.variable, levels = c('Human gravity X \n Closed shark fishing', 
                                                   'Human gravity X \n Restricted shark fishing',
                                                   'Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)',
-                                                  'MPA compliance', 'MPA present')),
+                                                  'MPA compliance', 'MPA present', 'MPA age')),
          coef_cat = factor(coef_cat, levels = c('Probability of excess \n zeros in Shark abundance', 'Relative shark \n abundance (MaxN)',
                                                 'Probability of Predation \n potential being 0', 'Predation potential', 'Probability of co-benefits')))
 
@@ -241,23 +244,23 @@ fig2b <- ggplot() +
              position=position_dodge(width=0.5)) +
   scale_color_manual(values = c('Relative shark abundance (MaxN)' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
   scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence\nfor effect") +
-  scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', 'HDI','Governance effectiveness','Gravity',
-                                       'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10)) +
+  #scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', 'HDI','Governance effectiveness','Gravity',
+   #                                    'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10)) +
   facet_wrap(~coef_cat, nrow = 1, scales = 'free_x') +
   xlab('Standardized effect size\n ') +
   ylab('') +
   publication_theme()+
   theme(legend.title = element_blank(), legend.position = 'top', axis.text.y = element_text(vjust = 0.5));fig2b
 
-ggsave('outputs/figures/coefficient-plot.png', width = 12, height = 4.5)
+ggsave('outputs/figures/coefficient-plot.png', width = 12.5, height = 4.7)
 
 # figure 3 - plot counterfactual predictions ------------------------------
 
-aaa <- preds |>   
-  filter(Scenario == 'No management' & Variable %in% c('Shark abundance', 'Predation potential')) |>
+aaa <- preds %>%   
+  filter(Scenario == 'No management' & Variable %in% c('Shark abundance', 'Predation potential', 'Probability of co-benefits')) %>%
   mutate(Variable = ifelse(Variable == 'Shark abundance', 'Relative shark abundance (MaxN)', Variable),
-         Variable = ifelse(Variable == 'Predation potential', 'Predation potential (gC per day)', Variable)) |> 
-  mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential (gC per day)', 'Probability of co-benefits'))) |> 
+         Variable = ifelse(Variable == 'Predation potential', 'Predation potential (gC per day)', Variable)) %>% 
+  mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential (gC per day)', 'Probability of co-benefits'))) %>% 
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent_status_quo, ymax = upp_50_cumulative_percent_status_quo, fill = Variable), alpha = 0.4) +
   geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo, col = Variable)) +
@@ -285,25 +288,25 @@ nd_mult_out <- conditional_effects(fit_prob_mult_int)[["Grav_Total:Shark_Protect
 # using the new data, add draws from the expectation of the 
 # posterior predictive distribution (residual error is ignored),
 # and bind together
-new_dat <- bind_rows(nd_zinb |> 
-                       add_epred_draws(fit_zinb_int, re_formula = NA) |> 
-                       ungroup() |> 
-                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+new_dat <- bind_rows(nd_zinb %>% 
+                       add_epred_draws(fit_zinb_int, re_formula = NA) %>% 
+                       ungroup() %>% 
+                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
                        mutate(outcome = 'Relative shark \n abundance (MaxN)'),
-                     nd_hu_lognormal |> 
-                       add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
-                       ungroup() |> 
-                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                     nd_hu_lognormal %>% 
+                       add_epred_draws(fit_hu_lognormal_int, re_formula = NA) %>% 
+                       ungroup() %>% 
+                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
                        mutate(outcome = 'Predation potential'),
-                     nd_mult_out |> 
-                       add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
-                       ungroup() |> 
-                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
+                     nd_mult_out %>% 
+                       add_epred_draws(fit_prob_mult_int, re_formula = NA) %>% 
+                       ungroup() %>% 
+                       select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
                        mutate(outcome = 'Probability of co-benefits'))
 
 # plot the interaction between human gravity and shark protection status for each model
-aa <- new_dat |> 
-  filter(outcome == 'Relative shark \n abundance (MaxN)') |> 
+aa <- new_dat %>% 
+  filter(outcome == 'Relative shark \n abundance (MaxN)') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
   stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
@@ -315,8 +318,8 @@ aa <- new_dat |>
   publication_theme()
 aa
 
-bb <- new_dat |> 
-  filter(outcome == 'Predation potential') |> 
+bb <- new_dat %>% 
+  filter(outcome == 'Predation potential') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
   stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
@@ -328,8 +331,8 @@ bb <- new_dat |>
   publication_theme()
 bb
 
-cc <- new_dat |> 
-  filter(outcome == 'Probability of co-benefits') |> 
+cc <- new_dat %>% 
+  filter(outcome == 'Probability of co-benefits') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
   stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = '') +
@@ -348,30 +351,30 @@ int_plot
 
 # figure 4 continued - conservation gains along human gravity gradient ------------------------------
 # calculate gains from closing or restricting shark fisheries
-gains_dat <- bind_rows(nd_zinb |> 
-                         add_epred_draws(fit_zinb_int, re_formula = NA) |> 
-                         ungroup() |> 
-                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |>
+gains_dat <- bind_rows(nd_zinb %>% 
+                         add_epred_draws(fit_zinb_int, re_formula = NA) %>% 
+                         ungroup() %>% 
+                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
+                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) %>%
                          mutate(gains_Closed = Closed - Open,
-                                gains_Restricted = Restricted - Open) |> 
+                                gains_Restricted = Restricted - Open) %>% 
                          mutate(outcome = 'Shark abundance'),
-                       nd_hu_lognormal |> 
-                         add_epred_draws(fit_hu_lognormal_int, re_formula = NA) |> 
-                         ungroup() |> 
-                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
+                       nd_hu_lognormal %>% 
+                         add_epred_draws(fit_hu_lognormal_int, re_formula = NA) %>% 
+                         ungroup() %>% 
+                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
+                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) %>% 
                          mutate(gains_Closed = Closed - Open,
-                                gains_Restricted = Restricted - Open) |> 
+                                gains_Restricted = Restricted - Open) %>% 
                          mutate(outcome = 'Shark ingestion rate'),
-                       nd_mult_out |> 
-                         add_epred_draws(fit_prob_mult_int, re_formula = NA) |> 
-                         ungroup() |> 
-                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) |> 
-                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) |> 
+                       nd_mult_out %>% 
+                         add_epred_draws(fit_prob_mult_int, re_formula = NA) %>% 
+                         ungroup() %>% 
+                         select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
+                         pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) %>% 
                          mutate(gains_Closed = Closed - Open,
-                                gains_Restricted = Restricted - Open) |> 
-                         mutate(outcome = 'Probability of co-benefits')) |> 
+                                gains_Restricted = Restricted - Open) %>% 
+                         mutate(outcome = 'Probability of co-benefits')) %>% 
   pivot_longer(cols = c(gains_Closed, gains_Restricted), names_to = 'Gains', values_to = 'value')
 
 # first-order derivatives
@@ -381,7 +384,7 @@ for (l in unique(gains_dat$outcome)) {
   
   # Create a filtered dataframe
   outcome_df <- 
-    gains_dat |> 
+    gains_dat %>% 
     dplyr::filter(outcome == l)
   
   gains_list <- list()
@@ -390,7 +393,7 @@ for (l in unique(gains_dat$outcome)) {
     
     # Create a filtered dataframe
     gains_df <- 
-      outcome_df |> 
+      outcome_df %>% 
       dplyr::filter(Gains == k)
     
     der_list <- list()
@@ -400,10 +403,10 @@ for (l in unique(gains_dat$outcome)) {
       
       # Create the dataframe to infill
       der_df <- 
-        gains_df |> 
-        dplyr::filter(.draw == j) |> 
-        dplyr::select(Grav_Total, .draw, value) |> 
-        arrange(Grav_Total) |> 
+        gains_df %>% 
+        dplyr::filter(.draw == j) %>% 
+        dplyr::select(Grav_Total, .draw, value) %>% 
+        arrange(Grav_Total) %>% 
         mutate(first_der = NA)
       
       # Iterate through each row of data
@@ -424,7 +427,7 @@ for (l in unique(gains_dat$outcome)) {
     
     # Bind all the gains dataframes together
     gains_list[[k]] <- 
-      do.call(rbind, der_list) |> 
+      do.call(rbind, der_list) %>% 
       mutate(Gains = paste(k))
     
     # Leave a message for ourselves
@@ -434,13 +437,13 @@ for (l in unique(gains_dat$outcome)) {
   
   # Bind all the outcomes dataframes together
   outcome_list[[l]] <- 
-    do.call(rbind, gains_list) |> 
+    do.call(rbind, gains_list) %>% 
     mutate(outcome = paste(l))
   
 }
 
 derivatives_df <- 
-  do.call(rbind, outcome_list) |> 
+  do.call(rbind, outcome_list) %>% 
   drop_na()
 # save this
 write.csv(derivatives_df, 'outputs/models/conservation-gains-derivatives.csv', row.names = FALSE)
@@ -455,15 +458,15 @@ derivatives_df <- read.csv('outputs/models/conservation-gains-derivatives.csv')
 # Maybe we'll do each pairwise calculation to find the two gravity points that produces a mean
 # first derivative close to 0
 med_derivatives <- 
-  derivatives_df |> 
-  group_by(Gains, outcome, Grav_Total) |> 
-  summarise(med_der = median(first_der)) |> 
-  ungroup() |> 
+  derivatives_df %>% 
+  group_by(Gains, outcome, Grav_Total) %>% 
+  summarise(med_der = median(first_der)) %>% 
+  ungroup() %>% 
   mutate_if(is.character, as.factor)
 
-df <- med_derivatives |> 
-  dplyr::filter(Gains == 'gains_Restricted' & outcome == 'Probability of co-benefits') |> 
-  arrange(Grav_Total) |> 
+df <- med_derivatives %>% 
+  dplyr::filter(Gains == 'gains_Restricted' & outcome == 'Probability of co-benefits') %>% 
+  arrange(Grav_Total) %>% 
   mutate(sign = sign(med_der))
 df
 
@@ -476,9 +479,9 @@ for (i in unique(med_derivatives$Gains)) {
   for (j in unique(med_derivatives$outcome)) {
     
     sub_df <- 
-      med_derivatives |> 
-      dplyr::filter(Gains == i & outcome == j) |> 
-      arrange(Grav_Total) |> 
+      med_derivatives %>% 
+      dplyr::filter(Gains == i & outcome == j) %>% 
+      arrange(Grav_Total) %>% 
       # Specify what the sign is
       mutate(sign = sign(med_der))
     
@@ -487,7 +490,7 @@ for (i in unique(med_derivatives$Gains)) {
     
     # Take the two rows of data where the sign switches
     inflection_list[[k]] <- 
-      sub_df |> 
+      sub_df %>% 
       dplyr::slice(pos_1, pos_1 + 1)
     
     k <- k + 1
@@ -496,21 +499,21 @@ for (i in unique(med_derivatives$Gains)) {
 }
 
 inflection_df <- 
-  do.call(rbind, inflection_list) |> 
-  group_by(Gains, outcome) |> 
-  summarise(median_gravity = median(Grav_Total, na.rm = TRUE)) |> 
+  do.call(rbind, inflection_list) %>% 
+  group_by(Gains, outcome) %>% 
+  summarise(median_gravity = median(Grav_Total, na.rm = TRUE)) %>% 
   ungroup()
 inflection_df
 
 # then plot gains along the human gravity gradient
 # abundance
-xlim_a <- gains_dat |> 
-  filter(outcome == 'Shark abundance') |> 
-  group_by(Grav_Total, Gains) |> 
+xlim_a <- gains_dat %>% 
+  filter(outcome == 'Shark abundance') %>% 
+  group_by(Grav_Total, Gains) %>% 
   summarise(Closed = median(Closed))
 
-g <- gains_dat |> 
-  filter(outcome == 'Shark abundance') |> 
+g <- gains_dat %>% 
+  filter(outcome == 'Shark abundance') %>% 
   ggplot(aes(x = Grav_Total, y = value, color = outcome, linetype = Gains)) +
   stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#AF4B91") +
   stat_lineribbon(.width = c(0), col = "#AF4B91") +
@@ -524,13 +527,13 @@ g <- gains_dat |>
   ylab('Gains in relative \n shark abundance')
 
 # ingestion
-xlim_b <- gains_dat |> 
-  filter(outcome == 'Shark ingestion rate') |> 
-  group_by(Grav_Total, Gains) |> 
+xlim_b <- gains_dat %>% 
+  filter(outcome == 'Shark ingestion rate') %>% 
+  group_by(Grav_Total, Gains) %>% 
   summarise(Closed = median(Closed))
 
-h <- gains_dat |> 
-  filter(outcome == 'Shark ingestion rate') |> 
+h <- gains_dat %>% 
+  filter(outcome == 'Shark ingestion rate') %>% 
   ggplot(aes(x = Grav_Total, y = value, color = outcome, linetype = Gains)) +
   stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#466EB4") +
   stat_lineribbon(.width = c(0), col = "#466EB4") +
@@ -545,13 +548,13 @@ h <- gains_dat |>
 
 # multi outcomes
 
-xlim_c <- gains_dat |> 
-  filter(outcome == 'Probability of co-benefits') |> 
-  group_by(Grav_Total, Gains) |> 
+xlim_c <- gains_dat %>% 
+  filter(outcome == 'Probability of co-benefits') %>% 
+  group_by(Grav_Total, Gains) %>% 
   summarise(Closed = median(Closed))
 
-i <- gains_dat |> 
-  filter(outcome == 'Probability of co-benefits') |>
+i <- gains_dat %>% 
+  filter(outcome == 'Probability of co-benefits') %>%
   ggplot(aes(x = Grav_Total, y = value, linetype = Gains)) +
   stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#41AFAA") +
   stat_lineribbon(.width = c(0), col = "#41AFAA") +
@@ -566,12 +569,12 @@ i <- gains_dat |>
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
 # averaged across reefs
-global_gravity2 <- dat |> 
-  group_by(reef_id) |> 
-  summarise(Grav_tot = mean(Grav_Total)) |> 
-  select(Grav_tot) |> 
-  mutate(type = 'Study') |> 
-  bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) |> 
+global_gravity2 <- dat %>% 
+  group_by(reef_id) %>% 
+  summarise(Grav_tot = mean(Grav_Total)) %>% 
+  select(Grav_tot) %>% 
+  mutate(type = 'Study') %>% 
+  bind_rows(mutate(select(global_gravity, Grav_tot), type = 'Global')) %>% 
   mutate(cat = "Gravity distribution")
 
 pp_gains2 <- ggplot(global_gravity2) +
@@ -604,20 +607,20 @@ ggsave('outputs/figures/Figure3_newcolours_v2_reef_all.png', width = 8, height =
 # supplementary figure - map co-benefits ------------------------------
 sf_use_s2(F)
 data(World)
-dat.sf <- dat |> 
-  group_by(reef_id) |> 
+dat.sf <- dat %>% 
+  group_by(reef_id) %>% 
   summarise(percent_cobenefit = (sum(mult_outcomes)/n())*100,
             long = mean(set_long),
-            lat = mean(set_lat)) |> 
+            lat = mean(set_lat)) %>% 
   mutate(cat = ifelse(percent_cobenefit <= 25, '<= 25%', '> 25%'),
-         cat = ifelse(percent_cobenefit == 0, 'No sets with co-benefits', cat)) |> 
-  mutate(cat = factor(cat, levels = c('No sets with co-benefits', '<= 25%', '> 25%'))) |> 
+         cat = ifelse(percent_cobenefit == 0, 'No sets with co-benefits', cat)) %>% 
+  mutate(cat = factor(cat, levels = c('No sets with co-benefits', '<= 25%', '> 25%'))) %>% 
   mutate(long = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_long, long),
          lat = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_lat, lat),
          long = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_long, long),
-         lat = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_lat, lat)) |> 
+         lat = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_lat, lat)) %>% 
   st_as_sf(coords = c('long', 'lat'), crs = 4326)
-world <- World |> st_crop(st_bbox(dat.sf))
+world <- World %>% st_crop(st_bbox(dat.sf))
 
 # make map and save
 set.seed(123)
