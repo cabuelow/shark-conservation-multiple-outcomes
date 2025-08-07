@@ -6,12 +6,12 @@
 library(tidyverse)
 library(brms)
 library(tidybayes)
-
-load("outputs/models/global_models_zinb.rda")
-load("outputs/models/global_models_lognormal.rda")
-load("outputs/models/global_models_mult_outcome.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-03-06.csv') |>
-  mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present:Temporal_limits), factor),
+load("outputs/models/zinb_nomain_v2.rda")
+load("outputs/models/lognormal_nomain_v2.rda")
+load("outputs/models/binomial_nomain_v2.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') %>% 
+  mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
+         across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
 
 prop_restricted <- nrow(filter(dat, Shark_Protection_Status == 'Restricted'))/nrow(dat)

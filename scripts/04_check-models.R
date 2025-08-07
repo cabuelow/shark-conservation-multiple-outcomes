@@ -1,11 +1,11 @@
 # check mcmc sampling is reliable for inference and structural model assumptions are met
-
+# also perform sensitivity checks for endogeneity
+# TODO, try absolute residuals instead of scaled residuals
 library(tidyverse)
 library(brms)
 library(DHARMa)
 library(sf)
 library(tmap)
-#library(sdmTMB)
 library(patchwork)
 library(spdep)
 set.seed(123)
@@ -25,34 +25,45 @@ while(nrow(dat[which(duplicated(select(dat, set_lat2, set_long2))),])>0){
   dat <- dat |> 
     mutate(set_lat2 = ifelse(duplicated == TRUE, set_lat2 + runif(1, 0, 0.000000001), set_lat2),
            set_long2 = ifelse(duplicated == TRUE, set_long2 + runif(1, 0, 0.000000001), set_long2))}
-# add utm coordinates in kilometres
-#dat <- add_utm_columns(dat, c("set_long2", "set_lat2"), 
- #                      utm_crs = 'EPSG:3035', # Lambert Azimuthal Equal Area projection
-  #                     units = "km")
 
 # posterior traces, quantitative diagnostics, posterior predictive check ------------------------------
 
 # maxn model
-summary(fit_zinb_int)
+fit <- summary(fit_zinb_int)
+rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$region_id), fit$random$region_id[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$`region_id:location_id`), fit$random$`region_id:location_id`[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
+write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_zinb.csv', row.names = F)
 plot(fit_zinb_int)
 pp_check(fit_zinb_int, ndraws = 100)
-ggsave('outputs/figures/posterior-predictive-check_zinb.png', width = 6, height = 4, bg = 'white')
+ggsave('outputs/fit_summaries/posterior-predictive-check_zinb.png', width = 6, height = 4, bg = 'white')
 
 # ingestion model
-summary(fit_hu_lognormal_int)
+fit <- summary(fit_hu_lognormal_int)
+rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$region_id), fit$random$region_id[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$`region_id:location_id`), fit$random$`region_id:location_id`[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
+write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_lognormal.csv', row.names = F)
 plot(fit_hu_lognormal_int)
 pp_check(fit_hu_lognormal_int, ndraws = 100)
-ggsave('outputs/figures/posterior-predictive-check_lognormal.png', width = 6, height = 4, bg = 'white')
+ggsave('outputs/fit_summaries/posterior-predictive-check_lognormal.png', width = 6, height = 4, bg = 'white')
 
 # prob mult outcomes model
-summary(fit_prob_mult_int)
+fit <- summary(fit_prob_mult_int)
+rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$region_id), fit$random$region_id[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$`region_id:location_id`), fit$random$`region_id:location_id`[,c(5:7)]),
+                      data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
+write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_binomial.csv', row.names = F)
 plot(fit_prob_mult_int)
 pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)
-ggsave('outputs/figures/posterior-predictive-check_binomial.png', width = 6, height = 4, bg = 'white')
+ggsave('outputs/fit_summaries/posterior-predictive-check_binomial.png', width = 6, height = 4, bg = 'white')
 
 # structural model assumptions ------------------------------
 # simulate randomised quantile residuals
-options(DHARMaSignalColor = "black")
+options(DHARMaSignalColor = "black") # formal tests are overly sensitive given our large sample size, so turn signal colour off
 
 # maxn model
 qresids_int <- createDHARMa(
@@ -60,7 +71,7 @@ qresids_int <- createDHARMa(
   observedResponse = fit_zinb_int$data$maxn,
   fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
   integerResponse = TRUE)
-png('outputs/figures/residual-checks_model-structure_zinb.png', width = 480, height = 280)
+png('outputs/fit_summaries/residual-checks_model-structure_zinb.png', width = 480, height = 280)
 par(mfrow = c(1, 2))
 plotQQunif(qresids_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
 plotResiduals(qresids_int, rank = TRUE, quantreg = FALSE)
@@ -71,7 +82,7 @@ qresids_hu_lognormal_int <- createDHARMa(
   simulatedResponse = t(posterior_predict(fit_hu_lognormal_int)),
   observedResponse = fit_hu_lognormal_int$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int)), 1, mean))
-png('outputs/figures/residual-checks_model-structure_lognormal.png', width = 480, height = 280)
+png('outputs/fit_summaries/residual-checks_model-structure_lognormal.png', width = 480, height = 280)
 par(mfrow = c(1, 2))
 plotQQunif(qresids_hu_lognormal_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
 plotResiduals(qresids_hu_lognormal_int, rank = TRUE, quantreg = FALSE)
@@ -83,7 +94,7 @@ qresids_prob_mult_int <- createDHARMa(
   observedResponse = fit_prob_mult_int$data$mult_outcomes,
   fittedPredictedResponse = apply(t(posterior_epred(fit_prob_mult_int)), 1, mean),
   integerResponse = TRUE)
-png('outputs/figures/residual-checks_model-structure_binomial.png', width = 480, height = 280)
+png('outputs/fit_summaries/residual-checks_model-structure_binomial.png', width = 480, height = 280)
 par(mfrow = c(1, 2))
 plotQQunif(qresids_prob_mult_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
 plotResiduals(qresids_prob_mult_int, rank = TRUE, quantreg = FALSE)
@@ -101,10 +112,11 @@ names <- c('zinb', 'lognormal', 'binomial')
 for(i in seq_along(models)){
   mdat <- models[[i]]$data
   mdat$scaledResiduals <- residuals[[i]]$scaledResiduals
+  mdat$absError <- abs(residuals[[i]]$observedResponse - residuals[[i]]$fittedPredictedResponse)
   
   # plot the correlation between predictors and residuals
   a <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = Government_Effectiveness)) +
+    ggplot(aes(x = scaledResiduals, y = Government_Effectiveness)) +
     geom_point(size = 1, alpha = 0.2) +
     geom_smooth(se = F, col = 'lightgoldenrod3') +
     annotate("text", x = 0, y = 0.8,
@@ -134,7 +146,7 @@ for(i in seq_along(models)){
     ylab("Scaled residual error") +
     ggthemes::theme_clean()
   d <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = mpa_present)) +
+    ggplot(aes(y =scaledResiduals, x = mpa_present)) +
     geom_jitter(size = 1, alpha = 0.2) +
     geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
     #annotate("text", x = 0, y = 0.8,
@@ -184,7 +196,7 @@ for(i in seq_along(models)){
     ylab("Scaled residual error") +
     ggthemes::theme_clean()
   (a+b+c)/(d+e+f)/(g+h+plot_spacer()) + plot_annotation(tag_levels = 'A')
-  ggsave(paste0('outputs/figures/predictor-endogeneity-check_', names[i], '.png'), width = 10, height = 7)
+  ggsave(paste0('outputs/fit_summaries/predictor-endogeneity-check_', names[i], '.png'), width = 10, height = 7)
 }
 
 # spatial autocorrelation ------------------------------
@@ -202,7 +214,7 @@ par(mfrow = c(1,2))
 plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_long)
 plotResiduals(qresids_prob_mult_int$scaledResiduals, form = dat$set_lat)
 
-# set level
+# set level residual autocorrelation
 zinb_sautocor <- testSpatialAutocorrelation(qresids_int, x = dat$set_long2, y = dat$set_lat2)
 zinb_sautocor$statistic[1] # moran's I is 0.01
 lognormal_sautocor <- testSpatialAutocorrelation(qresids_hu_lognormal_int, x = dat$set_long2, y = dat$set_lat2) 
@@ -223,7 +235,7 @@ grav_moran <- spdep::moran.test(dat$Grav_Total, nb_weights)
 morans <- data.frame(Variable = c('HDI', "Government_effectiveness", 'Mpa_age', 'Total_gravity', 'Residuals_maxn', 'Residuals_carbon', 'Residuals_cooccurence'),
                      Morans_I = c(hdi_moran$estimate[1], goveff_moran$estimate[1], mpage_moran$estimate[1], grav_moran$estimate[1], zinb_sautocor$statistic[1], lognormal_sautocor$statistic[1], binomial_sautocor$statistic[1]))
 morans
-write.csv(morans, 'outputs/spatial-autocorrelation-statistics.csv', row.names = F)
+write.csv(morans, 'outputs/fit_summaries/spatial-autocorrelation-statistics.csv', row.names = F)
 
 # End here - below is just playing around
 
