@@ -28,7 +28,7 @@ DAG %>%
   geom_dag_point(size = 17, 
                  aes(color = category)) +
   geom_dag_text(col = "white",
-                 size = 2.5) +
+                 size = 2.1) +
   geom_dag_edges() +
   #geom_dag_edges(curvature = 0.3, arrow_bidirected = grid::arrow(length = grid::unit(5, "pt"), ends = "both", type = "closed"))+
   #geom_dag_collider_edges() +
