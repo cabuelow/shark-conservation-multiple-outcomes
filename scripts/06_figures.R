@@ -180,8 +180,9 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) %>%
                               .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_mpa_age', 'b_Government_Effectiveness', 'b_Grav_Total', 
                                                'b_Grav_Total:Shark_Protection_StatusClosed', 'b_Grav_Total:Shark_Protection_StatusRestricted') & Outcome == 'Predation potential' ~ 'Predation potential',
                               .variable %in% c('b_Shark_Sanctuary1', 'b_HDI', 'b_mpa_present1', 'b_mpa_compliance1', 'b_mpa_age', 'b_Government_Effectiveness', 'b_Grav_Total', 
-                                               'b_Grav_Total:Shark_Protection_StatusClosed', 'b_Grav_Total:Shark_Protection_StatusRestricted') & Outcome == 'Probability of co-benefits' ~ 'Probability of co-benefits'),
-         Outcome = ifelse(Outcome == 'Shark abundance', 'Relative shark abundance (MaxN)', Outcome)) %>% 
+                                               'b_Grav_Total:Shark_Protection_StatusClosed', 'b_Grav_Total:Shark_Protection_StatusRestricted') & Outcome == 'Probability of co-benefits' ~ 'Probability of joint outcomes'),
+         Outcome = ifelse(Outcome == 'Shark abundance', 'Relative shark abundance (MaxN)', Outcome),
+         Outcome = ifelse(Outcome == 'Probability of co-benefits', 'Probability of joint outcomes', Outcome)) %>% 
   mutate(.variable = recode(.variable, 
                             b_Grav_Total = 'Human gravity',
                             `b_Grav_Total:Shark_Protection_StatusClosed` = 'Human gravity X \n Closed shark fishing',
@@ -222,7 +223,7 @@ betas <- bind_rows(betas_zinb, betas_ingestion, betas_mult_outcomes) %>%
                                                   'Shark sanctuary', 'Human gravity', 'Governance effectiveness', 'Human development index (HDI)',
                                                   'MPA compliance', 'MPA present', 'MPA age')),
          coef_cat = factor(coef_cat, levels = c('Probability of excess \n zeros in Shark abundance', 'Relative shark \n abundance (MaxN)',
-                                                'Probability of Predation \n potential being 0', 'Predation potential', 'Probability of co-benefits')))
+                                                'Probability of Predation \n potential being 0', 'Predation potential', 'Probability of joint outcomes')))
 
 # plot 
 
@@ -230,19 +231,19 @@ fig2b <- ggplot() +
   geom_vline(xintercept = 0, lty = 'dashed', alpha = 0.5) +
   geom_errorbar(data = filter(betas, .width == 0.95), 
                 aes(y = fct_rev(.variable), xmin = .lower, xmax = .upper,
-                    col = fct_rev(factor(Outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of co-benefits')))),
+                    col = fct_rev(factor(Outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of joint outcomes')))),
                 alpha = 0.9, width = .1, position=position_dodge(width=0.5)) +
   geom_errorbar(data = filter(betas, .width == 0.50), 
                 aes(y = fct_rev(.variable), xmin = .lower, xmax = .upper,
-                    col = fct_rev(factor(Outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of co-benefits')))),
+                    col = fct_rev(factor(Outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of joint outcomes')))),
                 alpha = 0.5, width = 0, size = 2, position=position_dodge(width=0.5)) +
   geom_point(data = filter(betas, .width == 0.50), 
              aes(y = fct_rev(.variable), x = .value,
-                 col = fct_rev(factor(Outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of co-benefits'))),
+                 col = fct_rev(factor(Outcome, levels = c('Relative shark abundance (MaxN)', 'Predation potential', 'Probability of joint outcomes'))),
                  shape = `Evidence for effect`), 
              size = 3,
              position=position_dodge(width=0.5)) +
-  scale_color_manual(values = c('Relative shark abundance (MaxN)' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of co-benefits' = "#41AFAA"), name = 'Outcome') +
+  scale_color_manual(values = c('Relative shark abundance (MaxN)' = "#AF4B91", 'Predation potential' = "#466EB4", 'Probability of joint outcomes' = "#41AFAA"), name = 'Outcome') +
   scale_shape_manual(values = c(16, 1), breaks = c('> 50%', "None"), name = "Evidence\nfor effect") +
   #scale_y_discrete(labels = str_wrap(c('MPA present', 'MPA compliance', 'HDI','Governance effectiveness','Gravity',
    #                                    'Shark sanctuary', 'Gravity x Restricted', "Gravity x Closed"), width = 10)) +
@@ -252,15 +253,16 @@ fig2b <- ggplot() +
   publication_theme()+
   theme(legend.title = element_blank(), legend.position = 'top', axis.text.y = element_text(vjust = 0.5));fig2b
 
-ggsave('outputs/figures/coefficient-plot.png', width = 12.5, height = 4.7)
+ggsave('outputs/figures/coefficient-plot.png', width = 13.5, height = 4.7)
 
 # figure 3 - plot counterfactual predictions ------------------------------
 
 aaa <- preds %>%   
   filter(Scenario == 'No management' & Variable %in% c('Shark abundance', 'Predation potential', 'Probability of co-benefits')) %>%
   mutate(Variable = ifelse(Variable == 'Shark abundance', 'Relative shark abundance (MaxN)', Variable),
-         Variable = ifelse(Variable == 'Predation potential', 'Predation potential (gC per day)', Variable)) %>% 
-  mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential (gC per day)', 'Probability of co-benefits'))) %>% 
+         Variable = ifelse(Variable == 'Predation potential', 'Predation potential (gC per day)', Variable),
+         Variable = ifelse(Variable == 'Probability of co-benefits', 'Probability of joint outcomes', Variable)) %>% 
+  mutate(Variable = factor(Variable, levels = c('Relative shark abundance (MaxN)', 'Predation potential (gC per day)', 'Probability of joint outcomes'))) %>% 
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = low_50_cumulative_percent_status_quo, ymax = upp_50_cumulative_percent_status_quo, fill = Variable), alpha = 0.4) +
   geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo, col = Variable)) +
@@ -302,7 +304,7 @@ new_dat <- bind_rows(nd_zinb %>%
                        add_epred_draws(fit_prob_mult_int, re_formula = NA) %>% 
                        ungroup() %>% 
                        select(Grav_Total, Shark_Protection_Status, .draw, .epred) %>% 
-                       mutate(outcome = 'Probability of co-benefits'))
+                       mutate(outcome = 'Probability of joint outcomes'))
 
 # plot the interaction between human gravity and shark protection status for each model
 aa <- new_dat %>% 
@@ -332,7 +334,7 @@ bb <- new_dat %>%
 bb
 
 cc <- new_dat %>% 
-  filter(outcome == 'Probability of co-benefits') %>% 
+  filter(outcome == 'Probability of joint outcomes') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
   stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = '') +
@@ -374,7 +376,7 @@ gains_dat <- bind_rows(nd_zinb %>%
                          pivot_wider(names_from = Shark_Protection_Status, values_from = c(.epred)) %>% 
                          mutate(gains_Closed = Closed - Open,
                                 gains_Restricted = Restricted - Open) %>% 
-                         mutate(outcome = 'Probability of co-benefits')) %>% 
+                         mutate(outcome = 'Probability of joint outcomes')) %>% 
   pivot_longer(cols = c(gains_Closed, gains_Restricted), names_to = 'Gains', values_to = 'value')
 
 # first-order derivatives
@@ -465,7 +467,7 @@ med_derivatives <-
   mutate_if(is.character, as.factor)
 
 df <- med_derivatives %>% 
-  dplyr::filter(Gains == 'gains_Restricted' & outcome == 'Probability of co-benefits') %>% 
+  dplyr::filter(Gains == 'gains_Restricted' & outcome == 'Probability of joint outcomes') %>% 
   arrange(Grav_Total) %>% 
   mutate(sign = sign(med_der))
 df
@@ -549,12 +551,12 @@ h <- gains_dat %>%
 # multi outcomes
 
 xlim_c <- gains_dat %>% 
-  filter(outcome == 'Probability of co-benefits') %>% 
+  filter(outcome == 'Probability of joint outcomes') %>% 
   group_by(Grav_Total, Gains) %>% 
   summarise(Closed = median(Closed))
 
 i <- gains_dat %>% 
-  filter(outcome == 'Probability of co-benefits') %>%
+  filter(outcome == 'Probability of joint outcomes') %>%
   ggplot(aes(x = Grav_Total, y = value, linetype = Gains)) +
   stat_lineribbon(.width = c(.50), alpha = 0.4, fill = "#41AFAA") +
   stat_lineribbon(.width = c(0), col = "#41AFAA") +
@@ -565,7 +567,7 @@ i <- gains_dat %>%
   theme(legend.position = 'none')+
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank())+
-  ylab('Gains in probability\nof co-benefits')
+  ylab('Gains in probability\nof joint outcomes')
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
 # averaged across reefs
@@ -582,10 +584,10 @@ pp_gains2 <- ggplot(global_gravity2) +
   scale_color_manual(values = c("#41AFAA", "#AF4B91", "#466EB4"), name = 'Outcome') +
   scale_fill_manual(values = c('lightgrey', "transparent"), breaks = c("Global", "Study"), name = '') +
   scale_linetype_manual(values = c('solid', 'dashed'), breaks = c("Global", "Study"), name = '') +
-  geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Probability of co-benefits')$median_gravity, color = "#41AFAA", size = 0.7)+
+  geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Probability of joint outcomes')$median_gravity, color = "#41AFAA", size = 0.7)+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Shark abundance')$median_gravity, color = "#AF4B91", size = 0.7)+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Shark ingestion rate')$median_gravity, color = "#466EB4", size = 0.7)+
-  geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Probability of co-benefits')$median_gravity, color = "#41AFAA", size = 0.7, linetype = "dashed")+
+  geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Probability of joint outcomes')$median_gravity, color = "#41AFAA", size = 0.7, linetype = "dashed")+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Shark abundance')$median_gravity, color = "#AF4B91", size = 0.7, linetype = "dashed")+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Shark ingestion rate')$median_gravity, color = "#466EB4", size = 0.7, linetype = "dashed")+
   xlab('Human Gravity\n(log + min transformed)') +
@@ -613,8 +615,8 @@ dat.sf <- dat %>%
             long = mean(set_long),
             lat = mean(set_lat)) %>% 
   mutate(cat = ifelse(percent_cobenefit <= 25, '<= 25%', '> 25%'),
-         cat = ifelse(percent_cobenefit == 0, 'No sets with co-benefits', cat)) %>% 
-  mutate(cat = factor(cat, levels = c('No sets with co-benefits', '<= 25%', '> 25%'))) %>% 
+         cat = ifelse(percent_cobenefit == 0, 'No sets with joint outcomes', cat)) %>% 
+  mutate(cat = factor(cat, levels = c('No sets with joint outcomes', '<= 25%', '> 25%'))) %>% 
   mutate(long = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_long, long),
          lat = ifelse(reef_id == 588, filter(dat, set_id == '17630')$set_lat, lat),
          long = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_long, long),
@@ -629,7 +631,7 @@ map <- tm_shape(world) +
   tm_shape(dat.sf) +
   tm_layout(legend.outside = TRUE, legend.outside.position = c('bottom'), legend.position = c(0.15, 0.5)) +
   tm_dots(col = 'cat', palette = c('#DEEBF7',"#6BAED8", "darkblue"), alpha = 0.5, jitter = 0.15, size = 0.07, legend.show = T) +
-  tm_add_legend('symbol', shape = 19, col = c("darkblue","#6BAED8", '#DEEBF7'), labels = c('> 25% of sets have co-benefits', '<= 25% of sets have co-benefits','No sets with co-benefits'),
+  tm_add_legend('symbol', shape = 19, col = c("darkblue","#6BAED8", '#DEEBF7'), labels = c('> 25% of sets have joint outcomes', '<= 25% of sets have joint outcomes','No sets with joint outcomes'),
                 is.portrait = F, size = 0.5)
 map
 tmap_save(map, 'outputs/figures/map_co-benefits.png', width = 7, height = 2, dpi = 300)
@@ -638,7 +640,7 @@ tmap_save(map, 'outputs/figures/map_co-benefits.png', width = 7, height = 2, dpi
 hist <- ggplot(st_drop_geometry(dat.sf)) +
   geom_histogram(aes(x = percent_cobenefit)) +
   ylab('# of Reefs') +
-  xlab('% of sets with co-benefits') +
+  xlab('% of sets with joint outcomes') +
   geom_vline(xintercept = 25, linetype = 'dashed') +
   theme_classic()
 hist
