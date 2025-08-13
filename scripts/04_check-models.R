@@ -1,6 +1,5 @@
 # check mcmc sampling is reliable for inference and structural model assumptions are met
 # also perform sensitivity checks for endogeneity
-# TODO, try absolute residuals instead of scaled residuals
 library(tidyverse)
 library(brms)
 library(DHARMa)
@@ -36,8 +35,7 @@ rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5
                       data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
 write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_zinb.csv', row.names = F)
 plot(fit_zinb_int)
-pp_check(fit_zinb_int, ndraws = 100)
-ggsave('outputs/fit_summaries/posterior-predictive-check_zinb.png', width = 6, height = 4, bg = 'white')
+a <- pp_check(fit_zinb_int, type = 'bars', ndraws = 1000)
 
 # ingestion model
 fit <- summary(fit_hu_lognormal_int)
@@ -47,8 +45,8 @@ rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5
                       data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
 write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_lognormal.csv', row.names = F)
 plot(fit_hu_lognormal_int)
-pp_check(fit_hu_lognormal_int, ndraws = 100)
-ggsave('outputs/fit_summaries/posterior-predictive-check_lognormal.png', width = 6, height = 4, bg = 'white')
+b <- pp_check(fit_hu_lognormal_int, ndraws = 1000) + xlim(c(0, 10000)) + ylab('Density')
+b$layers[[2]]$aes_params$linewidth <- .4
 
 # prob mult outcomes model
 fit <- summary(fit_prob_mult_int)
@@ -58,8 +56,11 @@ rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5
                       data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
 write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_binomial.csv', row.names = F)
 plot(fit_prob_mult_int)
-pp_check(fit_prob_mult_int, type = 'bars', ndraws = 100)
-ggsave('outputs/fit_summaries/posterior-predictive-check_binomial.png', width = 6, height = 4, bg = 'white')
+c <- pp_check(fit_prob_mult_int, type = 'bars', ndraws = 1000)
+
+# plot together
+a/b/c + plot_annotation(tag_levels = 'A')
+ggsave('outputs/fit_summaries/posterior-predictive-check.png', width = 5, height = 5, bg = 'white')
 
 # structural model assumptions ------------------------------
 # simulate randomised quantile residuals
@@ -71,22 +72,12 @@ qresids_int <- createDHARMa(
   observedResponse = fit_zinb_int$data$maxn,
   fittedPredictedResponse = apply(t(posterior_epred(fit_zinb_int)), 1, mean),
   integerResponse = TRUE)
-png('outputs/fit_summaries/residual-checks_model-structure_zinb.png', width = 480, height = 280)
-par(mfrow = c(1, 2))
-plotQQunif(qresids_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
-plotResiduals(qresids_int, rank = TRUE, quantreg = FALSE)
-dev.off()
 
 # ingestion model
 qresids_hu_lognormal_int <- createDHARMa(
   simulatedResponse = t(posterior_predict(fit_hu_lognormal_int)),
   observedResponse = fit_hu_lognormal_int$data$ingestion_C_g_day,
   fittedPredictedResponse = apply(t(posterior_epred(fit_hu_lognormal_int)), 1, mean))
-png('outputs/fit_summaries/residual-checks_model-structure_lognormal.png', width = 480, height = 280)
-par(mfrow = c(1, 2))
-plotQQunif(qresids_hu_lognormal_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
-plotResiduals(qresids_hu_lognormal_int, rank = TRUE, quantreg = FALSE)
-dev.off()
 
 # prob mult outcomes model
 qresids_prob_mult_int <- createDHARMa(
@@ -94,8 +85,14 @@ qresids_prob_mult_int <- createDHARMa(
   observedResponse = fit_prob_mult_int$data$mult_outcomes,
   fittedPredictedResponse = apply(t(posterior_epred(fit_prob_mult_int)), 1, mean),
   integerResponse = TRUE)
-png('outputs/fit_summaries/residual-checks_model-structure_binomial.png', width = 480, height = 280)
-par(mfrow = c(1, 2))
+
+# plot them
+png('outputs/fit_summaries/residual-checks_model-structure.png', width = 380, height = 540)
+par(mfrow = c(3, 2))
+plotQQunif(qresids_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
+plotResiduals(qresids_int, rank = TRUE, quantreg = FALSE)
+plotQQunif(qresids_hu_lognormal_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
+plotResiduals(qresids_hu_lognormal_int, rank = TRUE, quantreg = FALSE)
 plotQQunif(qresids_prob_mult_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
 plotResiduals(qresids_prob_mult_int, rank = TRUE, quantreg = FALSE)
 dev.off()
@@ -107,97 +104,107 @@ dev.off()
 # loop through the different models
 models <- list(fit_zinb_int, fit_hu_lognormal_int, fit_prob_mult_int)
 residuals <- list(qresids_int, qresids_hu_lognormal_int, qresids_prob_mult_int)
-names <- c('zinb', 'lognormal', 'binomial')
-
+names <- c('Shark abundance', 'Predation potential', 'Probability of joint outcomes')
+mdat <- list()
 for(i in seq_along(models)){
-  mdat <- models[[i]]$data
-  mdat$scaledResiduals <- residuals[[i]]$scaledResiduals
-  mdat$absError <- abs(residuals[[i]]$observedResponse - residuals[[i]]$fittedPredictedResponse)
-  
-  # plot the correlation between predictors and residuals
-  a <- mdat %>% 
-    ggplot(aes(x = scaledResiduals, y = Government_Effectiveness)) +
-    geom_point(size = 1, alpha = 0.2) +
-    geom_smooth(se = F, col = 'lightgoldenrod3') +
-    annotate("text", x = 0, y = 0.8,
-             label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Government_Effectiveness), digits = 2)),
-             color = "red", fontface = "bold", size = 5) + 
-      xlab("Government effectiveness") + 
-      ylab("Scaled residual error") +
-      ggthemes::theme_clean()
-  b <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = Shark_Sanctuary)) +
-    geom_jitter(size = 1, alpha = 0.2) +
-    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
-    #annotate("text", x = 0, y = 0.8,
-     #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
-      #       color = "red", fontface = "bold", size = 10) + 
-    xlab("Shark sanctuary") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  c <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = HDI)) +
-    geom_point(size = 1, alpha = 0.2) +
-    geom_smooth(se = F, col = 'lightgoldenrod3') +
-    annotate("text", x = 2, y = 0.8,
-            label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$HDI), digits = 2)),
-           color = "red", fontface = "bold", size = 5) + 
-    xlab("HDI") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  d <- mdat %>% 
-    ggplot(aes(y =scaledResiduals, x = mpa_present)) +
-    geom_jitter(size = 1, alpha = 0.2) +
-    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
-    #annotate("text", x = 0, y = 0.8,
-    #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
-    #       color = "red", fontface = "bold", size = 10) + 
-    xlab("MPA present") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  e <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = mpa_compliance)) +
-    geom_jitter(size = 1, alpha = 0.2) +
-    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
-    #annotate("text", x = 0, y = 0.8,
-    #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
-    #       color = "red", fontface = "bold", size = 10) + 
-    xlab("MPA compliance") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  f <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = mpa_age)) +
-    geom_point(size = 1, alpha = 0.2) +
-    geom_smooth(se = F, col = 'lightgoldenrod3') +
-    annotate("text", x = 0.3, y = 0.9,
-            label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$mpa_age), digits = 2)),
-           color = "red", fontface = "bold", size = 5) + 
-    xlab("MPA age") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  g <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = Grav_Total)) +
-    geom_point(size = 1, alpha = 0.2) +
-    geom_smooth(se = F, col = 'lightgoldenrod3') +
-    annotate("text", x = 0.6, y = 0.9,
-            label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Grav_Total), digits = 2)),
-           color = "red", fontface = "bold", size = 5) + 
-    xlab("Human gravity") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  h <- mdat %>% 
-    ggplot(aes(y = scaledResiduals, x = Shark_Protection_Status)) +
-    geom_jitter(size = 1, alpha = 0.2) +
-    geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
-    #annotate("text", x = 0, y = 0.8,
-    #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
-    #       color = "red", fontface = "bold", size = 10) + 
-    xlab("Shark protection status") + 
-    ylab("Scaled residual error") +
-    ggthemes::theme_clean()
-  (a+b+c)/(d+e+f)/(g+h+plot_spacer()) + plot_annotation(tag_levels = 'A')
-  ggsave(paste0('outputs/fit_summaries/predictor-endogeneity-check_', names[i], '.png'), width = 10, height = 7)
+  mdat[[i]] <- data.frame(model = names[i], 
+                          scaledResiduals = residuals[[i]]$scaledResiduals, 
+                          absError = abs(residuals[[i]]$observedResponse - residuals[[i]]$fittedPredictedResponse),
+                          models[[i]]$data[,-1])
 }
+mdat <- do.call(rbind, mdat) %>% data.frame() %>% mutate(model = factor(model, levels = c('Shark abundance', 'Predation potential', 'Probability of joint outcomes')))
+
+# plot the correlation between predictors and residuals
+a <- mdat %>% 
+  ggplot(aes(x = scaledResiduals, y = Government_Effectiveness)) +
+  geom_point(size = 1, alpha = 0.2) +
+  geom_smooth(se = F, col = 'lightgoldenrod3') +
+  #annotate("text", x = 0, y = 0.8,
+  #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Government_Effectiveness), digits = 2)),
+  #       color = "red", fontface = "bold", size = 5) + 
+  xlab("Government effectiveness") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+b <- mdat %>% 
+  ggplot(aes(y = scaledResiduals, x = Shark_Sanctuary)) +
+  geom_jitter(size = 1, alpha = 0.2) +
+  geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+  #annotate("text", x = 0, y = 0.8,
+  #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+  #       color = "red", fontface = "bold", size = 10) + 
+  xlab("Shark sanctuary") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+c <- mdat %>% 
+  ggplot(aes(y = scaledResiduals, x = HDI)) +
+  geom_point(size = 1, alpha = 0.2) +
+  geom_smooth(se = F, col = 'lightgoldenrod3') +
+  #annotate("text", x = 2, y = 0.8,
+  #   label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$HDI), digits = 2)),
+  #  color = "red", fontface = "bold", size = 5) + 
+  xlab("HDI") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+d <- mdat %>% 
+  ggplot(aes(y =scaledResiduals, x = mpa_present)) +
+  geom_jitter(size = 1, alpha = 0.2) +
+  geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+  #annotate("text", x = 0, y = 0.8,
+  #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+  #       color = "red", fontface = "bold", size = 10) + 
+  xlab("MPA present") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+e <- mdat %>% 
+  ggplot(aes(y = scaledResiduals, x = mpa_compliance)) +
+  geom_jitter(size = 1, alpha = 0.2) +
+  geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+  #annotate("text", x = 0, y = 0.8,
+  #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+  #       color = "red", fontface = "bold", size = 10) + 
+  xlab("MPA compliance") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+f <- mdat %>% 
+  ggplot(aes(y = scaledResiduals, x = mpa_age)) +
+  geom_point(size = 1, alpha = 0.2) +
+  geom_smooth(se = F, col = 'lightgoldenrod3') +
+  #annotate("text", x = 0.3, y = 0.9,
+  #       label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$mpa_age), digits = 2)),
+  #     color = "red", fontface = "bold", size = 5) + 
+  xlab("MPA age") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+g <- mdat %>% 
+  ggplot(aes(y = scaledResiduals, x = Grav_Total)) +
+  geom_point(size = 1, alpha = 0.2) +
+  geom_smooth(se = F, col = 'lightgoldenrod3') +
+  #annotate("text", x = 0.6, y = 0.9,
+  #       label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Grav_Total), digits = 2)),
+  #     color = "red", fontface = "bold", size = 5) + 
+  xlab("Human gravity") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+h <- mdat %>% 
+  ggplot(aes(y = scaledResiduals, x = Shark_Protection_Status)) +
+  geom_jitter(size = 1, alpha = 0.2) +
+  geom_boxplot(fill = 'transparent', col = 'lightgoldenrod3') +
+  #annotate("text", x = 0, y = 0.8,
+  #        label = paste0("cor=", base::round(cor(mdat$scaledResiduals, mdat$Shark_Sanctuary), digits = 2)),
+  #       color = "red", fontface = "bold", size = 10) + 
+  xlab("Shark protection status") + 
+  ylab("Scaled residual error") +
+  facet_wrap(~ model) +
+  ggthemes::theme_clean()
+a/b/c/e/f/g/h + plot_annotation(tag_levels = 'A')
+ggsave(paste0('outputs/fit_summaries/predictor-endogeneity-check.png'), width = 7, height = 15)
 
 # spatial autocorrelation ------------------------------
 # plot residuals against the x and y
