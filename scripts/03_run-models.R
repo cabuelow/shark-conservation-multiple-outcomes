@@ -7,6 +7,7 @@
 library(tidyverse)
 library(brms)
 library(rstan)
+library(patchwork)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 set.seed(123)
@@ -18,21 +19,20 @@ dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') |>
 
 # maxn models ------------------------------
 
-# first set weakly informative priors and only sample the priors to do a prior predictive check
+# first set weakly informative priors and only sample the priors to do check the majority of values drawn are not completely infeasible
 fit_prior_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
-                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                              zi ~ Shark_Sanctuary + HDI + mpa_present + 
-                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                               mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
-                          prior = c(prior(normal(0, 2), class = b),
-                                    prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
+                          prior = c(prior(normal(0, 1), class = b),
+                                    prior(normal(0, 1), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
                           iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                           data = dat, family = zero_inflated_negbinomial(), 
                           control = list(max_treedepth = 15, adapt_delta = 0.99),
                           sample_prior = "only")
-pp_check <- pp_check(fit_prior_zinb_int, ndraws = 100) + xlim(c(0, 40))
-pp_check
+pp_check(fit_prior_zinb_int, ndraws = 100)
 
 # now estimate parameters
 # interaction with main effects
@@ -67,7 +67,7 @@ save(fit_zinb_int, file = "outputs/models/zinb_nomain_v2.rda")
 
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
-                                    mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                                    mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                     Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                                     hu ~ Shark_Sanctuary + HDI + mpa_present + 
                                       mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
@@ -79,7 +79,7 @@ fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI +
                                family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"), 
                                control = list(max_treedepth = 15, adapt_delta = 0.99),
                                sample_prior = "only")
-pp_check(fit_prior_hu_lognormal_int, ndraws = 100)
+pp_check(fit_prior_hu_lognormal_int, type = 'hist', ndraws = 100)
 
 # now estimate parameters
 # interaction with main effects
@@ -112,26 +112,11 @@ fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_p
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
 save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v2.rda")
 
-# interaction without main effects, and with a random slope (different effect) for effect of management on different trophic levels in sharks
-fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
-                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
-                                 Shark_Protection_Status:Grav_Total + (Shark_Protection_Status|set_composition) + (1|region_id/location_id/reef_id),
-                               hu ~ Shark_Sanctuary + HDI + mpa_present + 
-                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
-                                 Shark_Protection_Status:Grav_Total + (Shark_Protection_Status|set_composition) + (1|region_id/location_id/reef_id)),
-                            prior = c(prior(normal(0, 2), class = b),
-                                      prior(normal(0, 2), class = b, dpar = 'hu')), # leaving intercept and sd as default priors
-                            iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
-                            data = dat, 
-                            family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
-                            control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v2_trophicslopes.rda")
-
 # probability of being in upper quartile of both outcomes ------------------------------
 
 # first set weakly informative priors and only sample the priors to do a prior predictive check
 fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
-                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                  Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                                prior = c(prior(normal(0, 2), class = b)), # leaving intercept and sd as default priors
                                iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
@@ -139,7 +124,8 @@ fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_prese
                                family = bernoulli(), 
                                control = list(max_treedepth = 15, adapt_delta = 0.99),
                                sample_prior = "only")
-pp_check(fit_prior_prob_mult_int, ndraws = 1000, type = 'bars')
+pp_check(fit_prior_prob_mult_int, ndraws = 100, type = 'bars')
+ggsave('outputs/fit_summaries/posterior-predictive-check_binomial.png')
 
 # now estimate parameters
 # interaction with main effects
@@ -225,4 +211,18 @@ fit_zinb_int_s <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                       control = list(max_treedepth = 15, adapt_delta = 0.99))
 save(fit_zinb_int_s, file = "outputs/models/global_models_zinb_s.rda")
 
+# interaction without main effects, and with a random slope (different effect) for effect of management on different trophic levels in sharks
+fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
+                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                                 Shark_Protection_Status:Grav_Total + (Shark_Protection_Status|set_composition) + (1|region_id/location_id/reef_id),
+                               hu ~ Shark_Sanctuary + HDI + mpa_present + 
+                                 mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + 
+                                 Shark_Protection_Status:Grav_Total + (Shark_Protection_Status|set_composition) + (1|region_id/location_id/reef_id)),
+                            prior = c(prior(normal(0, 2), class = b),
+                                      prior(normal(0, 2), class = b, dpar = 'hu')), # leaving intercept and sd as default priors
+                            iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
+                            data = dat, 
+                            family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
+                            control = list(max_treedepth = 15, adapt_delta = 0.99))
+save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v2_trophicslopes.rda")
    
