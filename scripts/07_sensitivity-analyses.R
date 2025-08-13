@@ -199,7 +199,8 @@ preds_sub <- read.csv('outputs/models/scenario-predictions_subsampled.csv') |>
 
 preds_sub |>   
   #bind_rows(preds) |> 
-  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits'))) |> 
+  mutate(Variable = ifelse(Variable == 'Probability of co-benefits', 'Probability of joint outcomes', Variable)) %>% 
+  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Predation potential', 'Probability of joint outcomes'))) |> 
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = Gains_cumulative_low, ymax = Gains_cumulative_upp, fill = factor(prop_closed)), alpha = 0.4) +
   geom_line(aes(x = Percent_Sites, y = Gains_cumulative_median, col = factor(prop_closed))) +
@@ -214,7 +215,8 @@ preds_sub |>
 
 preds_sub |>   
   #bind_rows(preds) |> 
-  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Predation potential', 'Probability of co-benefits'))) |> 
+  mutate(Variable = ifelse(Variable == 'Probability of co-benefits', 'Probability of joint outcomes', Variable)) %>% 
+  mutate(Variable = factor(Variable, levels = c('Shark abundance', 'Predation potential', 'Probability of joint outcomes'))) |> 
   ggplot() +
   geom_ribbon(aes(x = Percent_Sites, ymin = Gains_cumulative_percent_status_quo_low, ymax = Gains_cumulative_percent_status_quo_upp, fill = factor(prop_closed)), alpha = 0.4) +
   geom_line(aes(x = Percent_Sites, y = Gains_cumulative_percent_status_quo_median, col = factor(prop_closed))) +
