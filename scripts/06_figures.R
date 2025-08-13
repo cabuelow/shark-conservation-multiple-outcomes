@@ -339,7 +339,7 @@ cc <- new_dat %>%
   stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = '') +
   scale_color_manual(values = c("Closed" = "#D55E00", "Restricted" = "#E69F00", "Open" = "#0072B2"), name = '') +
-  ylab('Probability \n of co-benefits') +
+  ylab('Probability \n of joint outcomes') +
   xlab('Human gravity \n (log + min transformed)') +
   xlim(c(0, max(global_gravity$Grav_tot))) +
   theme(legend.position = 'bottom', legend.box = "vertical") +
@@ -524,8 +524,7 @@ g <- gains_dat %>%
   ylim(c(0, max(xlim_a$Closed))) +
   publication_theme()+
   theme(legend.position = 'none')+
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank())+
+  theme(axis.title.x = element_blank())+
   ylab('Gains in relative \n shark abundance')
 
 # ingestion
@@ -544,8 +543,7 @@ h <- gains_dat %>%
   ylim(c(0, max(xlim_b$Closed))) +
   publication_theme() +
   theme(legend.position = 'none')+
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank())+
+  theme(axis.title.x = element_blank())+
   ylab('Gains in \n predation potential')
 
 # multi outcomes
@@ -565,8 +563,7 @@ i <- gains_dat %>%
   ylim(c(0, max(xlim_c$Closed))) +
   publication_theme() +
   theme(legend.position = 'none')+
-  theme(axis.title.x = element_blank(),
-        axis.text.x = element_blank())+
+  theme(axis.title.x = element_blank())+
   ylab('Gains in probability\nof joint outcomes')
 
 # frequency of gravity values globally with vertical lines for peaks in conservation gains
@@ -630,7 +627,7 @@ map <- tm_shape(world) +
   tm_fill(col = 'cornsilk3', alpha =0.5) +
   tm_shape(dat.sf) +
   tm_layout(legend.outside = TRUE, legend.outside.position = c('bottom'), legend.position = c(0.15, 0.5)) +
-  tm_dots(col = 'cat', palette = c('#DEEBF7',"#6BAED8", "darkblue"), alpha = 0.5, jitter = 0.15, size = 0.07, legend.show = T) +
+  tm_dots(col = 'cat', palette = c('#DEEBF7',"#6BAED8", "darkblue"), alpha = 0.5, jitter = 0.15, size = 0.07, legend.show = F) +
   tm_add_legend('symbol', shape = 19, col = c("darkblue","#6BAED8", '#DEEBF7'), labels = c('> 25% of sets have joint outcomes', '<= 25% of sets have joint outcomes','No sets with joint outcomes'),
                 is.portrait = F, size = 0.5)
 map
