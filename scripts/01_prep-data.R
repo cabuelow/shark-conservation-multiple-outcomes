@@ -1,7 +1,5 @@
 # prep data for analysis
-#TODO replace with new flux rates from Sophie
 # 2025-07-29
-
 library(tidyverse)
 library(sf)
 library(tmap)
@@ -21,10 +19,10 @@ spp <- c("Carcharhinus amblyrhynchos", "Carcharhinus perezi", "Triaenodon obesus
         "Sphyrna lewini", "Sphyrna tiburo")
 
 # flux estimates (g/day) for sharks
-#TODO replace with new flux rates from Sophie
-flux <- read.csv('data/flux-rate-estimates_01-11-2024.csv') |> 
-  select(Species, common_name, ingestion_C_g_day) |> 
-  filter(Species %in% spp)
+flux <- read.csv('data/reef_shark_C_flux_Augst_2025.csv') |> 
+  filter(Species %in% spp & X..of.Linf == '50') %>% 
+  select(Species, Ic_median) |> 
+  rename(ingestion_C_g_day = 'Ic_median')
 
 # finprint raw data
 fils <- list.files('data/FinPrintData2022/', full.names = T)
