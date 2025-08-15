@@ -8,11 +8,12 @@ library(tidyverse)
 library(brms)
 library(rstan)
 library(patchwork)
+library(tidybayes)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 set.seed(123)
 
-dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-08-15.csv') |> 
          mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
            across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -26,13 +27,16 @@ fit_prior_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                              zi ~ Shark_Sanctuary + HDI + mpa_present + 
                                mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
-                          prior = c(prior(normal(0, 1), class = b),
-                                    prior(normal(0, 1), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
+                          prior = c(prior(normal(0, 2), class = b),
+                                    prior(normal(0, 2), class = b, dpar = 'zi')), # leaving intercept and sd as default priors
                           iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                           data = dat, family = zero_inflated_negbinomial(), 
                           control = list(max_treedepth = 15, adapt_delta = 0.99),
-                          sample_prior = "only")
-pp_check(fit_prior_zinb_int, ndraws = 100)
+                          sample_prior = 'only')
+# get the prior predictions
+ppreds <- add_epred_draws(dat, fit_prior_zinb_int)
+# what proportion of prior predictions are greater than max counts in dataframe?
+nrow(filter(ppreds, .epred > max(dat$maxn)))/nrow(ppreds) *100
 
 # now estimate parameters
 # interaction with main effects
@@ -47,7 +51,7 @@ fit_zinb_int_main <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int_main, file = "outputs/models/zinb_v2.rda")
+save(fit_zinb_int_main, file = "outputs/models/zinb_v3.rda")
 
 # interaction without main effects
 fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -61,11 +65,11 @@ fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int, file = "outputs/models/zinb_nomain_v2.rda")
+save(fit_zinb_int, file = "outputs/models/zinb_nomain_v3.rda")
 
 # ingestion models ------------------------------
 
-# first set weakly informative priors and only sample the priors to do a prior predictive check
+# first set weakly informative priors and only sample the priors to do check the majority of values drawn are not completely infeasible
 fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
                                     mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                     Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -79,7 +83,10 @@ fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI +
                                family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"), 
                                control = list(max_treedepth = 15, adapt_delta = 0.99),
                                sample_prior = "only")
-pp_check(fit_prior_hu_lognormal_int, type = 'hist', ndraws = 100)
+# get the prior predictions
+ppreds <- add_epred_draws(dat, fit_prior_hu_lognormal_int)
+# what proportion of prior predictions are greater than max ingestion in dataframe?
+nrow(filter(ppreds, .epred > max(dat$ingestion_C_g_day)))/nrow(ppreds) *100
 
 # now estimate parameters
 # interaction with main effects
@@ -95,7 +102,7 @@ fit_hu_lognormal_int_main <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + 
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int_main, file = "outputs/models/lognormal_v2.rda")
+save(fit_hu_lognormal_int_main, file = "outputs/models/lognormal_v3.rda")
 
 # interaction without main effects
 fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -110,11 +117,11 @@ fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_p
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v2.rda")
+save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v3.rda")
 
 # probability of being in upper quartile of both outcomes ------------------------------
 
-# first set weakly informative priors and only sample the priors to do a prior predictive check
+# first set weakly informative priors and only sample the priors to do check the majority of values drawn are not completely infeasible
 fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
                                  mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                  Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
@@ -124,8 +131,11 @@ fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_prese
                                family = bernoulli(), 
                                control = list(max_treedepth = 15, adapt_delta = 0.99),
                                sample_prior = "only")
-pp_check(fit_prior_prob_mult_int, ndraws = 100, type = 'bars')
-ggsave('outputs/fit_summaries/posterior-predictive-check_binomial.png')
+# get the prior predictions
+ppreds <- add_epred_draws(dat, fit_prior_prob_mult_int)
+# what proportion of 0's vs. 1s compared to in data?
+nrow(filter(ppreds, .epred == 1))/nrow(ppreds)*100
+nrow(filter(dat, mult_outcomes == 1)/nrow(dat))*100
 
 # now estimate parameters
 # interaction with main effects
@@ -137,7 +147,7 @@ fit_prob_mult_int_main <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_presen
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult_int_main, file = "outputs/models/binomial_v2.rda")
+save(fit_prob_mult_int_main, file = "outputs/models/binomial_v3.rda")
 
 # interaction without main effects
 fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -148,9 +158,12 @@ fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present +
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult_int, file = "outputs/models/binomial_nomain_v2.rda")
+save(fit_prob_mult_int, file = "outputs/models/binomial_nomain_v3.rda")
 
+############
 # End here - old code below trying to fit some models explicitly accounting for spatial autocorrelation
+############
+
 library(sdmTMB)
 
 # add small jitter to sets with the same coordinates
