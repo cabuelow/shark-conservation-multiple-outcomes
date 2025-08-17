@@ -5,10 +5,10 @@ library(brms)
 library(tidybayes)
 set.seed(123)
 
-load("outputs/models/zinb_nomain_v2.rda")
-load("outputs/models/lognormal_nomain_v2.rda")
-load("outputs/models/binomial_nomain_v2.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') %>% 
+load("outputs/models/zinb_nomain_v3.rda")
+load("outputs/models/lognormal_nomain_v3.rda")
+load("outputs/models/binomial_nomain_v3.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-08-15.csv') %>% 
   mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
          across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
