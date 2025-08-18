@@ -2,8 +2,6 @@
 # the minimial sufficient covariate adjustment set was: 
 # Government_effectiveness, HDI, Human_gravity, MPA, MPA_age, MPA_compliance, Shark_sanctuary
 # note we do not include main effect of Shark Protection Status to allow only slope to vary
-# 2025-08-05
-
 library(tidyverse)
 library(brms)
 library(rstan)
@@ -13,7 +11,7 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 set.seed(123)
 
-dat <- read.csv('data/fp_data_wrangled_2025-08-15.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-08-18.csv') |> 
          mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
            across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))

@@ -1,5 +1,5 @@
 # prep data for analysis
-# 2025-07-29
+#TODO: update with new carbon influx values
 library(tidyverse)
 library(sf)
 library(tmap)
@@ -19,10 +19,13 @@ spp <- c("Carcharhinus amblyrhynchos", "Carcharhinus perezi", "Triaenodon obesus
         "Sphyrna lewini", "Sphyrna tiburo")
 
 # flux estimates (g/day) for sharks
-flux <- read.csv('data/reef_shark_C_flux_Augst_2025.csv') |> 
+flux <- read.csv('data/reef_shark_C_flux_Augst_2025.csv') %>% 
   filter(Species %in% spp & X..of.Linf == '50') %>% 
   select(Species, Ic_median) |> 
-  rename(ingestion_C_g_day = 'Ic_median')
+  rename(ingestion_C_g_day = 'Ic_median') %>% 
+  group_by(Species) %>% 
+  #TODO: for now take the average of the two different values for "Ginglymostoma cirratum"
+  summarise(ingestion_C_g_day = mean(ingestion_C_g_day))
 
 # finprint raw data
 fils <- list.files('data/FinPrintData2022/', full.names = T)
