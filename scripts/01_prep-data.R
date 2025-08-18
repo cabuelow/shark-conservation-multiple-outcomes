@@ -1,5 +1,4 @@
 # prep data for analysis
-#TODO: update with new carbon influx values
 library(tidyverse)
 library(sf)
 library(tmap)
@@ -24,7 +23,7 @@ flux <- read.csv('data/reef_shark_C_flux_Augst_2025.csv') %>%
   select(Species, Ic_median) |> 
   rename(ingestion_C_g_day = 'Ic_median') %>% 
   group_by(Species) %>% 
-  #TODO: for now take the average of the two different values for "Ginglymostoma cirratum"
+  #Take the average of the two different values for "Ginglymostoma cirratum", Linf at 50% is 151.5
   summarise(ingestion_C_g_day = mean(ingestion_C_g_day))
 
 # finprint raw data
