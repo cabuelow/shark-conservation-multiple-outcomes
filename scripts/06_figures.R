@@ -18,10 +18,10 @@ scale_2SD <- function(x) (x/(2*sd(x, na.rm = T)))
 source('scripts/helper-functions.R') # plotting theme
 
 # load models and data
-load("outputs/models/zinb_nomain_v2.rda")
-load("outputs/models/lognormal_nomain_v2.rda")
-load("outputs/models/binomial_nomain_v2.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-08-05.csv') %>% 
+load("outputs/models/zinb_nomain_v3.rda")
+load("outputs/models/lognormal_nomain_v3.rda")
+load("outputs/models/binomial_nomain_v3.rda")
+dat <- read.csv('data/fp_data_wrangled_2025-08-15.csv') %>% 
   mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
          across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -310,7 +310,7 @@ new_dat <- bind_rows(nd_zinb %>%
 aa <- new_dat %>% 
   filter(outcome == 'Relative shark \n abundance (MaxN)') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
-  stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
+  stat_lineribbon(aes(y = .epred), .width = c(.95, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
   scale_color_manual(values = c("Closed" = "#D55E00", "Restricted" = "#E69F00", "Open" = "#0072B2"), name = 'Shark Protection Status') +
   ylab('Relative shark \n abundance (MaxN)') +
@@ -323,7 +323,7 @@ aa
 bb <- new_dat %>% 
   filter(outcome == 'Predation potential') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
-  stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
+  stat_lineribbon(aes(y = .epred), .width = c(.95, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = 'Credible interval') +
   scale_color_manual(values = c("Closed" = "#D55E00", "Restricted" = "#E69F00", "Open" = "#0072B2"), name = 'Shark Protection Status') +
   ylab('Predation potential \n (gC per day)') +
@@ -336,7 +336,7 @@ bb
 cc <- new_dat %>% 
   filter(outcome == 'Probability of joint outcomes') %>% 
   ggplot(aes(x = Grav_Total, y = maxn, color = Shark_Protection_Status)) +
-  stat_lineribbon(aes(y = .epred), .width = c(.80, .50), alpha = 0.7, size = 0.5) +
+  stat_lineribbon(aes(y = .epred), .width = c(.95, .50), alpha = 0.7, size = 0.5) +
   scale_fill_manual(values = c("#F0F0F0", "#BDBDBD", "#636363"), name = '') +
   scale_color_manual(values = c("Closed" = "#D55E00", "Restricted" = "#E69F00", "Open" = "#0072B2"), name = '') +
   ylab('Probability \n of joint outcomes') +
@@ -601,7 +601,7 @@ EF
 #G
 '
 aa+g +bb+h+cc+i+ pp_gains2 + plot_layout(design = layout) + plot_annotation(tag_levels = list(c("A", "D", "B", "E", "C", "F", "G")))
-ggsave('outputs/figures/Figure3_newcolours_v2_reef_all.png', width = 8, height = 10)
+ggsave('outputs/figures/Figure3.png', width = 8, height = 10)
 
 # supplementary figure - map co-benefits ------------------------------
 sf_use_s2(F)
