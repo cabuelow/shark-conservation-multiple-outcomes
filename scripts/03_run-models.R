@@ -11,7 +11,7 @@ rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 set.seed(123)
 
-dat <- read.csv('data/fp_data_wrangled_2025-08-18.csv') |> 
+dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') |> 
          mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
            across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -49,7 +49,7 @@ fit_zinb_int_main <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int_main, file = "outputs/models/zinb_v3.rda")
+save(fit_zinb_int_main, file = "outputs/models/zinb_v4.rda")
 
 # interaction without main effects
 fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -63,7 +63,7 @@ fit_zinb_int <- brm(bf(maxn ~ Shark_Sanctuary + HDI + mpa_present +
                     iter = 2000, warmup = 1000, cores = 4, chains = 4, thin = 1,
                     data = dat, family = zero_inflated_negbinomial(), 
                     control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_zinb_int, file = "outputs/models/zinb_nomain_v3.rda")
+save(fit_zinb_int, file = "outputs/models/zinb_nomain_v4.rda")
 
 # ingestion models ------------------------------
 
@@ -100,7 +100,7 @@ fit_hu_lognormal_int_main <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + 
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int_main, file = "outputs/models/lognormal_v3.rda")
+save(fit_hu_lognormal_int_main, file = "outputs/models/lognormal_v4.rda")
 
 # interaction without main effects
 fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -115,7 +115,7 @@ fit_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI + mpa_p
                             data = dat, 
                             family = hurdle_lognormal(link = "identity", link_sigma = "log", link_hu = "logit"),
                             control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v3.rda")
+save(fit_hu_lognormal_int, file = "outputs/models/lognormal_nomain_v4.rda")
 
 # probability of being in upper quartile of both outcomes ------------------------------
 
@@ -145,7 +145,7 @@ fit_prob_mult_int_main <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_presen
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult_int_main, file = "outputs/models/binomial_v3.rda")
+save(fit_prob_mult_int_main, file = "outputs/models/binomial_v4.rda")
 
 # interaction without main effects
 fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present + 
@@ -156,7 +156,7 @@ fit_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_present +
                          data = dat, 
                          family = bernoulli(), 
                          control = list(max_treedepth = 15, adapt_delta = 0.99))
-save(fit_prob_mult_int, file = "outputs/models/binomial_nomain_v3.rda")
+save(fit_prob_mult_int, file = "outputs/models/binomial_nomain_v4.rda")
 
 ############
 # End here - old code below trying to fit some models explicitly accounting for spatial autocorrelation
