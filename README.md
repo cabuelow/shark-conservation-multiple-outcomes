@@ -7,14 +7,18 @@ This repository contains code estimate the effect of management on reef shark ab
 To reproduce the analysis, run scripts in the following order:
 
 1. 01_prep-data.R: Clean and prep data for analysis.
-2. 02_run-models.R: Run models to estimate the effects of management on reef shark conservation outcomes.
-3. 03_check-models.R: Check MCMC convergence and structural model assumptions.
-4. 04_counterfactual-predictions.R: Make predictions from models under counterfactual management scenarios.
-5. 05_sensitivity-analyses.R: Run sensitivity analyses.
+2. 02_dag.R: load the directed acyclic graph (DAG) and find minimum set of confounders to adjust for.
+3. 03_run-models.R: Run models to estimate the effects of management on reef shark conservation outcomes.
+4. 04_check-models.R: Check MCMC convergence and structural model assumptions.
+5. 05_counterfactual-predictions.R: Make predictions from models under counterfactual management scenarios.
 6. 06_figures.R: Make figures 2-4 and for manuscript and the supplementary figures.
-6. 006_figures.R: Make figure 1.
+7. 006_figures.R: Make figure 1.
+8. 07_sensitivity-analyses.R: Run sensitivity analyses.
 
-helper-functions.R: create plotting theme function
+Miscellaneous scripts:
+
+1. helper-functions.R: create plotting theme function
+2. dag.R: encode the directed acyclic graph (to be sourced in script '02_dag.R')
 
 #### R session info:
 
