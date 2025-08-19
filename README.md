@@ -1,6 +1,6 @@
 ### Modelling multiple goals for reef shark conservation
 
-This repository contains code estimate the effect of management on reef shark abundance globally and predict outcomes under counterfactual scenarios.
+This repository contains code to estimate the causal effect of management on reef shark abundance globally and predict outcomes under counterfactual scenarios.
 
 #### Scripts
 
