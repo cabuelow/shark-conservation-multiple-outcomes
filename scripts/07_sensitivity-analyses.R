@@ -2,14 +2,13 @@
 # create new data sets (n = 50) where the proportion of closed sites is 30, 20, 10, and 5%, and proportion restricted remains at 43%
 # calculate sample size (n) for sub-samples given number of surveyed sets in class with lowest number of observations (i.e., 'open')
 # make counter-factual predictions on sub-sampled dataframes using model based on full dataset
-
 library(tidyverse)
 library(brms)
 library(tidybayes)
 load("outputs/models/zinb_nomain_v2.rda")
 load("outputs/models/lognormal_nomain_v4.rda")
 load("outputs/models/binomial_nomain_v4.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-08-18.csv') %>% 
+dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>% 
   mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
          across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))

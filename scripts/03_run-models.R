@@ -72,7 +72,7 @@ fit_prior_hu_lognormal_int <- brm(bf(ingestion_C_g_day ~ Shark_Sanctuary + HDI +
                                     mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                     Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id),
                                     hu ~ Shark_Sanctuary + HDI + mpa_present + 
-                                      mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total + Shark_Protection_Status +
+                                      mpa_compliance + mpa_age + Government_Effectiveness + Grav_Total +
                                       Shark_Protection_Status:Grav_Total + (1|region_id/location_id/reef_id)),
                                prior = c(prior(normal(0, 2), class = b),
                                          prior(normal(0, 2), class = b, dpar = 'hu')), # leaving intercept and sd as default priors
@@ -133,7 +133,7 @@ fit_prior_prob_mult_int <- brm(mult_outcomes ~ Shark_Sanctuary + HDI + mpa_prese
 ppreds <- add_epred_draws(dat, fit_prior_prob_mult_int)
 # what proportion of 0's vs. 1s compared to in data?
 nrow(filter(ppreds, .epred == 1))/nrow(ppreds)*100
-nrow(filter(dat, mult_outcomes == 1)/nrow(dat))*100
+nrow(filter(dat, mult_outcomes == 1))/nrow(dat)*100
 
 # now estimate parameters
 # interaction with main effects

@@ -1,4 +1,4 @@
-# encode dag
+# dag that includes shark sanctuary size and age
 
 dag <- 'dag {
   Solar_input -> SST
@@ -81,6 +81,11 @@ dag <- 'dag {
   MPA_age -> MPA_compliance
   Shark_sanctuary -> Shark_fishing_pressure
   Shark_sanctuary -> Shark_fishing_restrictions
+  Shark_sanctuary -> Sanctuary_age
+  Shark_sanctuary -> Sanctuary_size
+  Sanctuary_size -> Shark_fishing_pressure
+  Sanctuary_age -> Shark_fishing_pressure
+  Coast_length -> Sanctuary_size
   Shark_fishing_restrictions -> Shark_fishing_pressure
   Shark_fishing_restrictions -> Temporal_limits
   Shark_fishing_restrictions -> Species_limits
