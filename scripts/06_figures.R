@@ -587,14 +587,13 @@ pp_gains2 <- ggplot(global_gravity2) +
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Shark abundance')$median_gravity, color = "#AF4B91", size = 0.7)+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Closed' & outcome == 'Shark ingestion rate')$median_gravity, color = "#466EB4", size = 0.7)+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Probability of joint outcomes')$median_gravity, color = "#41AFAA", size = 0.7, linetype = "dashed")+
-  geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Shark abundance')$median_gravity, color = "#AF4B91", size = 0.7, linetype = "dashed")+
+  geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Shark abundance')$median_gravity, color = "#AF4B91", size = 1, linetype = "dashed")+
   geom_vline(xintercept = filter(inflection_df, Gains == 'gains_Restricted' & outcome == 'Shark ingestion rate')$median_gravity, color = "#466EB4", size = 0.7, linetype = "dashed")+
   xlab('Human Gravity\n(log + min transformed)') +
   ylab('Frequency') +
   publication_theme() + 
   theme(legend.key = element_rect(fill = "white", color = NA),
         legend.position = c(-0.9,0.4), legend.direction = "horizontal");pp_gains2
-pp_gains2
 
 # patch plots together and save
 layout <- '
