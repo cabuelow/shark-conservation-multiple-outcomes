@@ -3,7 +3,7 @@ library(tidyverse)
 library(sf)
 library(tmap)
 tmap_options(check.and.fix = TRUE)
-tmap_mode('view')
+tmap_mode('view') # interactive viewing
 sf_use_s2(FALSE) # to avoid geometry issues with s2
 
 # functions for wrangling
@@ -20,10 +20,10 @@ spp <- c("Carcharhinus amblyrhynchos", "Carcharhinus perezi", "Triaenodon obesus
 # flux estimates (g/day) for sharks
 flux <- read.csv('data/reef_shark_C_flux_Augst_2025.csv') %>% 
   filter(Species %in% spp & X..of.Linf == '50') %>% 
-  select(Species, Ic_median) |> 
+  select(Species, Ic_median) %>%
   rename(ingestion_C_g_day = 'Ic_median') %>% 
   group_by(Species) %>% 
-  #Take the average of the two different values for "Ginglymostoma cirratum", Linf at 50% is 151.5
+  # take the average of the two different values for "Ginglymostoma cirratum", Linf at 50% is 151.5
   summarise(ingestion_C_g_day = mean(ingestion_C_g_day))
 
 # finprint raw data
@@ -32,8 +32,8 @@ alldat <- lapply(fils, read.csv)
 fdat_MacNeil <- read.csv('data/FinPrint_Set_Data_MacNeil_2020.csv')
 
 # join to create master datafile with multiple response variables and covariates
-dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_long, reef_id, set_id, genus, species, maxn) |> 
-  left_join(select(alldat[[5]], region_name, location_name, location_id, protection_status:fishing_restrictions, region_id:reef_id)) |> 
+dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_long, reef_id, set_id, genus, species, maxn) %>%
+  left_join(select(alldat[[5]], region_name, location_name, location_id, protection_status:fishing_restrictions, region_id:reef_id)) %>%
   # fix some of the location names for joining
   mutate(location_name = ifelse(site_name == 'Ashmore' | site_name == 'Rowley Shoals' | site_name == 'Scott Reef' |
                                   site_name == 'Houtman Abrolhos' | site_name == 'Cocos-Keeling' | site_name == 'Christmas Island', 'Australia IOT', location_name),
@@ -42,17 +42,17 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
          location_name = ifelse(location_name == 'Saudi Arabia',  'Saudi Arabia-Red Sea', location_name),
          location_name = ifelse(location_name == 'British West Indies ',  'Montserrat', location_name),
          location_name = ifelse(site_name == 'Aruba' | site_name == 'Bonaire' | site_name == 'Curacao',  'Dutch Antilles Leeward', location_name),
-         location_name = ifelse(site_name == 'Saba' | site_name == 'Saba Bank' | site_name == 'St Eustatius' | site_name == 'St Maarten',  'Dutch Antilles Windward', location_name)) |> 
+         location_name = ifelse(site_name == 'Saba' | site_name == 'Saba Bank' | site_name == 'St Eustatius' | site_name == 'St Maarten',  'Dutch Antilles Windward', location_name)) %>%
   left_join(select(mutate(rename(alldat[[3]], 'location_name' = FP_location_name),
                           location_name = ifelse(location_name == 'Saudi Arabia',  'Saudi Arabia-Red Sea', location_name),
                           location_name = ifelse(location_name == 'British West Indies ',  'Montserrat', location_name)), 
-                          location_name, HDI, Government_Effectiveness, Population, Shark_Sanctuary)) |> 
-  left_join(distinct(select(fdat_MacNeil, region_id, location_id, reef_id, set_id, Shark_Protection_Status, Shark_fishing_restrictions, Grav_Total))) |> 
-  mutate(genus_species = paste(genus, species)) |> 
+                          location_name, HDI, Government_Effectiveness, Population, Shark_Sanctuary)) %>%
+  left_join(distinct(select(fdat_MacNeil, region_id, location_id, reef_id, set_id, Shark_Protection_Status, Shark_fishing_restrictions, Grav_Total))) %>%
+  mutate(genus_species = paste(genus, species)) %>%
   # filter for common species of interest
-  filter(genus_species %in% c(" ", spp)) |> 
+  filter(genus_species %in% c(" ", spp)) %>%
   # NAs are 0s
-  mutate(maxn = ifelse(is.na(maxn), 0, maxn)) |> 
+  mutate(maxn = ifelse(is.na(maxn), 0, maxn)) %>%
   # assign sharks to trophic groups
   mutate(shark_trophic_numeric = as.numeric(case_when(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
                                                                            "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo") ~ 2, 
@@ -63,23 +63,23 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   left_join(flux, by = c('genus_species' = 'Species')) |>
   # estimate total ingestion rate given number of individuals of each species observed  
   mutate(ingestion_C_g_day = ingestion_C_g_day * maxn,
-         ingestion_C_g_day = ifelse(is.na(ingestion_C_g_day), 0, ingestion_C_g_day)) |> 
+         ingestion_C_g_day = ifelse(is.na(ingestion_C_g_day), 0, ingestion_C_g_day)) %>%
   # sum maxn and ingestion rates across species at each set
   group_by(set_lat, set_long, set_id, reef_id, location_id, region_id,
            mpa_name, mpa_compliance, mpa_year_founded, Shark_fishing_restrictions, Shark_Protection_Status,
-           Shark_Sanctuary, HDI, Government_Effectiveness, Population, Grav_Total) |> 
+           Shark_Sanctuary, HDI, Government_Effectiveness, Population, Grav_Total) %>%
   summarise(maxn = sum(maxn),
             ingestion_C_g_day = sum(ingestion_C_g_day),
             sum_shark_trophic = sum(unique(shark_trophic_numeric))) |>
   mutate(set_composition = case_when(sum_shark_trophic == 2 ~ "apex", 
                                      sum_shark_trophic == 1 ~ "lower",
-                                     sum_shark_trophic == 3 ~ "apex")) |> 
-  ungroup() |> 
+                                     sum_shark_trophic == 3 ~ "apex")) %>%
+  ungroup() %>%
   # filter out sets with no information on shark protection status or fishing restrictions
-  filter(!is.na(Shark_Protection_Status) & !is.na(Shark_fishing_restrictions) & Shark_Protection_Status != '') |> 
+  filter(!is.na(Shark_Protection_Status) & !is.na(Shark_fishing_restrictions) & Shark_Protection_Status != '') %>%
   # separate fishing restrictions into categorical variables for each limit type
   separate(col = 'Shark_fishing_restrictions', 
-           into = c('limits1', 'limits2', 'limits3', 'limits4', 'limits5', 'limits6', 'limits7'), remove = F) |> 
+           into = c('limits1', 'limits2', 'limits3', 'limits4', 'limits5', 'limits6', 'limits7'), remove = F) %>%
   mutate(mpa_present = ifelse(mpa_name == "", 0, 1), # dummy variable for mpa presence
          mpa_compliance = ifelse(mpa_compliance == 'high', 1, 0), # dummy variable for high compliance mpas
          mpa_age = ifelse(is.na(mpa_year_founded), 0, 2024 - mpa_year_founded),
@@ -95,26 +95,25 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   mutate(across(c(set_id:region_id, mpa_compliance, Shark_fishing_restrictions, Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits), factor),
          across(c(Population, Grav_Total), logtrans),
          across(c(HDI, Government_Effectiveness, Population, Grav_Total, mpa_age), scale_2SD),
-         Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open")) |> 
+         Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open")) %>%
   # remove sets that we aren't sure are closed
-  mutate(drop = ifelse(Shark_Protection_Status == 'Closed' & Shark_Sanctuary == 0 & mpa_present == 0 & Species_limits == 1 & Area_limits == 0 & Entrants_limits == 0 & Gear_limits == 0 & Catch_limits == 0 & Size_limits == 0 & Temporal_limits == 0, 'drop', NA)) |> 
-  filter(is.na(drop)) |> 
+  mutate(drop = ifelse(Shark_Protection_Status == 'Closed' & Shark_Sanctuary == 0 & mpa_present == 0 & Species_limits == 1 & Area_limits == 0 & Entrants_limits == 0 & Gear_limits == 0 & Catch_limits == 0 & Size_limits == 0 & Temporal_limits == 0, 'drop', NA)) %>%
+  filter(is.na(drop)) %>%
   # remove variables not needed for analysis
-  select(-c(mpa_name, limits1:limits7, drop)) |> 
+  select(-c(mpa_name, limits1:limits7, drop)) %>%
   # make variable of presence in upper quantile of both outcomes (maxn and ingestion)
   mutate(mult_outcomes = ifelse(maxn > quantile(maxn, 0.85) & ingestion_C_g_day > quantile(ingestion_C_g_day, 0.85), 1, 0))
 
 # summarise the data
-dat_summary <- dat |> 
-  group_by(Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits, Entrants_limits, Gear_limits, Species_limits, Catch_limits, Size_limits, Temporal_limits, mult_outcomes) |> 
+dat_summary <- dat %>%
+  group_by(Shark_Protection_Status, Shark_Sanctuary, mpa_present, Area_limits, Entrants_limits, Gear_limits, Species_limits, Catch_limits, Size_limits, Temporal_limits, mult_outcomes) %>%
   summarise(n = n())
 View(dat_summary)
 
 # map the data
-dat.sf <- dat |> 
-  st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326) |> 
+dat.sf <- dat %>%
+  st_as_sf(coords = c('set_long', 'set_lat'), crs = 4326) %>%
   filter(Shark_Protection_Status == 'Open' & mult_outcomes == 1)
-tmap_mode('view')
 qtm(dat.sf, dots.col = 'Shark_Protection_Status')
 qtm(dat.sf, dots.col = 'maxn')
 qtm(dat.sf, dots.col = 'ingestion_C_g_day')
