@@ -1,5 +1,4 @@
-# make the dag, plot, and find adjustment sets
-# 2025-07-29
+# make the dag and find adjustment sets
 library(tidyverse)
 library(dagitty)
 library(ggdag)
@@ -21,17 +20,10 @@ DAG$data$category <- Category$category
 
 # plot and save
 DAG %>% 
-  ggplot(aes(x = x, y = y, xend = xend, yend = yend#,
-             #shape = adjusted,
-             #col = d_relationship
-  )) +
-  geom_dag_point(size = 17, 
-                 aes(color = category)) +
-  geom_dag_text(col = "white",
-                 size = 2.1) +
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(size = 17, aes(color = category)) +
+  geom_dag_text(col = "white", size = 2.1) +
   geom_dag_edges() +
-  #geom_dag_edges(curvature = 0.3, arrow_bidirected = grid::arrow(length = grid::unit(5, "pt"), ends = "both", type = "closed"))+
-  #geom_dag_collider_edges() +
   theme_dag() +
   #scale_adjusted() +
   scale_color_manual(values = c("Observed" = "#009E73", "Exposure" = "#0072B2","Outcome"="#E69F00","Unobserved"="#999999")) +
