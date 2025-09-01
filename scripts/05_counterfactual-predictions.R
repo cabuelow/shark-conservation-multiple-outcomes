@@ -4,7 +4,7 @@ library(brms)
 library(tidybayes)
 set.seed(123)
 
-load("outputs/models/zinb_nomain_v2.rda")
+load("outputs/models/zinb_nomain_v4.rda")
 load("outputs/models/lognormal_nomain_v4.rda")
 load("outputs/models/binomial_nomain_v4.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>% 

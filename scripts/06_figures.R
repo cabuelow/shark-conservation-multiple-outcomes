@@ -18,7 +18,7 @@ scale_2SD <- function(x) (x/(2*sd(x, na.rm = T)))
 source('scripts/helper-functions.R') # plotting theme
 
 # load models and data
-load("outputs/models/zinb_nomain_v2.rda")
+load("outputs/models/zinb_nomain_v4.rda")
 load("outputs/models/lognormal_nomain_v4.rda")
 load("outputs/models/binomial_nomain_v4.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>% 
@@ -58,6 +58,8 @@ dreef <- dat %>%
   group_by(reef_id) %>% 
   summarise(mult_outcomes = sum(mult_outcomes))
 nrow(filter(dreef, mult_outcomes != 0))/nrow(dreef)
+# number of sets with joint outcomes
+nrow(filter(dat, mult_outcomes ==1))/nrow(dat)*100
 
 # figure 2 - outcome biplot ------------------------------
 biplot_dat <- dat %>% 
@@ -98,7 +100,7 @@ PlotA_set <- dat %>%
   #  annotation_custom(cobenefit_icon, xmin = 20, xmax =29, 
   #                    ymin = 4300, ymax = 9300)+  # Adjust coordinates
   publication_theme()+
-  theme(legend.position= c(0.7, 0.3))
+  theme(legend.position= c(0.7, 0.85))
 
 PlotA_set
 
@@ -592,6 +594,7 @@ pp_gains2 <- ggplot(global_gravity2) +
   publication_theme() + 
   theme(legend.key = element_rect(fill = "white", color = NA),
         legend.position = c(-0.9,0.4), legend.direction = "horizontal");pp_gains2
+pp_gains2
 
 # patch plots together and save
 layout <- '
@@ -620,6 +623,7 @@ dat.sf <- dat %>%
          lat = ifelse(reef_id == 589, filter(dat, set_id == '17657')$set_lat, lat)) %>% 
   st_as_sf(coords = c('long', 'lat'), crs = 4326)
 world <- World %>% st_crop(st_bbox(dat.sf))
+nrow(filter(dat.sf, cat == '> 25%'))/nrow(filter(dat.sf))*100
 
 # make map and save
 set.seed(123)

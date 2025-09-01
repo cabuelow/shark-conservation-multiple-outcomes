@@ -29,7 +29,7 @@ library(ggplotify)
 
 # read in data and do some tidying  ----
 
-heatmap_dat <- read.csv("data/fp_data_wrangled_2025-03-06.csv") %>%
+heatmap_dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>%
  # filter(maxn>0)%>%
   group_by(reef_id)%>%
   mutate(reef_maxn = mean(maxn))%>%
@@ -48,7 +48,7 @@ heatmap_reef_dat <- heatmap_dat %>%
 
 # Plot B - donut plot ----
 
-dat_donut <- read.csv("data/fp_data_wrangled_2025-03-06.csv") %>%
+dat_donut <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>%
   mutate_at(vars(set_id, reef_id, Shark_Protection_Status), list(as.factor)) %>% # make these columns as factors
   dplyr::select(set_id, reef_id, Shark_Protection_Status)%>%
   unique()%>%
@@ -104,7 +104,7 @@ PlotB
 
 # Plot C - map of management ----
 
-dat <- read.csv("data/fp_data_wrangled_2025-03-06.csv") %>%
+dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>%
   mutate_at(vars(set_id, reef_id, Shark_Protection_Status), list(as.factor)) %>% # make these columns as factors
   glimpse()
 
@@ -256,3 +256,4 @@ PlotC
 # Save plots 
 ggsave(PlotB, file = "outputs/figures/Figure1_donut.png", dpi=300, width=15, height=15)
 ggsave(PlotC, file = "outputs/figures/Figure1_map.png", dpi=300, width=20, height=15)
+

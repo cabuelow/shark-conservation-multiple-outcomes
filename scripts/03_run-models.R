@@ -1,7 +1,6 @@
 # run models to estimate effects of shark protection status (open, closed, restricted) on reef shark abundance (maxN) and carbon ingestion rates
 # the minimial sufficient covariate adjustment set was: 
 # Government_effectiveness, HDI, Human_gravity, MPA, MPA_age, MPA_compliance, Shark_sanctuary
-# note we do not include main effect of Shark Protection Status to allow only slope to vary
 library(tidyverse)
 library(brms)
 library(rstan)

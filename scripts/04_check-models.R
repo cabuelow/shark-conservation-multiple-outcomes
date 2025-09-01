@@ -9,7 +9,7 @@ library(patchwork)
 library(spdep)
 set.seed(123)
 
-load("outputs/models/zinb_nomain_v2.rda")
+load("outputs/models/zinb_nomain_v4.rda")
 load("outputs/models/lognormal_nomain_v4.rda")
 load("outputs/models/binomial_nomain_v4.rda")
 dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') |> 
@@ -45,7 +45,7 @@ rhat_ess <- bind_rows(data.frame(Variable = row.names(fit$fixed), fit$fixed[,c(5
                       data.frame(Variable = row.names(fit$random$`region_id:location_id:reef_id`), fit$random$`region_id:location_id:reef_id`[,c(5:7)]))
 write.csv(rhat_ess, 'outputs/fit_summaries/rhat-ess_lognormal.csv', row.names = F)
 plot(fit_hu_lognormal_int)
-b <- pp_check(fit_hu_lognormal_int, ndraws = 1000) + xlim(c(0, 10000)) + ylab('Density')
+b <- pp_check(fit_hu_lognormal_int, ndraws = 1000) + ylab('Density') + xlim(c(0, 500)) 
 b$layers[[2]]$aes_params$linewidth <- .4
 
 # prob mult outcomes model
@@ -244,7 +244,9 @@ morans <- data.frame(Variable = c('HDI', "Government_effectiveness", 'Mpa_age', 
 morans
 write.csv(morans, 'outputs/fit_summaries/spatial-autocorrelation-statistics.csv', row.names = F)
 
+#########################
 # End here - below is just playing around
+#########################
 
 # reef level
 # get coordinates for reefs
