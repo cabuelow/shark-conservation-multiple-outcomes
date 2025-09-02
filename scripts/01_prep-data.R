@@ -54,8 +54,8 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   # NAs are 0s
   mutate(maxn = ifelse(is.na(maxn), 0, maxn)) %>%
   # assign sharks to trophic groups
-  mutate(shark_trophic_numeric = as.numeric(case_when(genus_species %in% c("Carcharhinus galapagensis", "Carcharhinus leucas", 
-                                                                           "Galeocerdo cuvier", "Sphyrna lewini", "Sphyrna tiburo") ~ 2, 
+  mutate(shark_trophic_numeric = as.numeric(case_when(genus_species %in% c("Carcharhinus leucas", 
+                                                                           "Galeocerdo cuvier", "Sphyrna lewini", "Carcharhinus galapagensis",  "Sphyrna tiburo") ~ 2, 
                                                       genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
                                                                            "Ginglymostoma cirratum","Loxodon macrorhinus", "Rhizoprionodon acutus", "Carcharhinus perezi", "Triaenodon obesus") ~ 1,
                                                       .default = 0))) |>
