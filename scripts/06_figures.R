@@ -21,7 +21,7 @@ source('scripts/helper-functions.R') # plotting theme
 load("outputs/models/zinb_nomain_v4.rda")
 load("outputs/models/lognormal_nomain_v4.rda")
 load("outputs/models/binomial_nomain_v4.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>% 
+dat <- read.csv('data/fp_data_wrangled_2025-09-02.csv') %>% 
   mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
          across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -29,9 +29,9 @@ preds <- read.csv('outputs/models/scenario-predictions.csv')
 global_gravity <- st_read('data/PNASGlobalGravity/Total Gravity of Coral Reefs 1.0.shp') %>% 
   st_drop_geometry() %>% 
   mutate(Grav_tot = scale_2SD(logtrans(Grav_tot)))
-maxn_icon <- rasterGrob(readPNG("images/Socioeconomic icon 1.png"), interpolate = TRUE)
+maxn_icon <- rasterGrob(readPNG("images/Socioeconomic icon_V2 1.png"), interpolate = TRUE)
 ingestion_icon <- rasterGrob(readPNG("images/Ingestion icon 1.png"), interpolate = TRUE)
-cobenefit_icon <- rasterGrob(readPNG("images/CoBenefits icon 1.png"), interpolate = TRUE)
+cobenefit_icon <- rasterGrob(readPNG("images/CoBenefits icon_V2 1.png"), interpolate = TRUE)
 
 # calculate stats for paper ------------------------------
 # change in outcomes with no management
@@ -92,7 +92,7 @@ PlotA_set <- dat %>%
     values = c(16, 17, 15),  # Adjust based on your data (change symbols as needed)
     labels = c("apex sharks present", "only mesopredatory sharks present")) +  # Custom labels for different shapes
   annotation_custom(cobenefit_icon, xmin = 20, xmax =29, 
-                    ymin = 4300, ymax = 9300)+
+                    ymin = 200, ymax = 390)+
   geom_vline(xintercept = quantile(dat$maxn, 0.85), linetype = "dashed", color = "grey30", size=0.8) + # Dashed line for x-axis quartile
   geom_hline(yintercept = quantile(dat$ingestion_C_g_day, 0.85), linetype = "dashed", color = "grey30", size=0.8) + # Dashed line for y-axis quartile
   labs(x = "Relative shark abundance (MaxN)",
@@ -109,7 +109,7 @@ dens1_set <- ggplot(biplot_dat, aes(x = maxn, fill=highlight)) +
   scale_fill_manual(
     values = c("Above 0.85" = "#41AFAA", "Below 0.85" = "#AF4B91"),  # Custom colors
     name = "Point Category"    ) +# Legend title
-  annotation_custom(maxn_icon, xmin = 5, xmax = 20, ymin = 250, ymax = 10650) +  # Adjust coordinates
+  annotation_custom(maxn_icon, xmin = 10, xmax = 20, ymin = 700, ymax = 13500) +  # Adjust coordinates
   theme_void() + 
   theme(legend.position = "none")
 dens1_set
@@ -119,7 +119,7 @@ dens2_set <- ggplot(biplot_dat, aes(x = ingestion_C_g_day, fill=highlight)) +
   scale_fill_manual(
     values = c("Above 0.85" = "#41AFAA", "Below 0.85" = "#466EB4"), # Custom colors
     name = "Point Category"  ) +  # Legend title
-  annotation_custom(ingestion_icon , xmin = 10000, xmax = 3000, ymin = 0, ymax = 7780) +  # Adjust coordinates
+  annotation_custom(ingestion_icon , xmin = 50, xmax = 400, ymin = 2000, ymax = 11000) +  # Adjust coordinates
   theme_void() + 
   theme(legend.position = "none") + 
   coord_flip()
