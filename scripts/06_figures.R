@@ -21,7 +21,7 @@ source('scripts/helper-functions.R') # plotting theme
 load("outputs/models/zinb_nomain_v4.rda")
 load("outputs/models/lognormal_nomain_v4.rda")
 load("outputs/models/binomial_nomain_v4.rda")
-dat <- read.csv('data/fp_data_wrangled_2025-09-02.csv') %>% 
+dat <- read.csv('data/fp_data_wrangled_2025-08-19.csv') %>% 
   mutate(set_composition = ifelse(is.na(set_composition), 'zero', set_composition),
          across(c(set_id:Shark_Sanctuary, mpa_present, Area_limits:Temporal_limits, set_composition), factor),
          Shark_Protection_Status = relevel(factor(Shark_Protection_Status), ref = "Open"))
@@ -52,14 +52,12 @@ dreef <- dat %>%
 nrow(filter(dreef, maxn == 0))/nrow(dreef)
 nrow(filter(dreef, maxn >1))/nrow(filter(dreef, maxn > 0))
 # percent of sets with co-benefits
-nrow(filter(dat, mult_outcomes == 1))/nrow(dat)
+nrow(filter(dat, mult_outcomes == 1))/nrow(dat)*100
 # percent of reefs with co-benefits
 dreef <- dat %>% 
   group_by(reef_id) %>% 
   summarise(mult_outcomes = sum(mult_outcomes))
-nrow(filter(dreef, mult_outcomes != 0))/nrow(dreef)
-# number of sets with joint outcomes
-nrow(filter(dat, mult_outcomes ==1))/nrow(dat)*100
+nrow(filter(dreef, mult_outcomes != 0))/nrow(dreef)*100
 
 # figure 2 - outcome biplot ------------------------------
 biplot_dat <- dat %>% 
@@ -626,6 +624,7 @@ nrow(filter(dat.sf, cat == '> 25%'))/nrow(filter(dat.sf))*100
 
 # make map and save
 set.seed(123)
+tmap_mode('plot')
 map <- tm_shape(world) +
   tm_fill(col = 'cornsilk3', alpha =0.5) +
   tm_shape(dat.sf) +
