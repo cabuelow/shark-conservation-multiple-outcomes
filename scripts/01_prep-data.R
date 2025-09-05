@@ -55,9 +55,9 @@ dat <- select(alldat[[4]], region_name, location_name, site_name, set_lat, set_l
   mutate(maxn = ifelse(is.na(maxn), 0, maxn)) %>%
   # assign sharks to trophic groups
   mutate(shark_trophic_numeric = as.numeric(case_when(genus_species %in% c("Carcharhinus leucas", 
-                                                                           "Galeocerdo cuvier", "Sphyrna lewini", "Carcharhinus galapagensis",  "Sphyrna tiburo") ~ 2, 
+                                                                           "Galeocerdo cuvier", "Sphyrna lewini",  "Sphyrna tiburo") ~ 2, 
                                                       genus_species %in% c("Carcharhinus amblyrhynchos", "Carcharhinus limbatus", "Carcharhinus melanopterus", "Carcharhinus plumbeus",
-                                                                           "Ginglymostoma cirratum","Loxodon macrorhinus", "Rhizoprionodon acutus", "Carcharhinus perezi", "Triaenodon obesus") ~ 1,
+                                                                           "Ginglymostoma cirratum","Loxodon macrorhinus", "Rhizoprionodon acutus", "Carcharhinus perezi", "Triaenodon obesus", "Carcharhinus galapagensis") ~ 1,
                                                       .default = 0))) |>
   # join flux data
   left_join(flux, by = c('genus_species' = 'Species')) |>
@@ -121,3 +121,4 @@ qtm(dat.sf, dots.col = 'mult_outcomes')
 
 # save wrangled data
 write.csv(dat, paste0('data/fp_data_wrangled_', Sys.Date(), '.csv'), row.names = F)
+
