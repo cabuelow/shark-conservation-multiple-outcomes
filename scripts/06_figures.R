@@ -253,7 +253,7 @@ fig2b <- ggplot() +
   publication_theme()+
   theme(legend.title = element_blank(), legend.position = 'top', axis.text.y = element_text(vjust = 0.5));fig2b
 
-ggsave('outputs/figures/coefficient-plot.png', width = 13.5, height = 4.7)
+ggsave('outputs/figures/coefficient-plot.png', width = 13.5, height = 4.7, dpi = 300)
 
 # figure 3 - plot counterfactual predictions ------------------------------
 
@@ -275,7 +275,7 @@ aaa <- preds %>%
   theme_classic() +
   theme(legend.key.size = unit(0.5, 'cm'))
 aaa
-ggsave('outputs/figures/counterfactual_predictions_shark_abundance_predation_potential.png', width = 5.5, height = 3)
+ggsave('outputs/figures/counterfactual_predictions_shark_abundance_predation_potential.png', width = 5.5, height = 3, dpi = 500)
 
 # figure 4 - predict conditional effects of shark protection status along human gravity gradient ------------------------------
 # here all non-focal continuous covariates are set to their mean value and 
@@ -601,7 +601,7 @@ EF
 #G
 '
 aa+g +bb+h+cc+i+ pp_gains2 + plot_layout(design = layout) + plot_annotation(tag_levels = list(c("A", "D", "B", "E", "C", "F", "G")))
-ggsave('outputs/figures/Figure3.png', width = 8, height = 10)
+ggsave('outputs/figures/Figure3.png', width = 8, height = 10, dpi = 500)
 
 # supplementary figure - map co-benefits ------------------------------
 sf_use_s2(F)

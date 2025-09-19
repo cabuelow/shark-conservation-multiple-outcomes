@@ -87,7 +87,7 @@ qresids_prob_mult_int <- createDHARMa(
   integerResponse = TRUE)
 
 # plot them
-png('outputs/fit_summaries/residual-checks_model-structure.png', width = 380, height = 540)
+png('outputs/fit_summaries/residual-checks_model-structure.png', units = "in", width = 4, height = 6, res = 1000)
 par(mfrow = c(3, 2))
 plotQQunif(qresids_int, testDispersion = FALSE, testUniformity = FALSE, testOutliers = FALSE)
 plotResiduals(qresids_int, rank = TRUE, quantreg = FALSE)
